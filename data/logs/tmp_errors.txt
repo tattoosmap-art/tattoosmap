@@ -1,0 +1,105 @@
+src/app/admin/seo-studio/page.tsx(33,9): error TS2304: Cannot find name 'setQueue'.
+src/app/admin/seo-studio/page.tsx(33,18): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(89,9): error TS2304: Cannot find name 'setIsProcessing'.
+src/app/admin/seo-studio/page.tsx(91,28): error TS2304: Cannot find name 'queue'.
+src/app/admin/seo-studio/page.tsx(91,41): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(94,13): error TS2304: Cannot find name 'setIsProcessing'.
+src/app/admin/seo-studio/page.tsx(105,13): error TS2304: Cannot find name 'setQueue'.
+src/app/admin/seo-studio/page.tsx(105,22): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(105,33): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(105,52): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(107,62): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(109,34): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(115,13): error TS2304: Cannot find name 'setQueue'.
+src/app/admin/seo-studio/page.tsx(115,22): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(115,33): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(116,50): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(121,13): error TS2304: Cannot find name 'setProgress'.
+src/app/admin/seo-studio/page.tsx(129,9): error TS2304: Cannot find name 'setIsProcessing'.
+src/app/admin/seo-studio/page.tsx(133,27): error TS2304: Cannot find name 'queue'.
+src/app/admin/seo-studio/page.tsx(133,40): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(135,39): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(187,25): error TS2304: Cannot find name 'queue'.
+src/app/admin/seo-studio/page.tsx(187,38): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(190,9): error TS2304: Cannot find name 'setIsProcessing'.
+src/app/admin/seo-studio/page.tsx(194,9): error TS2304: Cannot find name 'setIsProcessing'.
+src/app/admin/seo-studio/page.tsx(198,9): error TS2304: Cannot find name 'setQueue'.
+src/app/admin/seo-studio/page.tsx(198,18): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(198,29): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(212,13): error TS2304: Cannot find name 'setQueue'.
+src/app/admin/seo-studio/page.tsx(212,22): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(212,33): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(218,13): error TS2304: Cannot find name 'setQueue'.
+src/app/admin/seo-studio/page.tsx(218,22): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(218,33): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(223,13): error TS2304: Cannot find name 'isProcessing'.
+src/app/admin/seo-studio/page.tsx(224,9): error TS2304: Cannot find name 'setQueue'.
+src/app/admin/seo-studio/page.tsx(224,18): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(224,32): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(228,13): error TS2304: Cannot find name 'isProcessing'.
+src/app/admin/seo-studio/page.tsx(229,9): error TS2304: Cannot find name 'setQueue'.
+src/app/admin/seo-studio/page.tsx(230,9): error TS2304: Cannot find name 'setProgress'.
+src/app/admin/seo-studio/page.tsx(231,9): error TS2304: Cannot find name 'setShowClearModal'.
+src/app/admin/seo-studio/page.tsx(235,9): error TS2304: Cannot find name 'setQueue'.
+src/app/admin/seo-studio/page.tsx(235,18): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(235,29): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(250,13): error TS2304: Cannot find name 'setQueue'.
+src/app/admin/seo-studio/page.tsx(250,22): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(250,33): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(257,13): error TS2304: Cannot find name 'setQueue'.
+src/app/admin/seo-studio/page.tsx(257,22): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(257,33): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(262,25): error TS2304: Cannot find name 'queue'.
+src/app/admin/seo-studio/page.tsx(262,38): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(289,20): error TS2304: Cannot find name 'queue'.
+src/app/admin/seo-studio/page.tsx(289,41): error TS2304: Cannot find name 'isProcessing'.
+src/app/admin/seo-studio/page.tsx(289,57): error TS2304: Cannot find name 'queue'.
+src/app/admin/seo-studio/page.tsx(289,69): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(290,33): error TS2304: Cannot find name 'queue'.
+src/app/admin/seo-studio/page.tsx(290,44): error TS7006: Parameter 'q' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(306,35): error TS2304: Cannot find name 'isProcessing'.
+src/app/admin/seo-studio/page.tsx(306,51): error TS2304: Cannot find name 'queue'.
+src/app/admin/seo-studio/page.tsx(309,26): error TS2304: Cannot find name 'isProcessing'.
+src/app/admin/seo-studio/page.tsx(310,26): error TS2304: Cannot find name 'isProcessing'.
+src/app/admin/seo-studio/page.tsx(314,40): error TS2304: Cannot find name 'setShowClearModal'.
+src/app/admin/seo-studio/page.tsx(315,35): error TS2304: Cannot find name 'isProcessing'.
+src/app/admin/seo-studio/page.tsx(315,51): error TS2304: Cannot find name 'queue'.
+src/app/admin/seo-studio/page.tsx(324,35): error TS2304: Cannot find name 'isProcessing'.
+src/app/admin/seo-studio/page.tsx(324,66): error TS2304: Cannot find name 'queue'.
+src/app/admin/seo-studio/page.tsx(391,22): error TS2304: Cannot find name 'isProcessing'.
+src/app/admin/seo-studio/page.tsx(395,51): error TS2304: Cannot find name 'progress'.
+src/app/admin/seo-studio/page.tsx(398,113): error TS2304: Cannot find name 'progress'.
+src/app/admin/seo-studio/page.tsx(407,48): error TS2304: Cannot find name 'queue'.
+src/app/admin/seo-studio/page.tsx(411,30): error TS2304: Cannot find name 'queue'.
+src/app/admin/seo-studio/page.tsx(411,41): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/app/admin/seo-studio/page.tsx(486,39): error TS2304: Cannot find name 'isProcessing'.
+src/app/admin/seo-studio/page.tsx(497,30): error TS2304: Cannot find name 'queue'.
+src/app/admin/seo-studio/page.tsx(508,14): error TS2304: Cannot find name 'showClearModal'.
+src/app/admin/seo-studio/page.tsx(512,40): error TS2304: Cannot find name 'setShowClearModal'.
+src/app/admin/seo-studio/page.tsx(530,48): error TS2304: Cannot find name 'setShowClearModal'.
+src/lib/mock-data.ts(15,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; slug: string; title: string; excerpt: string; body_content: string; cover_image_url: string; cover_image_alt: string; author_id: string; author: any; category: string; tags: string[]; published_at: string; is_published: true; read_time_minutes: number; created_at: string; }' but required in type 'Post'.
+src/lib/mock-data.ts(32,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; slug: string; title: string; excerpt: string; body_content: string; cover_image_url: string; cover_image_alt: string; author_id: string; author: any; category: string; tags: string[]; published_at: string; is_published: true; read_time_minutes: number; created_at: string; }' but required in type 'Post'.
+src/lib/mock-data.ts(49,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; slug: string; title: string; excerpt: string; body_content: string; cover_image_url: string; cover_image_alt: string; author_id: string; author: any; category: string; tags: string[]; published_at: string; is_published: true; read_time_minutes: number; created_at: string; }' but required in type 'Post'.
+src/lib/mock-data.ts(66,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; slug: string; title: string; excerpt: string; body_content: string; cover_image_url: string; cover_image_alt: string; author_id: string; author: any; category: string; tags: string[]; published_at: string; is_published: true; read_time_minutes: number; created_at: string; }' but required in type 'Post'.
+src/lib/mock-data.ts(92,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(111,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(130,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(149,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(168,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(187,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(206,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(225,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(244,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(263,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(282,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(301,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(320,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(339,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(358,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(377,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(396,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(415,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(434,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(453,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(472,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.
+src/lib/mock-data.ts(491,5): error TS2741: Property 'deleted_at' is missing in type '{ id: string; title: string; image_url: string; image_blurhash: string; image_width: number; image_height: number; alt_text: string; style: string[]; body_part: string[]; gender: string; artist_name: string; ... 5 more ...; uploaded_at: string; }' but required in type 'Design'.

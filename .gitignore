@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local standalone binaries
+/git-lfs
+
+# local scratch and test files
+/scratch/
+/scratch.js
+/scratch.ts
+/test-db.js
+/seed_tests.js
+/seed_tests.ts
