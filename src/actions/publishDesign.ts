@@ -297,7 +297,7 @@ export async function publishDesignAction(payload: PublishDesignPayload) {
         try {
             const bestPlacement = placementRecs[0]?.split('(')[0]?.trim()?.toLowerCase() || 'forearm';
             console.log(`[publishDesignAction] Initiating direct high-fidelity mockup generation for ${uniqueSlug}...`);
-            const { freshUrl, healedUrl } = await generateMockupsForDesign(dbRow.image_url, bestPlacement, uniqueSlug);
+            const { freshUrl, healedUrl } = await generateMockupsForDesign(fileBuffer, bestPlacement, uniqueSlug);
             
             if (freshUrl && healedUrl) {
                 await supabaseAdmin

@@ -36,7 +36,7 @@ async function maskedTexture(gray: Buffer, scaledMask: Buffer): Promise<Buffer> 
 // ─── Main Generator ──────────────────────────────────────────────────────────
 
 export async function generateMockupsForDesign(
-  designImageUrl: string,
+  designBuffer: Buffer,
   bestPlacement: string,
   slug: string
 ): Promise<{ freshUrl: string; healedUrl: string }> {
@@ -49,9 +49,7 @@ export async function generateMockupsForDesign(
   const bodyBuffer = await fs.readFile(photoPath);
   const { width: bw = 1000, height: bh = 1000 } = await sharp(bodyBuffer).metadata();
 
-  const designRes = await fetch(designImageUrl);
-  if (!designRes.ok) throw new Error(`Failed to fetch design: ${designRes.status}`);
-  const designBuffer = Buffer.from(await designRes.arrayBuffer());
+  // Design buffer is passed directly to prevent CDN propagation delays
 
   // ─── Phase 2: Scale and position tattoo ────────────────────────────────
   const targetW = Math.round(bw * placement.zone.w);

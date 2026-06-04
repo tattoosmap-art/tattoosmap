@@ -9,7 +9,7 @@ import { Bookmark, Loader2 } from "lucide-react";
 import { useModal } from "@/context/ModalContext";
 import { useToast } from "@/components/ui/Toast";
 import { useAuth } from "@/context/AuthContext";
-import { toggleDefaultSave, checkIsSaved } from "@/actions/collections";
+import { toggleDefaultSave, getSavedDesignIds } from "@/actions/collections";
 import { useRouter } from "next/navigation";
 import Masonry from "react-masonry-css";
 
@@ -32,17 +32,12 @@ export default function GalleryGrid({ initialDesigns }: { initialDesigns: Design
             return;
         }
 
-        // Fetch saved IDs for visible designs in parallel
+        // Fetch all saved IDs for the user
         let cancelled = false;
-        const visibleIds = initialDesigns.slice(0, 20).map(d => d.id);
 
-        Promise.all(visibleIds.map(id => checkIsSaved(id))).then(results => {
+        getSavedDesignIds().then(res => {
             if (cancelled) return;
-            const saved = new Set<string>();
-            results.forEach((res, i) => {
-                if (res.isSaved) saved.add(visibleIds[i]);
-            });
-            setSavedIds(saved);
+            setSavedIds(new Set(res.data));
         });
 
         return () => { cancelled = true; };

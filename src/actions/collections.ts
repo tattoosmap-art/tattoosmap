@@ -236,6 +236,25 @@ export async function checkIsSaved(designId: string) {
     }
 }
 
+export async function getSavedDesignIds() {
+    const userId = await getServerAuth();
+    if (!userId) return { data: [] };
+
+    try {
+        const { data: defaultCol } = await supabaseAdmin
+            .from('collections')
+            .select('design_ids')
+            .eq('user_id', userId)
+            .eq('name', 'Saved Designs')
+            .single();
+
+        if (!defaultCol) return { data: [] };
+        return { data: defaultCol.design_ids || [] };
+    } catch (e) {
+        return { data: [] };
+    }
+}
+
 export async function toggleDefaultSave(designId: string) {
     const userId = await getServerAuth();
     if (!userId) return { error: "Authentication required" };
