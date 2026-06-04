@@ -112,7 +112,7 @@ export async function generateMockupsForDesign(
     const n = Math.sin(x * 0.31 + y * 0.17) * Math.cos(x * 0.13 - y * 0.29) * 0.5 + 0.5;
     noiseData[i] = Math.round(n * 30 + 112);
   }
-  const noiseBuffer = await sharp(noiseData, { raw: { width: rw, height: rh, channels: 1 } }).png().toBuffer();
+  const noiseBuffer = await sharp(noiseData, { raw: { width: rw, height: rh, channels: 1 } }).ensureAlpha().png().toBuffer();
 
   // ═══════════════════════════════════════════════════════════════════════
   // STATE 1: FRESH INK
