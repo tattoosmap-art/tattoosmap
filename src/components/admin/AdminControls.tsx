@@ -26,12 +26,16 @@ interface AdminControlsProps {
     metaTitle?: string;
     schemaType?: string;
     relatedDesigns?: any[];
+    gender?: string;
+    bodyPart?: string[];
+    style?: string[];
 }
 
 export function AdminControls({ 
     type, id, isPublished, isDeleted, imageUrl, title, slug, artistName, altText,
     excerpt, bodyContent, category, tags, readTimeMinutes,
-    focusKeyword, metaTitle, schemaType, relatedDesigns
+    focusKeyword, metaTitle, schemaType, relatedDesigns,
+    gender, bodyPart, style
 }: AdminControlsProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -211,7 +215,10 @@ export function AdminControls({
                         image_url: imageUrl || "",
                         artist_name: artistName || "",
                         alt_text: altText || "",
-                        slug: slug || ""
+                        slug: slug || "",
+                        gender: gender || "",
+                        body_part: bodyPart || [],
+                        style: style || []
                     }}
                     onClose={() => setIsEditModalOpen(false)}
                     onUpdate={triggerRefresh}

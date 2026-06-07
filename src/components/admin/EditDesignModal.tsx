@@ -14,6 +14,9 @@ interface EditDesignModalProps {
         artist_name: string;
         alt_text: string;
         slug: string;
+        gender: string;
+        body_part: string[];
+        style: string[];
     };
     onClose: () => void;
     onUpdate: () => void;
@@ -23,6 +26,9 @@ export function EditDesignModal({ design, onClose, onUpdate }: EditDesignModalPr
     const [title, setTitle] = useState(design.title || "");
     const [artistName, setArtistName] = useState(design.artist_name || "");
     const [altText, setAltText] = useState(design.alt_text || "");
+    const [gender, setGender] = useState(design.gender || "Men and Women");
+    const [bodyPart, setBodyPart] = useState(design.body_part ? design.body_part.join(", ") : "");
+    const [style, setStyle] = useState(design.style ? design.style.join(", ") : "");
     const [newFile, setNewFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
@@ -45,6 +51,9 @@ export function EditDesignModal({ design, onClose, onUpdate }: EditDesignModalPr
             formData.append("alt_text", altText);
             formData.append("slug", design.slug);
             formData.append("current_image_url", design.image_url);
+            formData.append("gender", gender);
+            formData.append("body_part", bodyPart);
+            formData.append("style", style);
             
             if (newFile) {
                 formData.append("image", newFile);
@@ -126,6 +135,44 @@ export function EditDesignModal({ design, onClose, onUpdate }: EditDesignModalPr
                             <p className="font-mono text-[10px] uppercase tracking-widest text-neutral-400 mt-1">
                                 LINKED ARTIST: <span className="text-black font-bold">{design.artist_name || 'None assigned'}</span>
                             </p>
+                        </div>
+
+                        {/* Gender Input */}
+                        <div className="flex flex-col gap-1.5">
+                            <label className="font-mono text-[9px] uppercase tracking-widest text-neutral-400">Gender Suitability</label>
+                            <select 
+                                value={gender}
+                                onChange={(e) => setGender(e.target.value)}
+                                className="w-full border-b-2 border-neutral-200 focus:border-black bg-transparent outline-none pb-1.5 text-[14px] text-black font-medium transition-colors cursor-pointer"
+                            >
+                                <option value="Men and Women">Men and Women</option>
+                                <option value="Men">Men</option>
+                                <option value="Women">Women</option>
+                            </select>
+                        </div>
+
+                        {/* Placement Input */}
+                        <div className="flex flex-col gap-1.5">
+                            <label className="font-mono text-[9px] uppercase tracking-widest text-neutral-400">Placement (comma-separated)</label>
+                            <input 
+                                type="text" 
+                                value={bodyPart}
+                                onChange={(e) => setBodyPart(e.target.value)}
+                                className="w-full border-b-2 border-neutral-200 focus:border-black bg-transparent outline-none pb-1.5 text-[14px] text-black font-medium transition-colors"
+                                placeholder="e.g. Forearm, Upper Arm, Chest..."
+                            />
+                        </div>
+
+                        {/* Style Input */}
+                        <div className="flex flex-col gap-1.5">
+                            <label className="font-mono text-[9px] uppercase tracking-widest text-neutral-400">Style (comma-separated)</label>
+                            <input 
+                                type="text" 
+                                value={style}
+                                onChange={(e) => setStyle(e.target.value)}
+                                className="w-full border-b-2 border-neutral-200 focus:border-black bg-transparent outline-none pb-1.5 text-[14px] text-black font-medium transition-colors"
+                                placeholder="e.g. Fine Line, Minimalist, Blackwork..."
+                            />
                         </div>
 
                         {/* Alt Text Input */}

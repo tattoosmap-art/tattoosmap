@@ -255,6 +255,9 @@ export function DesignManager({ designs }: DesignManagerProps) {
                         slug={design.slug}
                         artistName={design.artist_name || "Resident Artist"}
                         altText={design.alt_text}
+                        gender={design.gender || design.gender_suitability || ""}
+                        bodyPart={design.body_part || []}
+                        style={design.style || []}
                     />
                 </div>
             </div>

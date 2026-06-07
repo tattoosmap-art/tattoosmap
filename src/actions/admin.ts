@@ -113,6 +113,13 @@ export async function updateDesignAction(formData: FormData) {
         const slug = formData.get("slug") as string;
         const current_image_url = formData.get("current_image_url") as string;
         const file = formData.get("image") as File | null;
+        
+        const gender = formData.get("gender") as string | null;
+        const body_part_raw = formData.get("body_part") as string | null;
+        const style_raw = formData.get("style") as string | null;
+
+        const body_part = body_part_raw ? body_part_raw.split(",").map(x => x.trim()).filter(Boolean) : undefined;
+        const style = style_raw ? style_raw.split(",").map(x => x.trim()).filter(Boolean) : undefined;
 
         let finalImageUrl = current_image_url;
 
@@ -138,13 +145,18 @@ export async function updateDesignAction(formData: FormData) {
             finalImageUrl = publicUrl;
         }
 
+        const updatePayload: any = {
+            subject,
+            alt_text,
+            image_url: finalImageUrl
+        };
+        if (gender !== null) updatePayload.gender = gender;
+        if (body_part !== undefined) updatePayload.body_part = body_part;
+        if (style !== undefined) updatePayload.style = style;
+
         const { error } = await supabaseAdmin
             .from("designs")
-            .update({
-                subject,
-                alt_text,
-                image_url: finalImageUrl
-            })
+            .update(updatePayload)
             .eq("id", id);
 
         if (error) throw error;
