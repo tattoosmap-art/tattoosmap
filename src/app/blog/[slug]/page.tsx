@@ -191,9 +191,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 ...livePost,
                 author: {
                     id: profile.id || livePost.author_id || "a1",
-                    name: profile.username || profile.name || "TattoosMap Editorial",
-                    avatar_url: profile.avatar_url || "/brand-logo.png",
-                    bio: profile.bio || "The official editorial voice of TattoosMap."
+                    name: "TattoosMap",
+                    avatar_url: "/brand-logo.png",
+                    bio: "The official editorial voice of TattoosMap."
                 }
             };
 

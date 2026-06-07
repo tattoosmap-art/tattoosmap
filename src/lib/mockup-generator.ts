@@ -65,7 +65,7 @@ export async function generateMockupsForDesign(
   const cy = targetY + Math.round((targetH - rh) / 2);
 
   // ─── Phase 3: Ink Alpha Mask Extraction ────────────────────────────────
-  const inkMask = await sharp(resized).grayscale().negate().toBuffer();
+  const inkMask = await sharp(resized).grayscale().negate().ensureAlpha().toBuffer();
 
   // ─── Phase 4: Skin Texture & Specular Extraction ───────────────────────
   const bodyCrop = await sharp(bodyBuffer)

@@ -62,8 +62,8 @@ export default async function BlogIndex({ searchParams }: { searchParams: Promis
                     ...p,
                     author: {
                         id: profile.id || p.author_id || "a1",
-                        name: profile.username || profile.name || "TattoosMap Editorial",
-                        avatar_url: profile.avatar_url || "/brand-logo.png",
+                        name: "TattoosMap",
+                        avatar_url: "/brand-logo.png",
                         bio: "The official editorial voice of TattoosMap."
                     }
                 };
@@ -125,12 +125,12 @@ export default async function BlogIndex({ searchParams }: { searchParams: Promis
 
                                 <div className="flex items-center gap-4 mb-8">
                                     {featuredPost.author?.avatar_url && (
-                                        <div className="relative w-10 h-10 overflow-hidden bg-off-white">
+                                        <div className="relative w-10 h-10 rounded-full overflow-hidden bg-white border border-gray-light flex-shrink-0">
                                             <Image
                                                 src={featuredPost.author.avatar_url}
                                                 alt={featuredPost.author.name}
                                                 fill
-                                                className="object-cover"
+                                                className="object-contain p-0.5"
                                                 sizes="40px"
                                             />
                                         </div>
@@ -211,12 +211,12 @@ export default async function BlogIndex({ searchParams }: { searchParams: Promis
                             {/* Card Bottom: Metadata */}
                             <div className="flex items-center gap-3 mt-auto pt-4 border-t border-gray-light/50">
                                 {post.author?.avatar_url && (
-                                    <div className="relative w-8 h-8 rounded-full overflow-hidden bg-off-white flex-shrink-0">
+                                    <div className="relative w-8 h-8 rounded-full overflow-hidden bg-white border border-gray-light flex-shrink-0">
                                         <Image
                                             src={post.author.avatar_url}
                                             alt={post.author.name}
                                             fill
-                                            className="object-cover"
+                                            className="object-contain p-0.5"
                                             sizes="32px"
                                         />
                                     </div>
