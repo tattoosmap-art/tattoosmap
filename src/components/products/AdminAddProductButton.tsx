@@ -1,10 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AddProductModal } from "./AddProductModal";
+import { createClient } from "@/lib/supabase-browser";
+import { isAdmin } from "@/lib/admin";
 
 export function AdminAddProductButton({ defaultCategory, className }: { defaultCategory?: string, className?: string }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [isUserAdmin, setIsUserAdmin] = useState(false);
+
+    useEffect(() => {
+        const checkAdmin = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user && isAdmin(user.email)) {
+                setIsUserAdmin(true);
+            }
+        };
+        checkAdmin();
+    }, []);
+
+    if (!isUserAdmin) return null;
 
     return (
         <>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Eye, EyeOff, Trash2, ShieldAlert, X, Edit3 } from "lucide-react";
 import { EditDesignModal } from "./EditDesignModal";
+import Image from "next/image";
 import { revalidateDesignPath, toggleDesignPublishAction, togglePostPublishAction, permanentDeleteAction } from "@/actions/admin";
 
 interface AdminControlsProps {
@@ -157,7 +158,7 @@ export function AdminControls({
                             {type === "design" && imageUrl && (
                                 <div className="flex gap-4 mb-6 bg-off-white p-3 border border-neutral-200">
                                     <div className="w-[120px] h-[120px] relative bg-neutral-100 shrink-0">
-                                        <img src={imageUrl} alt={altText} className="w-full h-full object-cover" />
+                                        <Image src={imageUrl} alt={altText || ""} fill className="object-cover" />
                                     </div>
                                     <div className="flex flex-col justify-center overflow-hidden">
                                         <span className="font-display text-[18px] text-black leading-tight truncate">{title || "Untitled"}</span>

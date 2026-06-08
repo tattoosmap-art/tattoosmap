@@ -4,6 +4,8 @@ import { useState, useMemo, useEffect } from "react";
 import { MapPin, Search, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import { ArtistCardAdminActions } from "./ArtistCardAdminActions";
+import { createClient } from "@/lib/supabase-browser";
+import { isAdmin } from "@/lib/admin";
 
 const STYLES = ['All', 'Fine Line', 'Blackwork', 'Realism', 'Japanese', 'Traditional', 'Minimalist', 'Geometry'];
 
@@ -24,7 +26,6 @@ type Artist = {
 
 type Props = {
     artists: Artist[];
-    isAdmin: boolean;
 };
 
 // Smart URL optimizer to force CDNs to serve small thumbnails instead of heavy raw sources
@@ -106,10 +107,22 @@ function expandLocationAliases(text: string): string {
     return expanded;
 }
 
-export function ArtistsFeedClient({ artists, isAdmin }: Props) {
+export function ArtistsFeedClient({ artists }: Props) {
     const [searchQuery, setSearchQuery] = useState("");
     const [activeStyle, setActiveStyle] = useState("All");
     const [showOnlyPending, setShowOnlyPending] = useState(false);
+    const [isUserAdmin, setIsUserAdmin] = useState(false);
+
+    useEffect(() => {
+        const checkAdmin = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user && isAdmin(user.email)) {
+                setIsUserAdmin(true);
+            }
+        };
+        checkAdmin();
+    }, []);
 
     // 1. Compute Waiting List Size
     const pendingCount = useMemo(() => {
@@ -211,7 +224,7 @@ export function ArtistsFeedClient({ artists, isAdmin }: Props) {
                     </span>
 
                     {/* Admin Review Queue Dashboard Button */}
-                    {isAdmin && pendingCount > 0 && (
+                    {isUserAdmin && pendingCount > 0 && (
                         <button
                             onClick={() => setShowOnlyPending(!showOnlyPending)}
                             title="Filter directory to show only items awaiting verification"
@@ -255,7 +268,7 @@ export function ArtistsFeedClient({ artists, isAdmin }: Props) {
                             <article key={artist.id} className="relative flex flex-col bg-white border border-neutral-100 hover:border-neutral-300 transition-all duration-500 group shadow-sm hover:shadow-md">
 
                                 {/* Pending Approval Alert Overlay for Admins */}
-                                {isAdmin && artist.is_approved === false && (
+                                {isUserAdmin && artist.is_approved === false && (
                                     <div className="absolute top-3 left-3 px-2.5 py-1 bg-amber-500/95 backdrop-blur-sm text-white font-mono text-[8px] font-bold uppercase tracking-[0.15em] z-20 flex items-center gap-1.5 shadow-sm border border-amber-400/30 select-none">
                                         <AlertTriangle className="w-3 h-3 shrink-0" /> Pending Approval
                                     </div>
@@ -335,7 +348,7 @@ export function ArtistsFeedClient({ artists, isAdmin }: Props) {
                                         </a>
 
                                         {/* Admin Edit/Delete Controls */}
-                                        {isAdmin && !artist.isMock && (
+                                        {isUserAdmin && !artist.isMock && (
                                             <ArtistCardAdminActions artist={{
                                                 id: artist.id,
                                                 full_name: artist.full_name,

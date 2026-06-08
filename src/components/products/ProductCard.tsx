@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { deleteProductAction } from "@/actions/admin";
+import { createClient } from "@/lib/supabase-browser";
+import { isAdmin as checkIsAdmin } from "@/lib/admin";
 
 import { AlertTriangle } from "lucide-react";
 
@@ -18,10 +20,22 @@ type DBProduct = {
     source_post_slug?: string;
 };
 
-export function ProductCard({ product, isAdmin }: { product: DBProduct, isAdmin?: boolean }) {
+export function ProductCard({ product }: { product: DBProduct }) {
     const hasImageUrl = product.image_url && product.image_url.startsWith('http');
     const [isDeleting, setIsDeleting] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
+    const [isUserAdmin, setIsUserAdmin] = useState(false);
+
+    useEffect(() => {
+        const checkAdmin = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user && checkIsAdmin(user.email)) {
+                setIsUserAdmin(true);
+            }
+        };
+        checkAdmin();
+    }, []);
 
     const handleDeleteClick = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -87,7 +101,7 @@ export function ProductCard({ product, isAdmin }: { product: DBProduct, isAdmin?
             )}
 
             <div className="group flex flex-col h-full bg-white relative">
-            {isAdmin && (
+            {isUserAdmin && (
                 <button 
                     onClick={handleDeleteClick}
                     className="absolute top-2 right-2 z-20 bg-white/90 text-brand-red hover:bg-brand-red hover:text-white p-2 rounded-full shadow-sm transition-colors cursor-pointer"

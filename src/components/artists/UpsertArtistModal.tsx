@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { upsertArtistAction } from "@/actions/admin";
-import { X, Plus, Trash2, Upload, ImageIcon } from "lucide-react";
+import { X, Plus, Trash2, Upload, Image as ImageIcon } from "lucide-react";
+import Image from "next/image";
 
 type Artist = {
     id?: string;
@@ -33,7 +34,7 @@ async function compressImageClientSide(file: File, maxWidth: number, quality: nu
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = (event) => {
-            const img = new Image();
+            const img = new window.Image();
             const srcStr = event.target?.result as string;
             if (!srcStr) return reject(new Error("Empty target loaded"));
             
@@ -290,7 +291,7 @@ export function UpsertArtistModal({ onClose, existingArtist, isAdmin = false }: 
                             <div className="flex items-center gap-4 border border-neutral-200 p-3.5 bg-neutral-50">
                                 <div className="relative w-14 h-14 rounded-full bg-neutral-100 border border-neutral-200 flex-shrink-0 overflow-hidden flex items-center justify-center shadow-sm">
                                     {avatarPreview ? (
-                                        <img src={avatarPreview} alt="Avatar Preview" className="w-full h-full object-cover" />
+                                        <Image src={avatarPreview} alt="Avatar Preview" fill unoptimized={true} className="object-cover" />
                                     ) : (
                                         <ImageIcon className="w-5 h-5 text-neutral-300" />
                                     )}
@@ -379,7 +380,7 @@ export function UpsertArtistModal({ onClose, existingArtist, isAdmin = false }: 
                                     
                                     <div className="relative w-16 h-16 bg-neutral-100 border border-neutral-200 flex-shrink-0 overflow-hidden flex items-center justify-center">
                                         {previewUrl ? (
-                                            <img src={previewUrl} alt={`Portfolio Preview ${i}`} className="w-full h-full object-cover" />
+                                            <Image src={previewUrl} alt={`Portfolio Preview ${i}`} fill unoptimized={true} className="object-cover" />
                                         ) : (
                                             <ImageIcon className="w-5 h-5 text-neutral-300" />
                                         )}

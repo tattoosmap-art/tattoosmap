@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { approveCommentAction, deleteCommentAction, fetchAdminCommentsAction } from "@/actions/comments";
 import { ShieldCheck, Check, Trash2, MessageSquare, LogOut, ArrowRight, Clock, ChevronRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface CommentRecord {
     id: string;
@@ -142,9 +143,9 @@ export default function AdminCommentsPage() {
 
                 {/* MODERATION IMAGE RENDER */}
                 {item.image_url && (
-                    <div className="mt-4 max-w-[300px] border border-neutral-200 shadow-sm">
+                    <div className="mt-4 max-w-[300px] border border-neutral-200 shadow-sm relative aspect-square">
                         <a href={item.image_url} target="_blank" rel="noreferrer">
-                            <img src={item.image_url} alt="Attached by user" className="w-full h-auto object-contain hover:opacity-90 transition-opacity" />
+                            <Image src={item.image_url} alt="Attached by user" fill className="object-contain hover:opacity-90 transition-opacity" />
                         </a>
                     </div>
                 )}

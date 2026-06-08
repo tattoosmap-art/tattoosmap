@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase-server";
+import { supabaseAnon } from "@/lib/supabase-anon";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { Post } from "@/types/database.types";
 import BlogMetaBar from "@/components/blog/BlogMetaBar";
@@ -14,7 +14,7 @@ import { Sparkles } from "lucide-react";
 import ReadingProgressBar from "@/components/blog/ReadingProgressBar";
 import FAQAccordion from "@/components/blog/FAQAccordion";
 import BlogTOC from "@/components/blog/BlogTOC";
-import EmbeddedToolClient from "@/components/blog/EmbeddedToolClient";
+import { EmbeddedToolClientDynamic as EmbeddedToolClient } from "@/components/blog/EmbeddedToolClientDynamic";
 import React from "react";
 import VisualStepTemplate from "@/components/blog/VisualStepTemplate";
 import RelatedPosts from "@/components/blog/RelatedPosts";
@@ -123,7 +123,7 @@ const remarkPluginsList = [remarkGfm];
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
-    const supabase = await createClient();
+    const supabase = supabaseAnon;
     const { data: post } = await supabase
         .from("posts")
         .select("title, meta_title, meta_description, excerpt, cover_image_url")
@@ -152,12 +152,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
 }
 
+export async function generateStaticParams() {
+    const { data: posts } = await supabaseAdmin
+        .from("posts")
+        .select("slug")
+        .eq("is_published", true)
+        .order("published_at", { ascending: false })
+        .limit(50);
+        
+    return (posts || []).map((post) => ({
+        slug: post.slug,
+    }));
+}
 
 export const revalidate = 300; // Cache blog detail pages for 5 minutes
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const supabase = await createClient();
+    const supabase = supabaseAnon;
     
     let post: Post = null as any;
     let relatedPosts = [];

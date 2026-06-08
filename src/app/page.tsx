@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { createClient } from "@/lib/supabase-server";
+import { supabaseAnon } from "@/lib/supabase-anon";
 import WaitlistForm from "@/components/ui/WaitlistForm";
 
 export const revalidate = 60; // Cache landing page for 60 seconds (1 minute)
@@ -42,7 +42,7 @@ const SVGIcon = ({ name }: { name: string }) => {
 };
 
 export default async function LandingPage() {
-  const supabase = await createClient();
+  const supabase = supabaseAnon;
 
   // Parallel Data Fetching for all sections
   const [heroRes, previewRes, meaningRes] = await Promise.all([

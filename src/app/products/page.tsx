@@ -1,8 +1,6 @@
 import { ProductCard } from "@/components/products/ProductCard";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { supabaseAnon } from "@/lib/supabase-anon";
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
-import { createClient } from "@/lib/supabase-server";
-import { ADMIN_EMAILS } from "@/lib/admin";
 import { AdminAddProductButton } from "@/components/products/AdminAddProductButton";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -18,13 +16,8 @@ export const metadata = {
 export const revalidate = 60; 
 
 export default async function ProductsPage() {
-    // 1. Admin Auth Check
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const isAdmin = !!user && ADMIN_EMAILS.includes(user.email?.toLowerCase().trim() || "");
-
-    // 2. Fetch real products from Database
-    const { data: products, error } = await supabaseAdmin
+    // Fetch real products from Database
+    const { data: products, error } = await supabaseAnon
         .from('products')
         .select('*')
         .order('created_at', { ascending: false });
@@ -130,9 +123,7 @@ export default async function ProductsPage() {
                                     </h2>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    {isAdmin && (
-                                        <AdminAddProductButton defaultCategory={category.name} />
-                                    )}
+                                    <AdminAddProductButton defaultCategory={category.name} />
                                     <Link href={`/products/${category.slug}`} className="font-mono text-[11px] uppercase tracking-widest text-neutral-500 hover:text-black hover:underline underline-offset-4 flex items-center gap-2">
                                         VIEW CATEGORY <ArrowRight className="w-3 h-3" />
                                     </Link>
@@ -143,17 +134,14 @@ export default async function ProductsPage() {
                                 <div className="w-full bg-[#FAFAFA] border border-dashed border-neutral-200 py-24 flex flex-col items-center justify-center text-center">
                                     <span className="text-neutral-300 text-[24px] mb-4">📦</span>
                                     <h3 className="font-mono text-[12px] uppercase tracking-widest text-neutral-500 mb-2">No Products Yet</h3>
-                                    {isAdmin ? (
-                                        <AdminAddProductButton defaultCategory={category.name} className="mt-4 border-solid" />
-                                    ) : (
-                                        <p className="font-sans text-[14px] text-neutral-400">Items will be added soon.</p>
-                                    )}
+                                    <AdminAddProductButton defaultCategory={category.name} className="mt-4 border-solid" />
+                                    <p className="font-sans text-[14px] text-neutral-400 mt-2">Items will be added soon.</p>
                                 </div>
                             ) : (
                                 <ProductScrollRow>
                                     {displayProducts.map((product) => (
                                         <div key={product.id} className="shrink-0 snap-start w-[85vw] md:w-[calc(45%-12px)] lg:w-[calc(33.333%-22px)] h-full">
-                                            <ProductCard product={product} isAdmin={isAdmin} />
+                                            <ProductCard product={product} />
                                         </div>
                                     ))}
                                     

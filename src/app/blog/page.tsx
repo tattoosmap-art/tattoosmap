@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase-server";
+import { supabaseAnon } from "@/lib/supabase-anon";
 import { Post } from "@/types/database.types";
 import type { Metadata } from "next";
 
@@ -24,7 +24,7 @@ export const revalidate = 60; // Cache blog index page for 1 minute
 
 export default async function BlogIndex({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
     let posts: Post[] = [];
-    const supabase = await createClient();
+    const supabase = supabaseAnon;
     const resolvedSearchParams = await searchParams;
     const currentPage = resolvedSearchParams.page ? parseInt(resolvedSearchParams.page, 10) : 1;
     

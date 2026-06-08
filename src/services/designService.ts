@@ -69,13 +69,50 @@ export const designService = {
     /**
      * Fetch all designs for the gallery.
      */
-    async getDesigns(): Promise<Design[]> {
+    async getDesigns(params?: {
+        page?: number;
+        limit?: number;
+        style?: string;
+        placement?: string;
+        gender?: string;
+        sort?: string;
+    }): Promise<Design[]> {
         try {
-            const { data, error } = await supabase
+            const page = params?.page || 1;
+            const limit = params?.limit || 24;
+            const style = params?.style;
+            const placement = params?.placement;
+            const gender = params?.gender;
+            const sort = params?.sort || 'recent';
+
+            let query = supabase
                 .from('designs')
-                .select('*')
-                .eq('is_published', true)
-                .order('uploaded_at', { ascending: false });
+                .select('id, slug, title, subject, image_url, alt_text, updated_at, uploaded_at, image_width, image_height, style, body_part, gender, elements, public_category, gender_suitability, save_count, view_count, artist_name, artist_instagram, image_shaded_url, image_fresh_url, image_healed_url, sge_snippet, semantic_entities, conversational_faqs')
+                .eq('is_published', true);
+
+            if (style) {
+                query = query.contains('style', [style]);
+            }
+            if (placement) {
+                query = query.contains('body_part', [placement]);
+            }
+            if (gender) {
+                query = query.eq('gender', gender);
+            }
+
+            if (sort === 'popular') {
+                query = query.order('view_count', { ascending: false });
+            } else if (sort === 'saved') {
+                query = query.order('save_count', { ascending: false });
+            } else {
+                query = query.order('uploaded_at', { ascending: false });
+            }
+
+            const from = (page - 1) * limit;
+            const to = from + limit - 1;
+            query = query.range(from, to);
+
+            const { data, error } = await query;
 
             if (error || !data || data.length === 0) {
                 console.warn('Supabase fetch designs empty or failed, falling back to mock data.');
@@ -107,10 +144,10 @@ export const designService = {
                 artist_instagram: dbRow.artist_instagram || null,
 
                 // Injecting Rich AI Metadata simulation for all live designs
-                meaning: dbRow.meaning || `This ${dbRow.subject || "design"} captures the raw duality of modern existence. The composition symbolizes resilience and organic growth, acting as a permanent digital-to-analog memory anchor.`,
-                artist_technical_notes: dbRow.artist_technical_notes || "Use a 3RL needle for structural linework. Recommended to apply soft whip-shading in the lower quadrants to build volume without crowding the delicate intersections.",
-                aging_prediction: dbRow.aging_prediction || "Over a 5-year period, the microscopic ink particles will gently disperse in the dermis, creating a beautifully softened, charcoal-like appearance.",
-                pain_level_map: dbRow.pain_level_map || { "forearm_outer": "low", "wrist": "medium", "ribs": "high" },
+                meaning: (dbRow as any).meaning || `This ${dbRow.subject || "design"} captures the raw duality of modern existence. The composition symbolizes resilience and organic growth, acting as a permanent digital-to-analog memory anchor.`,
+                artist_technical_notes: (dbRow as any).artist_technical_notes || "Use a 3RL needle for structural linework. Recommended to apply soft whip-shading in the lower quadrants to build volume without crowding the delicate intersections.",
+                aging_prediction: (dbRow as any).aging_prediction || "Over a 5-year period, the microscopic ink particles will gently disperse in the dermis, creating a beautifully softened, charcoal-like appearance.",
+                pain_level_map: (dbRow as any).pain_level_map || { "forearm_outer": "low", "wrist": "medium", "ribs": "high" },
                 image_shaded_url: dbRow.image_shaded_url || dbRow.image_url,
                 
                 // Point to high-end AI composites for the demonstration Whale design

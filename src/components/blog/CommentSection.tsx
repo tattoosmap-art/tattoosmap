@@ -6,6 +6,7 @@ import { submitCommentAction } from "@/actions/comments";
 import { MessageSquare, ShieldCheck, CheckCircle2, AlertCircle, Loader2, Lock, User2, Camera, Image as ImageIcon, X } from "lucide-react";
 import { useModal } from "@/context/ModalContext";
 import { supabase } from "@/lib/supabase";
+import Image from "next/image";
 
 export interface CommentItem {
     id: string;
@@ -167,12 +168,12 @@ export default function CommentSection({ postId, comments = [] }: CommentSection
                                         
                                         {/* ATTACHED IMAGE RENDER */}
                                         {comment.image_url && (
-                                            <div className="mt-3 max-w-[320px] border border-neutral-100 bg-neutral-50">
-                                                <img 
+                                            <div className="mt-3 max-w-[320px] border border-neutral-100 bg-neutral-50 relative aspect-video">
+                                                <Image 
                                                     src={comment.image_url} 
                                                     alt={`Upload by ${comment.author_name}`} 
-                                                    loading="lazy"
-                                                    className="w-full h-auto block object-contain"
+                                                    fill
+                                                    className="object-contain"
                                                 />
                                             </div>
                                         )}
@@ -248,11 +249,14 @@ export default function CommentSection({ postId, comments = [] }: CommentSection
                                 <div className="flex items-center justify-between mb-8 pb-6 border-b border-neutral-100">
                                     <div className="flex items-center gap-3">
                                         {user.user_metadata?.avatar_url ? (
-                                            <img 
-                                                src={user.user_metadata.avatar_url} 
-                                                alt="Profile" 
-                                                className="w-10 h-10 rounded-full border border-neutral-200"
-                                            />
+                                            <div className="relative w-10 h-10 rounded-full overflow-hidden border border-neutral-200">
+                                                <Image 
+                                                    src={user.user_metadata.avatar_url} 
+                                                    alt="Profile" 
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            </div>
                                         ) : (
                                             <div className="w-10 h-10 bg-neutral-100 flex items-center justify-center text-black border border-neutral-200">
                                                 <User2 className="w-5 h-5" strokeWidth={1.5} />
@@ -293,10 +297,12 @@ export default function CommentSection({ postId, comments = [] }: CommentSection
                                     {/* PREVIEW AREA FOR SELECTED FILE */}
                                     {previewUrl && (
                                         <div className="relative w-24 h-24 group border border-neutral-200 mt-4 animate-in zoom-in-95 duration-200">
-                                            <img 
+                                            <Image 
                                                 src={previewUrl} 
                                                 alt="Attachment Preview" 
-                                                className="w-full h-full object-cover"
+                                                fill
+                                                unoptimized={true}
+                                                className="object-cover"
                                             />
                                             <button 
                                                 type="button"

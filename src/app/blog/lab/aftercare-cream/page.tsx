@@ -1,16 +1,10 @@
 import ProductPostTemplate from "@/components/blog/ProductPostTemplate";
 import SkinCompatibilityChecker from "@/components/blog/SkinCompatibilityChecker";
-import { createClient } from "@/lib/supabase-server";
-import { ADMIN_EMAILS } from "@/lib/admin";
+
 
 export default async function AftercareCreamPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const isAdmin = !!user && ADMIN_EMAILS.includes(user.email || "");
-
   return (
     <ProductPostTemplate
-      isAdmin={isAdmin}
       postType="RECOMMEND AND SELL"
       title="The 5 Best Aftercare Creams for Tattoo Healing"
       executiveSummary="Choosing the wrong cream doesn't just make your tattoo itch—it can literally blur the ink. We analyzed 42 formulations to find the ones that respect your skin's acid mantle."

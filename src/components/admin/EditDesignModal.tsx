@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { X, Upload, Loader2, Image as ImageIcon } from "lucide-react";
 import { Design } from "@/types/database.types";
+import Image from "next/image";
 import { updateDesignAction } from "@/actions/admin";
 
 interface EditDesignModalProps {
@@ -99,10 +100,12 @@ export function EditDesignModal({ design, onClose, onUpdate }: EditDesignModalPr
                     {/* Image Upload Area */}
                     <div className="group relative aspect-[16/6] bg-off-white border border-dashed border-gray-light hover:border-black transition-colors overflow-hidden">
                         {(previewUrl || design.image_url) && (
-                            <img 
+                            <Image 
                                 src={previewUrl || design.image_url} 
                                 alt="Preview" 
-                                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                                fill
+                                unoptimized={!!previewUrl}
+                                className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                             />
                         )}
                         <button 

@@ -1,8 +1,6 @@
 import { ProductCard } from "@/components/products/ProductCard";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { supabaseAnon } from "@/lib/supabase-anon";
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
-import { createClient } from "@/lib/supabase-server";
-import { ADMIN_EMAILS } from "@/lib/admin";
 import { AdminAddProductButton } from "@/components/products/AdminAddProductButton";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -38,13 +36,8 @@ export default async function CategoryPage({
         notFound();
     }
 
-    // Admin Auth Check
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const isAdmin = !!user && ADMIN_EMAILS.includes(user.email?.toLowerCase().trim() || "");
-
     // Fetch all products from Database and filter in memory to handle legacy categories
-    const { data: allProducts, error } = await supabaseAdmin
+    const { data: allProducts, error } = await supabaseAnon
         .from('products')
         .select('*')
         .order('created_at', { ascending: false });
@@ -93,9 +86,7 @@ export default async function CategoryPage({
                             {categoryConfig.name}
                         </h1>
                     </div>
-                    {isAdmin && (
-                        <AdminAddProductButton defaultCategory={categoryConfig.name} />
-                    )}
+                    <AdminAddProductButton defaultCategory={categoryConfig.name} />
                 </div>
 
                 {catProducts.length === 0 ? (
@@ -110,7 +101,7 @@ export default async function CategoryPage({
                     <>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
                             {paginatedProducts.map(product => (
-                                <ProductCard key={product.id} product={product} isAdmin={isAdmin} />
+                                <ProductCard key={product.id} product={product} />
                             ))}
                         </div>
 

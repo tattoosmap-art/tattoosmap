@@ -8,37 +8,30 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
-    unoptimized: true,
-    formats: ['image/avif', 'image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384, 400, 800],
-    minimumCacheTTL: 31536000,
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.in',
+        pathname: '/storage/v1/object/public/**',
+      },
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
       {
         protocol: 'https',
-        hostname: '**.supabase.co',
+        hostname: '*.fal.media',
       },
       {
         protocol: 'https',
-        hostname: '*.supabase.co',
+        hostname: '*.fal.ai',
       },
-      {
-        protocol: 'https',
-        hostname: 'smrnldmbvtflavzswghh.supabase.co',
-      },
-      {
-        protocol: 'https',
-        hostname: 'dermasofttattoo.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdn.shopify.com',
-      }
-    ]
+    ],
   },
 };
 
