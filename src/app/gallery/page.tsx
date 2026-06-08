@@ -32,12 +32,17 @@ export default async function GalleryIndex(props: {
     });
 
     // Optional: get total count for "X of Y" display
-    let countQuery = supabaseAnon.from('designs').select('*', { count: 'exact', head: true }).eq('is_published', true);
-    if (styleParam) countQuery = countQuery.contains('style', [styleParam]);
-    if (bodyPartParam) countQuery = countQuery.contains('body_part', [bodyPartParam]);
-    if (genderParam) countQuery = countQuery.eq('gender', genderParam);
-    const { count } = await countQuery;
-    const totalDesigns = count || 0;
+    let totalDesigns = 0;
+    try {
+        let countQuery = supabaseAnon.from('designs').select('*', { count: 'exact', head: true }).eq('is_published', true);
+        if (styleParam) countQuery = countQuery.contains('style', [styleParam]);
+        if (bodyPartParam) countQuery = countQuery.contains('body_part', [bodyPartParam]);
+        if (genderParam) countQuery = countQuery.eq('gender', genderParam);
+        const { count } = await countQuery;
+        totalDesigns = count || 0;
+    } catch (err) {
+        console.warn('Failed to fetch total count:', err);
+    }
 
     const showingX = Math.min(page * limit, totalDesigns);
     const hasMore = showingX < totalDesigns;
