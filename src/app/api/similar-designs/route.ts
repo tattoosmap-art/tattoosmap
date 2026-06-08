@@ -16,7 +16,11 @@ export async function GET(req: NextRequest) {
     }
 
     const paginated = await getSimilarDesignsInMemory(targetId, limit, offset, mode);
-    return NextResponse.json(paginated);
+    return NextResponse.json(paginated, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+      },
+    });
 
   } catch (err: any) {
     console.error('[similar-designs] API Error:', err);

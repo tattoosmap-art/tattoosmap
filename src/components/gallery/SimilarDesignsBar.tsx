@@ -16,15 +16,17 @@ import { useRouter } from "next/navigation";
 export default function SimilarDesignsBar({ 
     currentDesignId, 
     mode = 'visual', 
-    hideHeader = false 
+    hideHeader = false,
+    initialDesigns = []
 }: { 
     currentDesignId: string; 
     mode?: 'visual' | 'conceptual';
     hideHeader?: boolean;
+    initialDesigns?: Design[];
 }) {
-    const [designs, setDesigns] = useState<Design[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [hasMore, setHasMore] = useState(true);
+    const [designs, setDesigns] = useState<Design[]>(initialDesigns);
+    const [loading, setLoading] = useState(initialDesigns.length === 0);
+    const [hasMore, setHasMore] = useState(initialDesigns.length === limit || initialDesigns.length === 0);
     const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
     
     const observerRef = useRef<IntersectionObserver | null>(null);
@@ -38,6 +40,8 @@ export default function SimilarDesignsBar({
 
     // Initial Fetch
     useEffect(() => {
+        if (initialDesigns.length > 0) return; // Skip if initial data provided
+
         let isMounted = true;
         const fetchInitial = async () => {
             setLoading(true);
@@ -50,7 +54,7 @@ export default function SimilarDesignsBar({
         };
         fetchInitial();
         return () => { isMounted = false; };
-    }, [currentDesignId, mode]);
+    }, [currentDesignId, mode, initialDesigns.length]);
 
     // Track Saves
     useEffect(() => {

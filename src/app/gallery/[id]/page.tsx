@@ -128,7 +128,7 @@ export default async function DesignPage({ params }: { params: Promise<{ id: str
                         </div>
                         <h2 className="font-display text-[32px] tracking-tight uppercase leading-none">More Designs in this Style</h2>
                     </div>
-                    <SimilarDesignsBar currentDesignId={design.id} mode="visual" hideHeader={true} />
+                    <SimilarDesignsBar currentDesignId={design.id} mode="visual" hideHeader={true} initialDesigns={pageData.similarStyles} />
                 </section>
 
                 <section aria-label="Conceptual Similarity" className="pb-32">
@@ -139,7 +139,7 @@ export default async function DesignPage({ params }: { params: Promise<{ id: str
                         <h2 className="font-display text-[32px] tracking-tight uppercase leading-none">More Designs with Similar Meanings</h2>
                     </div>
                     <div className="opacity-90">
-                        <SimilarDesignsBar currentDesignId={design.id} mode="conceptual" hideHeader={true} />
+                        <SimilarDesignsBar currentDesignId={design.id} mode="conceptual" hideHeader={true} initialDesigns={pageData.similarEmotions} />
                     </div>
                 </section>
             </div>

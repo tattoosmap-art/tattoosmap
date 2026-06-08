@@ -71,7 +71,7 @@ export async function getSimilarDesignsInMemory(
     let candidates: Design[] = [];
     let query = supabase
       .from('designs')
-      .select('*')
+      .select('id, slug, title, image_url, alt_text, style, body_part, style_tags, emotion_tags, artist_name, public_category, uploaded_at, tags, is_published, deleted_at, image_blurhash')
       .eq('is_published', true)
       .is('deleted_at', null);
 
