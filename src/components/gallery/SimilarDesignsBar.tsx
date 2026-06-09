@@ -24,6 +24,7 @@ export default function SimilarDesignsBar({
     hideHeader?: boolean;
     initialDesigns?: Design[];
 }) {
+    const limit = 10;
     const [designs, setDesigns] = useState<Design[]>(initialDesigns);
     const [loading, setLoading] = useState(initialDesigns.length === 0);
     const [hasMore, setHasMore] = useState(initialDesigns.length === limit || initialDesigns.length === 0);
@@ -35,8 +36,6 @@ export default function SimilarDesignsBar({
     const { openLoginModal } = useModal();
     const { showToast } = useToast();
     const router = useRouter();
-
-    const limit = 10;
 
     // Initial Fetch
     useEffect(() => {

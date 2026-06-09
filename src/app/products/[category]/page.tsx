@@ -1,5 +1,5 @@
 import { ProductCard } from "@/components/products/ProductCard";
-import { supabaseAnon } from "@/lib/supabase-anon";
+import { getSupabaseAnon } from "@/lib/supabase-anon";
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
 import { AdminAddProductButton } from "@/components/products/AdminAddProductButton";
 import Link from "next/link";
@@ -37,13 +37,22 @@ export default async function CategoryPage({
     }
 
     // Fetch all products from Database and filter in memory to handle legacy categories
-    const { data: allProducts, error } = await supabaseAnon
+    const supabase = getSupabaseAnon();
+    const { data: allProducts, error } = await supabase
         .from('products')
         .select('*')
         .order('created_at', { ascending: false });
 
     if (error) {
-        console.error("Supabase Fetch Error:", error);
+        console.error("[DATABASE ERROR] Failed to fetch products for category from Supabase:", {
+            category: categoryConfig.name,
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint
+        });
+    } else if (allProducts && allProducts.length === 0) {
+        console.warn("[DATABASE WARNING] Supabase products fetch returned empty array.");
     }
 
     const mapLegacyCategory = (legacyCat: string) => {

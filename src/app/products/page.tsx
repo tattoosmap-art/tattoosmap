@@ -1,5 +1,5 @@
 import { ProductCard } from "@/components/products/ProductCard";
-import { supabaseAnon } from "@/lib/supabase-anon";
+import { getSupabaseAnon } from "@/lib/supabase-anon";
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
 import { AdminAddProductButton } from "@/components/products/AdminAddProductButton";
 import Link from "next/link";
@@ -17,13 +17,21 @@ export const revalidate = 60;
 
 export default async function ProductsPage() {
     // Fetch real products from Database
-    const { data: products, error } = await supabaseAnon
+    const supabase = getSupabaseAnon();
+    const { data: products, error } = await supabase
         .from('products')
         .select('*')
         .order('created_at', { ascending: false });
 
     if (error) {
-        console.error("Supabase Fetch Error details:", error.message, error.code, error.details);
+        console.error("[DATABASE ERROR] Failed to fetch products from Supabase:", {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint
+        });
+    } else if (products && products.length === 0) {
+        console.warn("[DATABASE WARNING] Supabase products fetch returned empty array.");
     }
 
     // 3. Group products by category dynamically

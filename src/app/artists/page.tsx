@@ -1,4 +1,4 @@
-import { supabaseAnon } from "@/lib/supabase-anon";
+import { getSupabaseAnon } from "@/lib/supabase-anon";
 import { AddArtistButton } from "@/components/artists/AddArtistButton";
 import { ArtistsFeedClient } from "@/components/artists/ArtistsFeedClient";
 
@@ -45,15 +45,24 @@ export default async function ArtistsDirectory() {
     // Fetch approved artists from DB statically
     let dbArtists: any[] = [];
     try {
-        const { data, error } = await supabaseAnon
+        const supabase = getSupabaseAnon();
+        const { data, error } = await supabase
             .from('artists')
             .select('*')
             .eq('is_approved', true)
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.warn("[ArtistsPage] Supabase fetch issue:", error.message);
+            console.error("[DATABASE ERROR] Failed to fetch artists from Supabase:", {
+                message: error.message,
+                details: error.details,
+                hint: error.hint,
+                code: error.code
+            });
         } else if (data) {
+            if (data.length === 0) {
+                console.warn("[DATABASE WARNING] Supabase artists fetch returned empty array.");
+            }
             dbArtists = data;
         }
     } catch (err: any) {

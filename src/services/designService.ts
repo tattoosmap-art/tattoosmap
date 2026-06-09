@@ -1,4 +1,4 @@
-import { supabaseAnon as supabase } from '@/lib/supabase-anon';
+import { getSupabaseAnon } from '@/lib/supabase-anon';
 import { Design, Post } from '@/types/database.types';
 import { MOCK_DESIGNS } from '@/lib/mock-data';
 
@@ -53,6 +53,7 @@ export const designService = {
      */
     async testConnection(): Promise<{ success: boolean; error?: string }> {
         try {
+            const supabase = getSupabaseAnon();
             const { data, error } = await supabase
                 .from('designs')
                 .select('id')
@@ -78,6 +79,7 @@ export const designService = {
         sort?: string;
     }): Promise<Design[]> {
         try {
+            const supabase = getSupabaseAnon();
             const page = params?.page || 1;
             const limit = params?.limit || 24;
             const style = params?.style;
@@ -87,7 +89,7 @@ export const designService = {
 
             let query = supabase
                 .from('designs')
-                .select('id, slug, title, subject, image_url, alt_text, updated_at, uploaded_at, image_width, image_height, style, body_part, gender, elements, public_category, gender_suitability, save_count, view_count, artist_name, artist_instagram, image_shaded_url, image_fresh_url, image_healed_url, sge_snippet, semantic_entities, conversational_faqs')
+                .select('id, slug, title, subject, image_url, alt_text, updated_at, uploaded_at, style, body_part, gender, elements, public_category, save_count, view_count, image_fresh_url, image_healed_url, sge_snippet, semantic_entities, conversational_faqs')
                 .eq('is_published', true);
 
             if (style) {
@@ -115,40 +117,51 @@ export const designService = {
             const { data, error } = await query;
 
             if (error || !data || data.length === 0) {
-                console.warn('Supabase fetch designs empty or failed, falling back to mock data.');
+                if (error) {
+                    console.error('[DATABASE ERROR] Failed to fetch designs from Supabase:', {
+                        message: error.message,
+                        details: error.details,
+                        hint: error.hint,
+                        code: error.code
+                    });
+                } else {
+                    console.warn('[DATABASE WARNING] Supabase designs fetch returned empty array.');
+                }
                 return MOCK_DESIGNS;
             }
 
             // Map the new SEO schema to the old V1 Types to prevent the UI from crashing
-            const mappedData = data.map(dbRow => ({
+            const mappedData = data.map((dbRow: any) => ({
                 id: dbRow.id,
                 slug: dbRow.slug || String(dbRow.id),
                 title: dbRow.title || dbRow.subject || "Untitled",
                 image_url: dbRow.image_url,
                 alt_text: dbRow.alt_text,
                 uploaded_at: dbRow.updated_at,
-                image_width: dbRow.image_width || 800,
-                image_height: dbRow.image_height || 1000,
                 style: ensureArray(dbRow.style).length > 0 ? ensureArray(dbRow.style) : [dbRow.public_category].filter(Boolean),
                 body_part: ensureArray(dbRow.body_part),
                 gender: (dbRow.gender === 'Unisex' ? 'Men and Women' : dbRow.gender) || "Men and Women",
                 tags: ensureArray(dbRow.elements),
                 subject: dbRow.subject,
                 public_category: dbRow.public_category,
-                gender_suitability: (dbRow.gender_suitability === 'Unisex' ? 'Men and Women' : (dbRow.gender_suitability || dbRow.gender)) || "Men and Women",
                 save_count: getFakeMetrics(dbRow.id, dbRow.save_count || 0, dbRow.view_count || 0).save_count,
                 view_count: getFakeMetrics(dbRow.id, dbRow.save_count || 0, dbRow.view_count || 0).view_count,
                 real_save_count: dbRow.save_count || 0,
                 real_view_count: dbRow.view_count || 0,
-                artist_name: dbRow.artist_name || null,
-                artist_instagram: dbRow.artist_instagram || null,
+                
+                // Fallback fields that exist in the codebase but not in the database
+                image_width: dbRow.image_width ?? 800,
+                image_height: dbRow.image_height ?? 1000,
+                gender_suitability: dbRow.gender ?? dbRow.gender_suitability ?? null,
+                artist_name: dbRow.artist_name ?? null,
+                artist_instagram: dbRow.artist_instagram ?? null,
+                image_shaded_url: dbRow.image_shaded_url ?? null,
 
                 // Injecting Rich AI Metadata simulation for all live designs
-                meaning: (dbRow as any).meaning || `This ${dbRow.subject || "design"} captures the raw duality of modern existence. The composition symbolizes resilience and organic growth, acting as a permanent digital-to-analog memory anchor.`,
-                artist_technical_notes: (dbRow as any).artist_technical_notes || "Use a 3RL needle for structural linework. Recommended to apply soft whip-shading in the lower quadrants to build volume without crowding the delicate intersections.",
-                aging_prediction: (dbRow as any).aging_prediction || "Over a 5-year period, the microscopic ink particles will gently disperse in the dermis, creating a beautifully softened, charcoal-like appearance.",
-                pain_level_map: (dbRow as any).pain_level_map || { "forearm_outer": "low", "wrist": "medium", "ribs": "high" },
-                image_shaded_url: dbRow.image_shaded_url || dbRow.image_url,
+                meaning: dbRow.meaning || `This ${dbRow.subject || "design"} captures the raw duality of modern existence. The composition symbolizes resilience and organic growth, acting as a permanent digital-to-analog memory anchor.`,
+                artist_technical_notes: dbRow.artist_technical_notes || "Use a 3RL needle for structural linework. Recommended to apply soft whip-shading in the lower quadrants to build volume without crowding the delicate intersections.",
+                aging_prediction: dbRow.aging_prediction || "Over a 5-year period, the microscopic ink particles will gently disperse in the dermis, creating a beautifully softened, charcoal-like appearance.",
+                pain_level_map: dbRow.pain_level_map || { "forearm_outer": "low", "wrist": "medium", "ribs": "high" },
                 
                 // Point to high-end AI composites for the demonstration Whale design
                 image_fresh_url: dbRow.image_fresh_url || (dbRow.subject?.toLowerCase().includes('whale') ? "/designs/fresh-whale.png" : dbRow.image_url),
@@ -172,6 +185,7 @@ export const designService = {
      */
     async getDesignById(id: string): Promise<Design | null> {
         try {
+            const supabase = getSupabaseAnon();
             // Smart Lookup: Try UUID first, then Slug
             const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
             
@@ -185,50 +199,61 @@ export const designService = {
             const { data, error } = await query.eq('is_published', true).single();
 
             if (error || !data) {
+                if (error) {
+                    console.error('[DATABASE ERROR] Failed to fetch design by ID/slug from Supabase:', {
+                        id,
+                        message: error.message,
+                        details: error.details,
+                        hint: error.hint,
+                        code: error.code
+                    });
+                }
                 // Find in mock data by id or slug
                 return MOCK_DESIGNS.find(d => d.id === id || d.slug === id) || null;
             }
+            const row = data as any;
             return {
-                id: data.id,
-                slug: data.slug || String(data.id),
-                title: data.title || data.subject || "Untitled",
-                image_url: data.image_url,
-                alt_text: data.alt_text,
-                uploaded_at: data.updated_at,
-                image_width: data.image_width || 800,
-                image_height: data.image_height || 1000,
-                style: ensureArray(data.style).length > 0 ? ensureArray(data.style) : [data.public_category].filter(Boolean),
-                body_part: ensureArray(data.body_part),
-                gender: (data.gender === 'Unisex' ? 'Men and Women' : data.gender) || "Men and Women",
-                tags: ensureArray(data.elements),
-                subject: data.subject,
-                public_category: data.public_category,
-                gender_suitability: (data.gender_suitability === 'Unisex' ? 'Men and Women' : (data.gender_suitability || data.gender)) || "Men and Women",
-                save_count: getFakeMetrics(data.id, data.save_count || 0, data.view_count || 0).save_count,
-                view_count: getFakeMetrics(data.id, data.save_count || 0, data.view_count || 0).view_count,
-                real_save_count: data.save_count || 0,
-                real_view_count: data.view_count || 0,
-                artist_name: data.artist_name || null,
-                artist_instagram: data.artist_instagram || null,
+                id: row.id,
+                slug: row.slug || String(row.id),
+                title: row.title || row.subject || "Untitled",
+                image_url: row.image_url,
+                alt_text: row.alt_text,
+                uploaded_at: row.updated_at,
+                style: ensureArray(row.style).length > 0 ? ensureArray(row.style) : [row.public_category].filter(Boolean),
+                body_part: ensureArray(row.body_part),
+                gender: (row.gender === 'Unisex' ? 'Men and Women' : row.gender) || "Men and Women",
+                tags: ensureArray(row.elements),
+                subject: row.subject,
+                public_category: row.public_category,
+                save_count: getFakeMetrics(row.id, row.save_count || 0, row.view_count || 0).save_count,
+                view_count: getFakeMetrics(row.id, row.save_count || 0, row.view_count || 0).view_count,
+                real_save_count: row.save_count || 0,
+                real_view_count: row.view_count || 0,
+
+                // Fallback fields that exist in the codebase but not in the database
+                image_width: row.image_width ?? 800,
+                image_height: row.image_height ?? 1000,
+                gender_suitability: row.gender ?? row.gender_suitability ?? null,
+                artist_name: row.artist_name ?? null,
+                artist_instagram: row.artist_instagram ?? null,
+                image_shaded_url: row.image_shaded_url ?? null,
 
                 // Injecting Rich AI Metadata simulation for all live designs
-                meaning: data.meaning || `This ${data.subject || "design"} captures the raw duality of modern existence. The composition symbolizes resilience and organic growth, acting as a permanent digital-to-analog memory anchor.`,
-                cultural_origin: data.cultural_origin || null,
-                cultural_sensitivity: data.cultural_sensitivity || null,
-                artist_technical_notes: data.artist_technical_notes || "Use a 3RL needle for structural linework. Recommended to apply soft whip-shading in the lower quadrants to build volume without crowding the delicate intersections.",
-                recommended_needle: data.recommended_needle || "3RL Base / 1RL Detail",
-                minimum_size_cm: data.minimum_size_cm || 5.0,
-                placement_recommendations: ensureArray(data.placement_recommendations),
-                aging_prediction: data.aging_prediction || "Over a 5-year period, the microscopic ink particles will gently disperse in the dermis, creating a beautifully softened, charcoal-like appearance.",
-                pain_level_map: data.pain_level_map || { "forearm_outer": "low", "wrist": "medium", "ribs": "high" },
-                style_tags: ensureArray(data.style_tags),
-                emotion_tags: ensureArray(data.emotion_tags),
-
-                image_shaded_url: data.image_shaded_url || data.image_url,
+                meaning: row.meaning || `This ${row.subject || "design"} captures the raw duality of modern existence. The composition symbolizes resilience and organic growth, acting as a permanent digital-to-analog memory anchor.`,
+                cultural_origin: row.cultural_origin || null,
+                cultural_sensitivity: row.cultural_sensitivity || null,
+                artist_technical_notes: row.artist_technical_notes || "Use a 3RL needle for structural linework. Recommended to apply soft whip-shading in the lower quadrants to build volume without crowding the delicate intersections.",
+                recommended_needle: row.recommended_needle || "3RL Base / 1RL Detail",
+                minimum_size_cm: row.minimum_size_cm || 5.0,
+                placement_recommendations: ensureArray(row.placement_recommendations),
+                aging_prediction: row.aging_prediction || "Over a 5-year period, the microscopic ink particles will gently disperse in the dermis, creating a beautifully softened, charcoal-like appearance.",
+                pain_level_map: row.pain_level_map || { "forearm_outer": "low", "wrist": "medium", "ribs": "high" },
+                style_tags: ensureArray(row.style_tags),
+                emotion_tags: ensureArray(row.emotion_tags),
                 
                 // Point to high-end AI composites for the demonstration Whale design
-                image_fresh_url: data.image_fresh_url || (data.subject?.toLowerCase().includes('whale') ? "/designs/fresh-whale.png" : data.image_url),
-                image_healed_url: data.image_healed_url || (data.subject?.toLowerCase().includes('whale') ? "/designs/healed-whale.png" : data.image_url),
+                image_fresh_url: row.image_fresh_url || (row.subject?.toLowerCase().includes('whale') ? "/designs/fresh-whale.png" : row.image_url),
+                image_healed_url: row.image_healed_url || (row.subject?.toLowerCase().includes('whale') ? "/designs/healed-whale.png" : row.image_url),
 
                 // New SEO Fields
                 meta_title: data.meta_title || null,
@@ -338,6 +363,7 @@ export const designService = {
         const empty = { designs: [] as Design[], posts: [] as Post[] };
 
         try {
+            const supabase = getSupabaseAnon();
             const { data: savedDesigns, error: dError } = await supabase
                 .from('user_saves')
                 .select('designs(*)')
@@ -347,6 +373,21 @@ export const designService = {
                 .from('user_post_saves')
                 .select('posts(*)')
                 .eq('user_id', userId);
+
+            if (dError) {
+                console.error('[DATABASE ERROR] Failed to fetch saved designs for user:', {
+                    userId,
+                    message: dError.message,
+                    code: dError.code
+                });
+            }
+            if (pError) {
+                console.error('[DATABASE ERROR] Failed to fetch saved posts for user:', {
+                    userId,
+                    message: pError.message,
+                    code: pError.code
+                });
+            }
 
             return {
                 designs: (!dError && savedDesigns?.length)
@@ -368,6 +409,7 @@ export const designService = {
      */
     async incrementViewCount(designId: string, userId?: string) {
         try {
+            const supabase = getSupabaseAnon();
             const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(designId);
             if (!isUuid) return; // Only track for valid UUIDs to avoid DB errors
 
@@ -545,6 +587,8 @@ export const designService = {
         // Fire & Forget View Tracker (now using actual UUID)
         this.incrementViewCount(actualUuid, userId);
 
+        const supabase = getSupabaseAnon();
+
         // Map parallel execution contexts using resolved UUID
         const [similarStyles, similarEmotions, collections] = await Promise.all([
             this.getSimilarDesigns(actualUuid, 5, 0), // Will upgrade to exact style matching in phase 3
@@ -552,6 +596,14 @@ export const designService = {
             // Placeholder for collection aggregation via RPC
             supabase.from('collections').select('id, name, like_count, user_id, cover_design_id').contains('design_ids', [actualUuid]).limit(3)
         ]);
+
+        if (collections.error) {
+            console.error('[DATABASE ERROR] Failed to fetch collections for design page data:', {
+                designId: actualUuid,
+                message: collections.error.message,
+                code: collections.error.code
+            });
+        }
 
         return {
             design: designData,

@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { supabaseAnon as supabase } from '@/lib/supabase-anon';
+import { getSupabaseAnon } from '@/lib/supabase-anon';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = 'https://tattoosmap.com'; // In production this would be an env var NEXT_PUBLIC_SITE_URL
@@ -25,11 +25,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
     ];
 
+    const supabase = getSupabaseAnon();
+
     // Fetch live posts from the database dynamically
-    const { data: posts } = await supabase
+    const { data: posts, error: postsError } = await supabase
         .from('posts')
         .select('slug, published_at')
         .eq('is_published', true);
+
+    if (postsError) {
+        console.error('[DATABASE ERROR] Failed to fetch posts for sitemap from Supabase:', {
+            message: postsError.message,
+            code: postsError.code
+        });
+    }
 
     const blogRoutes = (posts || []).map((post) => ({
         url: `${baseUrl}/blog/${post.slug}`,
@@ -39,10 +48,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // Fetch live designs from the database dynamically
-    const { data: designs } = await supabase
+    const { data: designs, error: designsError } = await supabase
         .from('designs')
         .select('id, slug, updated_at')
         .eq('is_published', true);
+
+    if (designsError) {
+        console.error('[DATABASE ERROR] Failed to fetch designs for sitemap from Supabase:', {
+            message: designsError.message,
+            code: designsError.code
+        });
+    }
 
     const galleryRoutes = (designs || []).map((design) => ({
         url: `${baseUrl}/gallery/${design.slug || design.id}`,

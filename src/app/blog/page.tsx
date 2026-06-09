@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { supabaseAnon } from "@/lib/supabase-anon";
+import { getSupabaseAnon } from "@/lib/supabase-anon";
 import { Post } from "@/types/database.types";
 import type { Metadata } from "next";
 
@@ -24,11 +24,11 @@ export const revalidate = 60; // Cache blog index page for 1 minute
 
 export default async function BlogIndex({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
     let posts: Post[] = [];
-    const supabase = supabaseAnon;
     const resolvedSearchParams = await searchParams;
     const currentPage = resolvedSearchParams.page ? parseInt(resolvedSearchParams.page, 10) : 1;
     
     try {
+        const supabase = getSupabaseAnon();
         const { data: postsData, error: postsError } = await supabase
             .from("posts")
             .select("*")
@@ -38,6 +38,9 @@ export default async function BlogIndex({ searchParams }: { searchParams: Promis
             
         let livePosts: Post[] = [];
         if (!postsError && postsData) {
+            if (postsData.length === 0) {
+                console.warn("[DATABASE WARNING] Supabase posts fetch returned empty array.");
+            }
             const authorIds = Array.from(new Set(postsData.map(p => p.author_id).filter(Boolean)));
             const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
             const validAuthorIds = authorIds.filter(id => uuidRegex.test(id));
@@ -69,7 +72,12 @@ export default async function BlogIndex({ searchParams }: { searchParams: Promis
                 };
             });
         } else if (postsError) {
-            console.error("[BLOG] Supabase posts fetch error:", postsError);
+            console.error("[DATABASE ERROR] Failed to fetch posts from Supabase:", {
+                message: postsError.message,
+                details: postsError.details,
+                hint: postsError.hint,
+                code: postsError.code
+            });
         }
 
         posts = livePosts;

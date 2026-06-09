@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { supabaseAnon } from "@/lib/supabase-anon";
+import { getSupabaseAnon } from "@/lib/supabase-anon";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { Post } from "@/types/database.types";
 import BlogMetaBar from "@/components/blog/BlogMetaBar";
@@ -123,12 +123,20 @@ const remarkPluginsList = [remarkGfm];
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
-    const supabase = supabaseAnon;
-    const { data: post } = await supabase
+    const supabase = getSupabaseAnon();
+    const { data: post, error } = await supabase
         .from("posts")
         .select("title, meta_title, meta_description, excerpt, cover_image_url")
         .eq("slug", slug)
         .single();
+    
+    if (error) {
+        console.error('[DATABASE ERROR] generateMetadata failed to fetch post:', {
+            slug,
+            message: error.message,
+            code: error.code
+        });
+    }
     
     const title = post?.meta_title || post?.title || "Blog Post";
     const description = post?.meta_description || post?.excerpt || "Tattoo inspiration and guides from TattoosMap.";
@@ -169,7 +177,7 @@ export const revalidate = 300; // Cache blog detail pages for 5 minutes
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const supabase = supabaseAnon;
+    const supabase = getSupabaseAnon();
     
     let post: Post = null as any;
     let relatedPosts = [];
@@ -184,6 +192,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             .eq("is_published", true)
             .is("deleted_at", null)
             .single();
+
+        if (error) {
+            console.error('[DATABASE ERROR] Failed to fetch blog post by slug from Supabase:', {
+                slug,
+                message: error.message,
+                details: error.details,
+                hint: error.hint,
+                code: error.code
+            });
+        }
 
         if (!error && livePost) {
             let profile: any = {};

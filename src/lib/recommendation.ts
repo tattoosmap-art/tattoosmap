@@ -1,5 +1,5 @@
 import { Design } from '@/types/database.types';
-import { supabaseAnon as supabase } from '@/lib/supabase-anon';
+import { getSupabaseAnon } from '@/lib/supabase-anon';
 import { MOCK_DESIGNS } from '@/lib/mock-data';
 
 const isUUID = (str: string) => 
@@ -41,6 +41,7 @@ export async function getSimilarDesignsInMemory(
   mode: string = 'visual'
 ): Promise<Design[]> {
   try {
+    const supabase = getSupabaseAnon();
     let target: Design | null = null;
 
     // 1. Fetch the target design safely (UUID vs Slug)
@@ -71,7 +72,7 @@ export async function getSimilarDesignsInMemory(
     let candidates: Design[] = [];
     let query = supabase
       .from('designs')
-      .select('id, slug, title, image_url, alt_text, style, body_part, style_tags, emotion_tags, artist_name, public_category, uploaded_at, tags, is_published, deleted_at, image_blurhash')
+      .select('id, slug, title, image_url, alt_text, style, body_part, style_tags, emotion_tags, public_category, uploaded_at, tags, is_published, deleted_at, image_blurhash')
       .eq('is_published', true)
       .is('deleted_at', null);
 
@@ -143,6 +144,13 @@ export async function getSimilarDesignsInMemory(
           tags: ensureArray(d.tags || (d as any).elements),
           style_tags: ensureArray(d.style_tags),
           emotion_tags: ensureArray(d.emotion_tags),
+          // Fields that exist in the codebase but not yet in the database
+          image_width: d.image_width ?? 800,
+          image_height: d.image_height ?? 1000,
+          gender_suitability: d.gender ?? d.gender_suitability ?? null,
+          artist_name: d.artist_name ?? null,
+          artist_instagram: d.artist_instagram ?? null,
+          image_shaded_url: d.image_shaded_url ?? null,
         } as Design;
       });
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { supabaseAnon } from "@/lib/supabase-anon";
+import { getSupabaseAnon } from "@/lib/supabase-anon";
 import WaitlistForm from "@/components/ui/WaitlistForm";
 
 export const revalidate = 60; // Cache landing page for 60 seconds (1 minute)
@@ -42,7 +42,7 @@ const SVGIcon = ({ name }: { name: string }) => {
 };
 
 export default async function LandingPage() {
-  const supabase = supabaseAnon;
+  const supabase = getSupabaseAnon();
 
   // Parallel Data Fetching for all sections
   const [heroRes, previewRes, meaningRes] = await Promise.all([
@@ -50,6 +50,28 @@ export default async function LandingPage() {
     supabase.from('designs').select('thumbnail_url, image_url, slug, public_category').eq('is_published', true).limit(20),
     supabase.from('designs').select('thumbnail_url, image_url, subject, slug, meaning, cultural_origin').eq('is_published', true).not('meaning', 'is', null).order('save_count', { ascending: false }).limit(3)
   ]);
+
+  if (heroRes.error) {
+    console.error('[DATABASE ERROR] Failed to fetch hero designs from Supabase:', {
+      message: heroRes.error.message,
+      details: heroRes.error.details,
+      code: heroRes.error.code
+    });
+  }
+  if (previewRes.error) {
+    console.error('[DATABASE ERROR] Failed to fetch preview designs from Supabase:', {
+      message: previewRes.error.message,
+      details: previewRes.error.details,
+      code: previewRes.error.code
+    });
+  }
+  if (meaningRes.error) {
+    console.error('[DATABASE ERROR] Failed to fetch meaning designs from Supabase:', {
+      message: meaningRes.error.message,
+      details: meaningRes.error.details,
+      code: meaningRes.error.code
+    });
+  }
 
   const heroDesigns = heroRes.data || [];
   const previewDesigns = previewRes.data || [];

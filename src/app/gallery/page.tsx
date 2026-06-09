@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import GalleryGrid from "@/components/gallery/GalleryGrid";
 import GalleryFilters from "@/components/gallery/GalleryFilters";
 import { designService } from "@/services/designService";
-import { supabaseAnon } from "@/lib/supabase-anon";
+import { getSupabaseAnon } from "@/lib/supabase-anon";
 import Link from "next/link";
 
 export const revalidate = 300; // Cache gallery index for 5 minutes
@@ -34,14 +34,25 @@ export default async function GalleryIndex(props: {
     // Optional: get total count for "X of Y" display
     let totalDesigns = 0;
     try {
-        let countQuery = supabaseAnon.from('designs').select('*', { count: 'exact', head: true }).eq('is_published', true);
+        const supabase = getSupabaseAnon();
+        let countQuery = supabase.from('designs').select('*', { count: 'exact', head: true }).eq('is_published', true);
         if (styleParam) countQuery = countQuery.contains('style', [styleParam]);
         if (bodyPartParam) countQuery = countQuery.contains('body_part', [bodyPartParam]);
         if (genderParam) countQuery = countQuery.eq('gender', genderParam);
-        const { count } = await countQuery;
-        totalDesigns = count || 0;
-    } catch (err) {
-        console.warn('Failed to fetch total count:', err);
+        
+        const { count, error } = await countQuery;
+        if (error) {
+            console.error('[DATABASE ERROR] Failed to fetch total count from Supabase:', {
+                message: error.message,
+                details: error.details,
+                hint: error.hint,
+                code: error.code
+            });
+        } else {
+            totalDesigns = count || 0;
+        }
+    } catch (err: any) {
+        console.error('[DATABASE FATAL] Failed to fetch total count:', err);
     }
 
     const showingX = Math.min(page * limit, totalDesigns);
