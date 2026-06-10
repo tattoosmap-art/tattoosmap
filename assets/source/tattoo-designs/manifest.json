@@ -1,0 +1,156 @@
+[
+  {
+    "name": "design-01.webp",
+    "originalFile": "1.jpg",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-01.webp",
+    "width": 1402,
+    "height": 1386
+  },
+  {
+    "name": "design-02.webp",
+    "originalFile": "10.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-02.webp",
+    "width": 1600,
+    "height": 2469
+  },
+  {
+    "name": "design-03.webp",
+    "originalFile": "11.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-03.webp",
+    "width": 1600,
+    "height": 2074
+  },
+  {
+    "name": "design-04.webp",
+    "originalFile": "12.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-04.webp",
+    "width": 1600,
+    "height": 1745
+  },
+  {
+    "name": "design-05.webp",
+    "originalFile": "13.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-05.webp",
+    "width": 1600,
+    "height": 1006
+  },
+  {
+    "name": "design-06.webp",
+    "originalFile": "4.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-06.webp",
+    "width": 1600,
+    "height": 640
+  },
+  {
+    "name": "design-07.webp",
+    "originalFile": "5.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-07.webp",
+    "width": 1600,
+    "height": 2302
+  },
+  {
+    "name": "design-08.webp",
+    "originalFile": "6.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-08.webp",
+    "width": 1600,
+    "height": 1093
+  },
+  {
+    "name": "design-09.webp",
+    "originalFile": "Capture d’écran 2023-08-16 à 03.50.43.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-09.webp",
+    "width": 812,
+    "height": 1080
+  },
+  {
+    "name": "design-10.webp",
+    "originalFile": "Capture d’écran 2023-08-16 à 03.50.55.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-10.webp",
+    "width": 764,
+    "height": 1090
+  },
+  {
+    "name": "design-11.webp",
+    "originalFile": "Capture d’écran 2023-08-16 à 03.51.04.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-11.webp",
+    "width": 852,
+    "height": 1064
+  },
+  {
+    "name": "design-12.webp",
+    "originalFile": "Capture d’écran 2023-08-16 à 03.51.11.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-12.webp",
+    "width": 734,
+    "height": 1240
+  },
+  {
+    "name": "design-13.webp",
+    "originalFile": "Capture d’écran 2023-08-16 à 03.51.26.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-13.webp",
+    "width": 766,
+    "height": 978
+  },
+  {
+    "name": "design-14.webp",
+    "originalFile": "Capture d’écran 2023-08-16 à 03.51.34.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-14.webp",
+    "width": 806,
+    "height": 1096
+  },
+  {
+    "name": "design-15.webp",
+    "originalFile": "Capture d’écran 2023-08-16 à 03.51.41.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-15.webp",
+    "width": 386,
+    "height": 658
+  },
+  {
+    "name": "design-16.webp",
+    "originalFile": "Capture d’écran 2023-08-16 à 03.52.03.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-16.webp",
+    "width": 558,
+    "height": 832
+  },
+  {
+    "name": "design-17.webp",
+    "originalFile": "Capture d’écran 2023-08-16 à 03.52.10.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-17.webp",
+    "width": 606,
+    "height": 702
+  },
+  {
+    "name": "design-18.webp",
+    "originalFile": "Capture d’écran 2023-08-16 à 03.52.25.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-18.webp",
+    "width": 474,
+    "height": 688
+  },
+  {
+    "name": "design-19.webp",
+    "originalFile": "Capture d’écran 2023-08-16 à 03.52.38.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-19.webp",
+    "width": 582,
+    "height": 1202
+  },
+  {
+    "name": "design-20.webp",
+    "originalFile": "Capture d’écran 2023-08-16 à 03.52.43.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-20.webp",
+    "width": 710,
+    "height": 1162
+  },
+  {
+    "name": "design-21.webp",
+    "originalFile": "Capture d’écran 2023-08-16 à 03.52.52.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-21.webp",
+    "width": 824,
+    "height": 1092
+  },
+  {
+    "name": "design-22.webp",
+    "originalFile": "Capture d’écran 2023-08-16 à 03.53.01.png",
+    "url": "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/tattoos/designs/design-22.webp",
+    "width": 768,
+    "height": 1192
+  }
+]

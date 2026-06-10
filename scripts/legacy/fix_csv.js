@@ -1,0 +1,56 @@
+import fs from 'fs';
+
+const headers = ["original_filename","original_resolution","original_file_size_kb","full_webp_size_kb","thumb_webp_size_kb","quality_flag","quality_notes","seo_filename","thumbnail_filename","subject","public_category","family_internal","mood","elements","alt_text","speakable_summary","confidence_score","ip_flag","low_confidence_flag","slug","article_schema_ready","visual_work_schema","speakable_schema","status","notes"];
+
+const row1 = [
+    "fine-line-floral-composition-f2-000.png","662x1160","183.80","46.17","11.32","GOOD","Restoration applied successfully",
+    "fine-line-fine-line-wildflower-and-rose-delicate-nb.webp","fine-line-fine-line-wildflower-and-rose-delicate-nb-thumb.webp",
+    "fine line wildflower and rose bud botanical study","nature-botanical","unassigned","delicate","wildflower, rose bud, botanical branch, line art, minimalist",
+    "Elegant fine line wildflower and rose bud botanical tattoo design on white background.","An elegant fine-line botanical composition featuring a fully bloomed wildflower and a delicate rose bud.","0.98","FALSE","FALSE","fine-line-wildflower-and-rose","FALSE",
+    '{"@context":"https://schema.org","@type":"VisualArtwork","name":"fine line wildflower and rose bud botanical study","description":"Elegant fine line wildflower and rose bud botanical tattoo design on white background."}',
+    '{"@context":"https://schema.org","@type":"SpeakableSpecification","cssSelector":[".speakable"]}',
+    "READY","AI Simulation Mode"
+];
+
+const row2 = [
+    "fine-line-minimalist-buds-f1-004.png","824x825","121.50","52.85","12.19","GOOD","Restoration applied successfully",
+    "fine-line-fine-line-floral-crescent-moon-delicate-cm.webp","fine-line-fine-line-floral-crescent-moon-delicate-cm-thumb.webp",
+    "fine line floral crescent moon celestial design","celestial-mystical","unassigned","delicate","crescent moon, blooming flower, sparkles, twinkling stars, botanical leaves",
+    "Celestial fine line floral tattoo with crescent moon, leaves, and shimmering stars.","A stunning celestial composition blending a blooming wildflower with a delicate crescent moon and magical sparkles.","0.95","FALSE","FALSE","fine-line-floral-crescent-moon","FALSE",
+    '{"@context":"https://schema.org","@type":"VisualArtwork","name":"fine line floral crescent moon celestial design","description":"Celestial fine line floral tattoo with crescent moon, leaves, and shimmering stars."}',
+    '{"@context":"https://schema.org","@type":"SpeakableSpecification","cssSelector":[".speakable"]}',
+    "READY","AI Simulation Mode"
+];
+
+const row3 = [
+    "fine-line-minimalist-buds-f1-005.png","447x768","52.55","24.31","5.48","GOOD","Restoration applied successfully",
+    "fine-line-minimalist-fine-line-long-stem-rose-delicate-nb.webp","fine-line-minimalist-fine-line-long-stem-rose-delicate-nb-thumb.webp",
+    "minimalist fine line long-stem rose flower","nature-botanical","unassigned","delicate","long-stem rose, blooming petals, thorns, botanical leaves, outline art",
+    "Classic fine line long-stem rose tattoo design with leaves on single stem.","A timeless and elegant single long-stem rose rendered in minimalist fine-line ink.","0.99","FALSE","FALSE","minimalist-fine-line-long-stem-rose","FALSE",
+    '{"@context":"https://schema.org","@type":"VisualArtwork","name":"minimalist fine line long-stem rose flower","description":"Classic fine line long-stem rose tattoo design with leaves on single stem."}',
+    '{"@context":"https://schema.org","@type":"SpeakableSpecification","cssSelector":[".speakable"]}',
+    "READY","AI Simulation Mode"
+];
+
+const row4 = [
+    "fine-line-minimalist-buds-f1-028.png","538x506","37.54","28.99","6.97","GOOD","Restoration applied successfully",
+    "fine-line-illustrative-fine-line-breaching-whale-illustrative-aw.webp","fine-line-illustrative-fine-line-breaching-whale-illustrative-aw-thumb.webp",
+    "illustrative fine line breaching whale and moon","animals-wildlife","unassigned","illustrative","breaching whale, ocean waves, crescent moon, sparkling stars, cartoon style",
+    "Charming fine line tattoo of a breaching whale jumping under a crescent moon.","A whimsical illustrative tattoo design featuring a joyful whale breaching the ocean surface under a moonlit sky.","0.92","FALSE","FALSE","illustrative-fine-line-breaching-whale","FALSE",
+    '{"@context":"https://schema.org","@type":"VisualArtwork","name":"illustrative fine line breaching whale and moon","description":"Charming fine line tattoo of a breaching whale jumping under a crescent moon."}',
+    '{"@context":"https://schema.org","@type":"SpeakableSpecification","cssSelector":[".speakable"]}',
+    "READY","AI Simulation Mode"
+];
+
+function escapeCSVField(str) {
+    if (typeof str !== 'string') return '';
+    // if it contains quotes or commas, wrap in double quotes and escape inner quotes
+    if (str.includes('"') || str.includes(',')) {
+        return '"' + str.replace(/"/g, '""') + '"';
+    }
+    return str;
+}
+
+const csvLines = [headers, row1, row2, row3, row4].map(r => r.map(escapeCSVField).join(',')).join("\n");
+
+fs.writeFileSync('/Users/killywilly/Desktop/Antigravity/tattoosmap/tattoosmap_seo_data_2026-03-30.csv', csvLines);
