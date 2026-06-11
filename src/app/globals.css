@@ -1,26 +1,151 @@
 @import "tailwindcss";
 
+@theme {
+  --color-white: #FFFFFF;
+  --color-off-white: #F5F5F3;
+  --color-black: #0A0A0A;
+  --color-gray-light: #E8E8E6;
+  --color-gray-mid: #9A9A9A;
+  --color-brand-red: #CC1F1F;
+  --color-brand-red-dark: #991515;
+
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-playfair-display), ui-serif, Georgia, serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Type Scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-hero: 4.5rem;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--color-white);
+  --foreground: var(--color-black);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* 
+  Global Image Protection Header
+  Disables dragging, long-press saving on iOS, and native right-click "Save Image As" 
+  by making images pass-through for pointer events.
+*/
+img {
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -ms-user-drag: none;
+  user-select: none;
+  pointer-events: none;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  line-height: 1.7;
+  -webkit-overflow-scrolling: touch;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-display {
+  font-family: var(--font-display);
+  line-height: 1.15;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* 
+  GPU Acceleration Override
+  Forces the browser to compose elements on a separate hardware GPU layer 
+  to ensure heavy image grids scroll at native 60fps on mobile.
+*/
+.will-change-transform {
+  will-change: transform, opacity;
+}
+
+/* 
+  Pillar 3: The 'Luxury' Scrollbar 
+  Replaces standard OS chunky scrollbars with a minimalist, 0-radius tracking system.
+*/
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-gray-light);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-gray-mid);
+}
+
+@layer components {
+  /* 
+    Pillar 4: Masonry Grid System
+    Required styles for react-masonry-css to correctly split items into columns
+  */
+  .design-masonry-grid {
+    display: flex !important;
+    margin-left: -24px; /* gutter size offset */
+    width: auto;
+  }
+  .design-masonry-column {
+    padding-left: 24px; /* gutter size */
+    background-clip: padding-box;
+  }
+  .design-masonry-column > div {
+    margin-bottom: 24px;
+  }
 }
