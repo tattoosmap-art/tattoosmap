@@ -599,7 +599,8 @@ function TryOnContent() {
       fetch(designUrl)
         .then(res => res.blob())
         .then(blob => {
-          const file = new File([blob], "design.png", { type: blob.type || "image/png" });
+          const mimeType = blob.type || "image/png";
+          const file = new File([blob], "design.png", { type: mimeType });
           setTattooFile(file);
         })
         .catch(err => console.error("Could not fetch preset design:", err));
