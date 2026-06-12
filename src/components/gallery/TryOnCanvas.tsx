@@ -160,17 +160,54 @@ export default function TryOnCanvas({ tattooOverlayUrl }: TryOnCanvasProps) {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
-        canvas.toBlob((blob) => {
+        // Create temporary canvas to avoid drawing watermarks in interactive viewport
+        const watermarkCanvas = document.createElement("canvas");
+        watermarkCanvas.width = canvas.width;
+        watermarkCanvas.height = canvas.height;
+        const wCtx = watermarkCanvas.getContext("2d");
+        if (!wCtx) return;
+
+        // 1. Draw the interactive preview composite
+        wCtx.drawImage(canvas, 0, 0);
+
+        // 2. Draw branded watermark matching downloadImage styling logic
+        const fontSize = Math.max(12, Math.round(canvas.width * 0.025));
+        const fontFamily = `"DM Mono", "Courier New", monospace`;
+        const text = "T A T T O O S M A P";
+        const padding = Math.round(canvas.width * 0.025);
+
+        wCtx.font = `500 ${fontSize}px ${fontFamily}`;
+        const metrics = wCtx.measureText(text);
+        const textWidth = metrics.width;
+        const textHeight = fontSize;
+
+        const barPadY = Math.round(fontSize * 0.5);
+        const barPadX = Math.round(fontSize * 0.7);
+        const barX = watermarkCanvas.width - textWidth - barPadX * 2 - padding;
+        const barY = watermarkCanvas.height - textHeight - barPadY * 2 - padding;
+        const barW = textWidth + barPadX * 2;
+        const barH = textHeight + barPadY * 2;
+
+        wCtx.fillStyle = "rgba(0, 0, 0, 0.42)";
+        wCtx.fillRect(barX, barY, barW, barH);
+
+        wCtx.fillStyle = "rgba(255, 255, 255, 0.82)";
+        wCtx.font = `500 ${fontSize}px ${fontFamily}`;
+        wCtx.textBaseline = "top";
+        wCtx.fillText(text, barX + barPadX, barY + barPadY);
+
+        // 3. Export file payload safely via URL blob
+        watermarkCanvas.toBlob((blob) => {
             if (!blob) return;
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.download = `tattoosmap-preview-${Date.now()}.jpg`;
+            link.download = `tattoosmap-tryon-${Date.now()}.jpg`;
             link.href = url;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             setTimeout(() => URL.revokeObjectURL(url), 100);
-        }, "image/jpeg", 0.9);
+        }, "image/jpeg", 0.95);
     };
 
     return (
