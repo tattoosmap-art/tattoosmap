@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAnon } from "@/lib/supabase-anon";
 import { createClient } from "@/lib/supabase-server";
 import { ADMIN_EMAILS } from "@/lib/admin";
 import { AddArtistButton } from "@/components/artists/AddArtistButton";
@@ -52,7 +52,8 @@ export default async function ArtistsDirectory() {
     // Fetch artists from DB with robust error handling
     let dbArtists: any[] = [];
     try {
-        let query = supabaseAdmin
+        const supabaseAnonClient = getSupabaseAnon();
+        let query = supabaseAnonClient
             .from('artists')
             .select('*')
             .order('created_at', { ascending: false });

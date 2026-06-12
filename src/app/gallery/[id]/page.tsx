@@ -25,6 +25,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         title: metaTitle,
         description: metaDescription,
         keywords: [focusKeyword, ...(design?.style_tags || []), ...(design?.emotion_tags || [])],
+        alternates: {
+            canonical: `/gallery/${id}`,
+        },
         openGraph: {
             title: metaTitle,
             description: metaDescription,

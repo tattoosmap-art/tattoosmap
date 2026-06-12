@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "prod-start": "lsof -t -i :3001 | xargs kill -9 || true; npm run build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/ && PORT=3001 node .next/standalone/server.js"
   },
   "dependencies": {
     "@fal-ai/client": "^1.10.1",

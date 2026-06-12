@@ -19,8 +19,34 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tattoosmap — Discover Tattoo Designs",
-  description: "Browse thousands of tattoo designs and find your next tattoo.",
+  metadataBase: new URL("https://tattoosmap.com"),
+  title: "TattoosMap — Find Your Perfect Tattoo Design",
+  description: "Browse thousands of curated tattoo designs, discover meaning, and connect with verified artists.",
+  alternates: {
+    canonical: "./",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://tattoosmap.com",
+    siteName: "TattoosMap",
+    title: "TattoosMap — Discover Your Perfect Tattoo",
+    description: "Browse thousands of curated tattoo designs, discover meaning, and connect with verified artists.",
+    images: [
+      {
+        url: "/brand-logo.png",
+        width: 1200,
+        height: 630,
+        alt: "TattoosMap Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TattoosMap — Discover Your Perfect Tattoo",
+    description: "Browse thousands of curated tattoo designs, discover meaning, and connect with verified artists.",
+    images: ["/brand-logo.png"],
+  },
 };
 
 export default function RootLayout({

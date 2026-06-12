@@ -1,7 +1,23 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getSupabaseAnon } from "@/lib/supabase-anon";
-import { WaitlistForm } from "@/components/ui/WaitlistForm";
+import WaitlistForm from "@/components/ui/WaitlistForm";
+
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "TattoosMap — Discover Tattoo Designs, Styles & Meanings",
+  description: "Explore thousands of tattoo designs, read science-backed aftercare guides, and book direct with verified artists. The objective tattoo discovery platform.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "TattoosMap — Find Your Perfect Tattoo",
+    description: "Explore thousands of tattoo designs, read science-backed aftercare guides, and book direct with verified artists.",
+    url: "https://tattoosmap.com",
+    images: ["/brand-logo.png"],
+  },
+};
 
 export const revalidate = 60; // Cache landing page for 60 seconds (1 minute)
 

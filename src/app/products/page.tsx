@@ -1,5 +1,5 @@
 import { ProductCard } from "@/components/products/ProductCard";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAnon } from "@/lib/supabase-anon";
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
 import { createClient } from "@/lib/supabase-server";
 import { ADMIN_EMAILS } from "@/lib/admin";
@@ -24,9 +24,10 @@ export default async function ProductsPage() {
     const isAdmin = !!user && ADMIN_EMAILS.includes(user.email?.toLowerCase().trim() || "");
 
     // 2. Fetch real products from Database
-    const { data: products, error } = await supabaseAdmin
+    const supabaseAnonClient = getSupabaseAnon();
+    const { data: products, error } = await supabaseAnonClient
         .from('products')
-        .select('*')
+        .select('id, name, slug, price, affiliate_url, image_url, button_label, description, category, tag')
         .order('created_at', { ascending: false });
 
     if (error) {
