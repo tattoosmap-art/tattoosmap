@@ -131,6 +131,8 @@ interface VisualStepTemplateProps {
   faqHeading?: string;
   mode?: "edit" | "create";
   sharedStateRef?: React.RefObject<any>;
+  authorName?: string;
+  authorAvatarUrl?: string;
 }
 
 export default function VisualStepTemplate({
@@ -162,7 +164,9 @@ export default function VisualStepTemplate({
   stepsHeading: initialStepsHeading = "Step-by-Step Sequence",
   faqHeading: initialFaqHeading = "Frequently Asked Questions",
   mode = "create",
-  sharedStateRef
+  sharedStateRef,
+  authorName,
+  authorAvatarUrl
 }: VisualStepTemplateProps) {
   const router = useRouter();
 
@@ -450,7 +454,7 @@ export default function VisualStepTemplate({
             </div>
 
             <div className="font-mono text-[11px] text-neutral-400 mb-8 uppercase tracking-widest text-center">
-              By TattoosMap Editorial — <Editable isAdmin={isAdmin} onSave={(v) => handleTextChange(setUpdatedDate, v)}>{updatedDate}</Editable>
+              By {authorName || "TattoosMap"} — <Editable isAdmin={isAdmin} onSave={(v) => handleTextChange(setUpdatedDate, v)}>{updatedDate}</Editable>
             </div>
           </div>
         </div>

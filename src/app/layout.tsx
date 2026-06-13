@@ -22,6 +22,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://tattoosmap.com"),
   title: "TattoosMap — Find Your Perfect Tattoo Design",
   description: "Browse thousands of curated tattoo designs, discover meaning, and connect with verified artists.",
+  icons: {
+    icon: "/brand-logo.png",
+    shortcut: "/brand-logo.png",
+    apple: "/brand-logo.png",
+  },
   alternates: {
     canonical: "./",
   },

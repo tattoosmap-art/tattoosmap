@@ -101,6 +101,8 @@ export interface ProductPostTemplateProps {
   category?: string;
   tags?: string[];
   sharedStateRef?: React.RefObject<any>;
+  authorName?: string;
+  authorAvatarUrl?: string;
 }
 
 // 1. SECTION TOOLBAR helper (Moved outside to preserve focus)
@@ -219,7 +221,9 @@ export default function ProductPostTemplate({
   avoidHeading: initialAvoidHeading = "What To Never Use",
   faqHeading: initialFaqHeading = "Frequently Asked Questions",
   shortAnswerHeading: initialShortAnswerHeading = "The Short Answer",
-  sharedStateRef
+  sharedStateRef,
+  authorName,
+  authorAvatarUrl
 }: ProductPostTemplateProps) {
   const router = useRouter();
 
@@ -809,7 +813,7 @@ export default function ProductPostTemplate({
             </div>
 
             <div className="font-mono text-[11px] text-neutral-400 mb-8 uppercase tracking-widest text-center">
-              By TattoosMap Editorial — <Editable isAdmin={isAdmin} onSave={(v) => handleTextChange(setUpdatedDate, v)}>{updatedDate}</Editable>
+              By {authorName || "TattoosMap"} — <Editable isAdmin={isAdmin} onSave={(v) => handleTextChange(setUpdatedDate, v)}>{updatedDate}</Editable>
             </div>
 
             <div className="font-mono text-[11px] text-neutral-400 leading-[1.5]">

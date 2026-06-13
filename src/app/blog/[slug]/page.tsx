@@ -368,6 +368,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 relatedPosts={relatedPosts}
                 postId={post.id}
                 comments={comments}
+                authorName={post.author?.name}
+                authorAvatarUrl={post.author?.avatar_url}
             />
         );
     }
@@ -395,7 +397,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
 
                     <div className="font-mono text-[10px] text-neutral-400 mb-8 uppercase tracking-widest text-center leading-relaxed order-4">
-                        By TattoosMap Editorial — {new Date(post.published_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                        By {post.author?.name || "TattoosMap"} — {new Date(post.published_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                         {post.related_products && post.related_products.length > 0 && (
                             <span className="block mt-1">
                                 Contains affiliate links — commission earned at no extra cost to you

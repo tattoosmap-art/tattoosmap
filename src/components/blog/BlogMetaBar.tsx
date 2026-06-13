@@ -78,15 +78,15 @@ export default function BlogMetaBar({ post }: BlogMetaBarProps) {
                 <div className="flex items-center gap-4">
                     <div className="relative w-12 h-12 rounded-full overflow-hidden bg-white border border-gray-light">
                         <Image 
-                            src="/brand-logo.png"
-                            alt="TattoosMap Logo"
+                            src={post.author?.avatar_url || "/brand-logo.png"}
+                            alt={`${post.author?.name || "TattoosMap"} Logo`}
                             fill
                             className="object-contain"
                             sizes="48px"
                         />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-[14px] text-black font-medium">TattoosMap</span>
+                        <span className="text-[14px] text-black font-medium">{post.author?.name || "TattoosMap"}</span>
                         <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-gray-mid">
                             {formattedDate} · {post.read_time_minutes} MIN READ
                         </span>
