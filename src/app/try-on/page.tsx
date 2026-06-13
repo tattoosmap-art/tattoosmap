@@ -808,15 +808,48 @@ function TryOnContent() {
 
               {/* Result actions */}
               {stage === "result" && result && (
-                <div className="flex gap-3 mt-4">
-                  <a href={result} download="tattoo-tryOn.jpg"
-                    className="flex-1 py-4 font-mono text-[12px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 bg-black text-white hover:bg-neutral-800 transition-colors shadow-lg">
-                    <Download className="w-4 h-4" /> Download Result
-                  </a>
-                  <button onClick={() => setStage("place")}
-                    className="px-8 py-4 font-mono text-[11px] uppercase tracking-[0.15em] border-2 border-black text-black hover:bg-black hover:text-white transition-colors">
-                    Adjust Design
-                  </button>
+                <div className="flex flex-col gap-3 mt-4">
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={() => {
+                        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                        if (isMobile) {
+                          // Mobile download action fallback
+                          const newTab = window.open();
+                          if (newTab) {
+                            newTab.document.write(`
+                              <html>
+                                <body style="margin:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-center;height:100vh;font-family:sans-serif;color:#fff;text-align:center;padding:20px;">
+                                  <p style="margin:20px 0;font-size:14px;letter-spacing:1px;text-transform:uppercase;">Hold down the image below to save it</p>
+                                  <img src="${result}" style="max-width:100%;max-height:80vh;object-fit:contain;" />
+                                  <button onclick="window.close()" style="margin-top:20px;background:#e24b4a;color:#fff;border:none;padding:12px 24px;font-size:12px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;">Go Back</button>
+                                </body>
+                              </html>
+                            `);
+                          } else {
+                            window.location.href = result;
+                          }
+                        } else {
+                          const link = document.createElement("a");
+                          link.href = result;
+                          link.download = "tattoo-tryOn.jpg";
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }
+                      }}
+                      className="flex-1 py-4 font-mono text-[12px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 bg-black text-white hover:bg-neutral-800 transition-colors shadow-lg"
+                    >
+                      <Download className="w-4 h-4" /> Download Result
+                    </button>
+                    <button onClick={() => setStage("place")}
+                      className="px-8 py-4 font-mono text-[11px] uppercase tracking-[0.15em] border-2 border-black text-black hover:bg-black hover:text-white transition-colors">
+                      Adjust
+                    </button>
+                  </div>
+                  <p className="font-mono text-[9px] text-neutral-400 text-center uppercase tracking-widest leading-relaxed">
+                    Tip: On phone, click "Download" and press & hold the image to save directly to photos.
+                  </p>
                 </div>
               )}
             </div>

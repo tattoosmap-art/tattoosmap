@@ -171,8 +171,8 @@ export default function TryOnCanvas({ tattooOverlayUrl }: TryOnCanvasProps) {
         wCtx.drawImage(canvas, 0, 0);
 
         // 2. Draw branded watermark matching downloadImage styling logic
-        const fontSize = Math.max(12, Math.round(canvas.width * 0.025));
-        const fontFamily = `"DM Mono", "Courier New", monospace`;
+        const fontSize = Math.max(18, Math.round(canvas.width * 0.022));
+        const fontFamily = `Courier, "Courier New", monospace`;
         const text = "T A T T O O S M A P";
         const padding = Math.round(canvas.width * 0.025);
 
