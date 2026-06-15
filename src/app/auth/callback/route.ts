@@ -41,9 +41,12 @@ export async function GET(request: NextRequest) {
         } else {
             console.log('[AUTH CALLBACK] Exchange SUCCESS — user:', data.session?.user?.email);
         }
-    } else {
-        console.warn('[AUTH CALLBACK] No code param in URL');
     }
 
-    return NextResponse.redirect(new URL('/', requestUrl.origin));
+    // Determine redirect origin: use production URL if in production to prevent 0.0.0.0 hostname issue from reverse proxies
+    const redirectOrigin = process.env.NODE_ENV === 'production' 
+        ? 'https://tattoosmap.com' 
+        : requestUrl.origin;
+
+    return NextResponse.redirect(new URL('/', redirectOrigin));
 }
