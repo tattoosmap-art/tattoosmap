@@ -455,13 +455,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                                       {product.tag || product.badge}
                                     </span>
                                     {((product.image_url && product.image_url.trim() !== '') || (product.imageSrc && product.imageSrc.trim() !== '')) && (
-                                      <div className="w-full aspect-[2/1] relative mb-6 bg-off-white border border-gray-light overflow-hidden">
+                                      <div className="w-full max-w-[280px] mx-auto aspect-square relative mb-6 bg-off-white border border-gray-light overflow-hidden flex items-center justify-center min-h-[160px]">
                                         <Image
                                           src={product.image_url || product.imageSrc}
                                           alt={product.imageAlt || product.name}
                                           fill
-                                          sizes="(max-width: 768px) 100vw, 680px"
-                                          className="object-cover"
+                                          sizes="(max-width: 768px) 100vw, 280px"
+                                          className="object-contain p-4"
                                         />
                                       </div>
                                     )}
