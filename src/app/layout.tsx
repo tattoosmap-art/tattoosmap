@@ -7,6 +7,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 import LayoutWrapper from "@/components/ui/LayoutWrapper";
 import LoginModal from "@/components/ui/LoginModal";
 import SmoothScrollProvider from "@/components/ui/SmoothScrollProvider";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -76,6 +77,7 @@ export default function RootLayout({
             </ToastProvider>
           </ModalProvider>
         </AuthProvider>
+        <GoogleAnalytics gaId="G-6YMDNWV093" />
       </body>
     </html>
   );
