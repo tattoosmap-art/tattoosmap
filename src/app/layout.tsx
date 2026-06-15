@@ -77,7 +77,7 @@ export default function RootLayout({
             </ToastProvider>
           </ModalProvider>
         </AuthProvider>
-        <GoogleAnalytics gaId="G-6YMDNWV093" />
+        <GoogleAnalytics gaId="G-FEXM2LQZDB" />
       </body>
     </html>
   );
