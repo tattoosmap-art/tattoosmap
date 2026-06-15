@@ -1145,14 +1145,14 @@ export default function ProductPostTemplate({
                         <Editable isAdmin={isAdmin} onSave={(v) => handleArrayChange(setProducts, products, idx, 'badge', v)}>{product.badge}</Editable>
                       </span>
                       
-                       <div className="w-full aspect-[2/1] relative mb-6 bg-off-white border border-gray-light group overflow-hidden flex items-center justify-center min-h-[160px]">
+                       <div className="w-full max-w-[280px] mx-auto aspect-square relative mb-6 bg-off-white border border-gray-light group overflow-hidden flex items-center justify-center min-h-[160px]">
                         {product.imageSrc && product.imageSrc.trim() !== '' ? (
                               <Image 
                                 src={product.imageSrc} 
                                 alt={product.imageAlt}
                                 fill
-                                sizes="(max-width: 768px) 100vw, 680px"
-                                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                sizes="(max-width: 768px) 100vw, 280px"
+                                className="object-contain p-4 transition-transform duration-700 group-hover:scale-105"
                               />
                         ) : (
                           <div className="flex flex-col items-center justify-center text-neutral-300">
