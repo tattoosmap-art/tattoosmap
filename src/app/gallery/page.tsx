@@ -4,7 +4,17 @@ import GalleryFilters from "@/components/gallery/GalleryFilters";
 import { Design } from "@/types/database.types";
 import { designService } from "@/services/designService";
 
+import { Metadata } from "next";
+
 export const revalidate = 300; // Cache gallery index for 5 minutes
+
+export const metadata: Metadata = {
+    title: "Tattoo Gallery Website | Explore Thousands of Designs & Portfolios",
+    description: "Browse our tattoo gallery website featuring thousands of curated tattoo design websites, styles, meanings and tattoo portfolio websites from around the world.",
+    alternates: {
+        canonical: "/gallery"
+    }
+};
 
 export default async function GalleryIndex(props: {
     searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -72,6 +82,22 @@ export default async function GalleryIndex(props: {
 
     return (
         <div className="w-full bg-white pb-32">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "CollectionPage",
+                        "name": "Tattoo Gallery Website | TattoosMap",
+                        "description": "Browse our tattoo gallery website featuring thousands of curated tattoo design websites, styles, meanings and tattoo portfolio websites from around the world.",
+                        "url": "https://tattoosmap.com/gallery",
+                        "provider": { "@type": "Organization", "name": "TattoosMap" }
+                    })
+                }}
+            />
+            <h1 className="sr-only">
+                Tattoo Design Gallery — Browse Thousands of Curated Tattoo Designs
+            </h1>
             <Suspense fallback={<div className="h-[73px] w-full border-b border-gray-light bg-white" />}>
                 <GalleryFilters />
             </Suspense>

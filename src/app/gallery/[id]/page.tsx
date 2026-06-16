@@ -113,6 +113,8 @@ export default async function DesignPage({ params }: { params: Promise<{ id: str
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
             />
+            
+            <h1 className="sr-only">{design.title || design.subject || "Tattoo Design"}</h1>
 
             {/* MASTER DYNAMIC CLIENT BLOCK (PORTS THE FULL PREMIUM DESIGN LAB STRUCTURE) */}
             <DesignDetailClient 

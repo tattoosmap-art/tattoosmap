@@ -6,8 +6,8 @@ import WaitlistForm from "@/components/ui/WaitlistForm";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "TattoosMap — Discover Tattoo Designs, Styles & Meanings",
-  description: "Explore thousands of tattoo designs, read science-backed aftercare guides, and book direct with verified artists. The objective tattoo discovery platform.",
+  title: "TattoosMap | The #1 Tattoo Design Website & Artist Directory",
+  description: "TattoosMap is the best tattoo design website to explore thousands of curated designs, find tattoo website inspiration, connect with verified artists, and discover meaning behind every style.",
   alternates: {
     canonical: "/",
   },

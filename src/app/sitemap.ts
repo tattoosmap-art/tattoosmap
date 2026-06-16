@@ -23,6 +23,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: 'hourly' as const,
             priority: 0.9,
         },
+        {
+            url: `${baseUrl}/artists`,
+            lastModified: new Date(),
+            changeFrequency: 'daily' as const,
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/products`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly' as const,
+            priority: 0.7,
+        },
+        {
+            url: `${baseUrl}/try-on`,
+            lastModified: new Date(),
+            changeFrequency: 'monthly' as const,
+            priority: 0.7,
+        },
+        {
+            url: `${baseUrl}/tools`,
+            lastModified: new Date(),
+            changeFrequency: 'monthly' as const,
+            priority: 0.7,
+        },
+        {
+            url: `${baseUrl}/contact`,
+            lastModified: new Date(),
+            changeFrequency: 'yearly' as const,
+            priority: 0.5,
+        },
     ];
 
     // Fetch live posts from the database dynamically
@@ -51,5 +81,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
     }));
 
-    return [...staticRoutes, ...blogRoutes, ...galleryRoutes];
+    const KEYWORDS = [
+        "dragon-tattoo", "lotus-tattoo", "snake-tattoo", "rose-tattoo",
+        "butterfly-tattoo", "skull-tattoo", "koi-fish-tattoo", "wolf-tattoo",
+        "lion-tattoo", "tiger-tattoo", "phoenix-tattoo", "anchor-tattoo",
+        "compass-tattoo", "owl-tattoo", "bear-tattoo", "eagle-tattoo",
+        "medusa-tattoo", "moon-tattoo", "sun-tattoo", "arrow-tattoo",
+        "feather-tattoo", "tree-tattoo", "clock-tattoo", "heart-tattoo",
+        "cross-tattoo", "semicolon-tattoo", "infinity-tattoo", "mandala-tattoo"
+    ];
+
+    const meaningRoutes = KEYWORDS.map(keyword => ({
+        url: `${baseUrl}/meaning/${keyword}`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly' as const,
+        priority: 0.8,
+    }));
+
+    return [...staticRoutes, ...blogRoutes, ...galleryRoutes, ...meaningRoutes];
 }

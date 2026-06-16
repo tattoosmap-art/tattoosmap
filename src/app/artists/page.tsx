@@ -4,9 +4,18 @@ import { ADMIN_EMAILS } from "@/lib/admin";
 import { AddArtistButton } from "@/components/artists/AddArtistButton";
 import { ArtistsFeedClient } from "@/components/artists/ArtistsFeedClient";
 
-export const metadata = {
-    title: "World-Class Artists | TattoosMap",
-    description: "Discover and connect with elite tattooers globally.",
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Tattoo Artist Website Directory | World-Class Artists | TattoosMap",
+    description: "Discover the world's best tattoo artist website profiles. Browse verified artists by style and location on TattoosMap — the leading tattoo portfolio website directory.",
+    alternates: { canonical: "/artists" },
+    openGraph: {
+        title: "Tattoo Artist Directory | TattoosMap",
+        description: "Discover the world's best tattoo artist website profiles on TattoosMap.",
+        url: "https://tattoosmap.com/artists",
+        type: "website",
+    }
 };
 
 export const revalidate = 60;
@@ -91,6 +100,18 @@ export default async function ArtistsDirectory() {
 
     return (
         <div className="w-full bg-white min-h-screen">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "ItemList",
+                        "name": "Tattoo Artist Directory",
+                        "description": "World-class tattoo artists on TattoosMap",
+                        "url": "https://tattoosmap.com/artists"
+                    })
+                }}
+            />
 
             {/* Hero */}
             <section className="pt-24 pb-16 px-4 max-w-[1280px] mx-auto border-b border-gray-100">

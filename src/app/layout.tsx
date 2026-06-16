@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     apple: "/brand-logo.png",
   },
   alternates: {
-    canonical: "./",
+    canonical: "/",
   },
   openGraph: {
     type: "website",
@@ -78,6 +78,34 @@ export default function RootLayout({
           </ModalProvider>
         </AuthProvider>
         <GoogleAnalytics gaId="G-FEXM2LQZDB" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "WebSite",
+                  "name": "TattoosMap",
+                  "url": "https://tattoosmap.com",
+                  "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://tattoosmap.com/gallery?q={search_term_string}",
+                    "query-input": "required name=search_term_string"
+                  }
+                },
+                {
+                  "@type": "Organization",
+                  "name": "TattoosMap",
+                  "url": "https://tattoosmap.com",
+                  "logo": "https://tattoosmap.com/brand-logo.png",
+                  "description": "The world's first objective tattoo discovery platform.",
+                  "sameAs": []
+                }
+              ]
+            })
+          }}
+        />
       </body>
     </html>
   );
