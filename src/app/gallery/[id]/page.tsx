@@ -26,11 +26,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         description: metaDescription,
         keywords: [focusKeyword, ...(design?.style_tags || []), ...(design?.emotion_tags || [])],
         alternates: {
-            canonical: `/gallery/${id}`,
+            canonical: `https://tattoosmap.com/gallery/${id}`,
         },
         openGraph: {
             title: metaTitle,
             description: metaDescription,
+            url: `https://tattoosmap.com/gallery/${id}`,
             images: [{ url: design.image_url }]
         }
     };
