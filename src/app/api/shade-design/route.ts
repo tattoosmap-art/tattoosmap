@@ -4,7 +4,7 @@ import sharp from 'sharp';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
-const STIPPLE_PROMPT = "CRITICAL OUTPUT RULE: Output ONLY a single tattoo design centred on a solid 100% pure white background. Do NOT include any extra sketches, scribbles, draft lines, reference panels, watermarks, borders, frames, multiple design variants, or any other mark outside the single design. The entire canvas outside the design must be completely empty pure white (#FFFFFF) with absolutely nothing else on it. Hard constraint: Replicate the precise line-art composition of the original design with absolute accuracy; do not add, remove, or alter any existing lines. Apply detailed fine-point dotwork stippling across the design to build volume, gradients, and shadows. Create soft, realistic internal shadows using fine dotwork to build depth. The final output must look like a realistic pure black tattoo ink illustration. All main outlines must be solid pure black, sharp, distinct, and crisp. Background must be 100% solid pure white with zero texture, noise, shadow, or margin — nothing else.";
+const STIPPLE_PROMPT = "CRITICAL OUTPUT RULE: Output ONLY a single tattoo design centred on a solid 100% pure white background. Do NOT include any extra sketches, scribbles, draft lines, reference panels, watermarks, borders, frames, multiple design variants, or any other mark outside the single design. The entire canvas outside the design must be completely empty pure white (#FFFFFF) with absolutely nothing else on it. Hard constraint: Replicate the precise line-art composition of the original design with absolute accuracy; do not add, remove, or alter any existing lines. Apply detailed fine-point dotwork stippling across the design to build volume, gradients, and shadows. Create soft, realistic internal shadows using fine dotwork to build depth. The final output must look like a realistic charcoal-grey tattoo ink illustration. All main external outlines must remain sharp, distinct, and crisp. Background must be 100% solid pure white with zero texture, noise, shadow, or margin — nothing else.";
 
 export async function POST(req: NextRequest) {
     try {
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
             .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })
             .flatten({ background: '#ffffff' })
             .modulate({ brightness: 1.05 })
-            .linear(1.35, -40)
+            .linear(1.15, -20)
             .toColorspace('srgb')
             .webp({ quality: 90 })
             .toBuffer();
