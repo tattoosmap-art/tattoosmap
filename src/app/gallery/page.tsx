@@ -12,7 +12,13 @@ export const metadata: Metadata = {
     title: "Tattoo Gallery Website | Explore Thousands of Designs & Portfolios",
     description: "Browse our tattoo gallery website featuring thousands of curated tattoo design websites, styles, meanings and tattoo portfolio websites from around the world.",
     alternates: {
-        canonical: "/gallery"
+        canonical: "https://tattoosmap.com/gallery"
+    },
+    openGraph: {
+        title: "Tattoo Gallery Website | Explore Thousands of Designs & Portfolios",
+        description: "Browse our tattoo gallery website featuring thousands of curated tattoo design websites, styles, meanings and tattoo portfolio websites from around the world.",
+        url: "https://tattoosmap.com/gallery",
+        type: "website",
     }
 };
 

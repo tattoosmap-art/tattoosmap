@@ -138,12 +138,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         title,
         description,
         alternates: {
-            canonical: `/blog/${slug}`,
+            canonical: `https://tattoosmap.com/blog/${slug}`,
         },
         openGraph: {
             title,
             description,
             type: "article",
+            url: `https://tattoosmap.com/blog/${slug}`,
             images: imageUrl ? [{ url: imageUrl }] : [],
         },
         twitter: {

@@ -26,10 +26,11 @@ export async function generateMetadata(props: { params: Promise<{ keyword: strin
   return {
     title: `${subject} Meaning, Symbolism & Designs | TattoosMap`,
     description: `Discover the meaning behind ${subject.toLowerCase()}s. Explore curated ${subject.toLowerCase()} designs, symbolism, placement ideas, and style guides on TattoosMap.`,
-    alternates: { canonical: `/meaning/${keyword}` },
+    alternates: { canonical: `https://tattoosmap.com/meaning/${keyword}` },
     openGraph: {
       title: `${subject} Meaning & Designs`,
       description: `What does a ${subject.toLowerCase()} mean? Explore symbolism, designs, and placement ideas.`,
+      url: `https://tattoosmap.com/meaning/${keyword}`,
       type: 'website',
     }
   };

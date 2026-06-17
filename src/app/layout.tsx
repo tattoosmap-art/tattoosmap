@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     apple: "/brand-logo.png",
   },
   alternates: {
-    canonical: "/",
+    canonical: "https://tattoosmap.com",
   },
   openGraph: {
     type: "website",

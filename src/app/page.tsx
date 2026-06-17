@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "TattoosMap | The #1 Tattoo Design Website & Artist Directory",
   description: "TattoosMap is the best tattoo design website to explore thousands of curated designs, find tattoo website inspiration, connect with verified artists, and discover meaning behind every style.",
   alternates: {
-    canonical: "/",
+    canonical: "https://tattoosmap.com",
   },
   openGraph: {
     title: "TattoosMap — Find Your Perfect Tattoo",
