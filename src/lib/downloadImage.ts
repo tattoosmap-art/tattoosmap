@@ -54,7 +54,7 @@ export async function downloadImage(imageUrl: string, designTitle: string): Prom
             ctx.fillText(text, barX + barPadX, barY + barPadY);
 
             // Trigger download
-            canvas.toBlob((blob) => {
+            canvas.toBlob(async (blob) => {
                 if (!blob) return reject(new Error("Failed to create image blob"));
 
                 const safeTitle = designTitle
@@ -62,6 +62,30 @@ export async function downloadImage(imageUrl: string, designTitle: string): Prom
                     .replace(/[^a-z0-9]+/g, "-")
                     .replace(/(^-|-$)/g, "");
 
+                // Check if Web Share API with files is supported (mobile browsers)
+                if (typeof navigator !== "undefined" && navigator.share && navigator.canShare) {
+                    try {
+                        const file = new File([blob], `tattoosmap-${safeTitle || "design"}.png`, { type: "image/png" });
+                        if (navigator.canShare({ files: [file] })) {
+                            await navigator.share({
+                                files: [file],
+                                title: `TattoosMap - ${designTitle}`,
+                            });
+                            resolve();
+                            return;
+                        }
+                    } catch (err: any) {
+                        // If the user cancelled the share menu, stop and resolve cleanly
+                        if (err.name === "AbortError") {
+                            console.log("User cancelled share sheet");
+                            resolve();
+                            return;
+                        }
+                        console.warn("Web Share failed, falling back to standard download:", err);
+                    }
+                }
+
+                // Fallback for desktop / standard browsers
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
