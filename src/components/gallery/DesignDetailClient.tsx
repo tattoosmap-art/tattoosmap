@@ -161,7 +161,7 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
 
                     {/* Sticky Visual Container — always first on ALL screen sizes */}
                     <div className="lg:col-span-7 order-first">
-                        <div className="sticky top-[100px] border border-neutral-200 p-2 bg-neutral-50/50 group cursor-zoom-in">
+                        <div className="lg:sticky lg:top-[100px] border border-neutral-200 p-2 bg-neutral-50/50 group cursor-zoom-in">
                             <Image
                                 src={design.image_shaded_url || design.image_url}
                                 alt={design.alt_text || "Tattoo design composition"}
@@ -177,7 +177,7 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
 
                     {/* Dynamic Metadata Panel */}
                     <div className="lg:col-span-5">
-                        <div className="sticky top-[100px] flex flex-col gap-8">
+                        <div className="lg:sticky lg:top-[100px] flex flex-col gap-8">
 
                             {/* Category & Header */}
                             <div className="flex flex-col gap-4">
