@@ -11,7 +11,16 @@ import { ProductScrollRow } from "@/components/products/ProductScrollRow";
 
 export const metadata = {
     title: "Curated Equipment & Boutique | TattoosMap",
-    description: "Professional-grade tools and aftercare, categorized for artists and collectors."
+    description: "Professional-grade tools and aftercare, categorized for artists and collectors.",
+    alternates: {
+        canonical: "https://tattoosmap.com/products"
+    },
+    openGraph: {
+        title: "Curated Equipment & Boutique | TattoosMap",
+        description: "Professional-grade tools and aftercare, categorized for artists and collectors.",
+        url: "https://tattoosmap.com/products",
+        type: "website"
+    }
 };
 
 // Force dynamic content on fetch
@@ -43,8 +52,8 @@ export default async function ProductsPage() {
     const mapLegacyCategory = (legacyCat: string) => {
         const catLower = legacyCat.toLowerCase();
         if (catLower.includes("aftercare") || catLower.includes("healing")) return "Healing & Aftercare";
-        if (catLower.includes("ink") || catLower.includes("pigment") || catLower.includes("color")) return "Inks & Pigments";
         if (catLower.includes("machine") || catLower.includes("power") || catLower.includes("equipment")) return "Tattoo Machines & Power";
+        if (catLower.includes("ink") || catLower.includes("pigment") || catLower.includes("color")) return "Inks & Pigments";
         if (catLower.includes("needle") || catLower.includes("cartridge")) return "Needles & Cartridges";
         if (catLower.includes("practice") || catLower.includes("skin") || catLower.includes("book")) return "Practice & Learning";
         if (catLower.includes("hygiene") || catLower.includes("prep") || catLower.includes("soap") || catLower.includes("numbing")) return "Hygiene & Prep";

@@ -17,7 +17,16 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
     
     return {
         title: `${categoryConfig.name} | TattoosMap Collection`,
-        description: `Professional-grade ${categoryConfig.name.toLowerCase()} for tattoo artists and collectors.`
+        description: `Professional-grade ${categoryConfig.name.toLowerCase()} for tattoo artists and collectors.`,
+        alternates: {
+            canonical: `https://tattoosmap.com/products/${resolvedParams.category}`
+        },
+        openGraph: {
+            title: `${categoryConfig.name} | TattoosMap Collection`,
+            description: `Professional-grade ${categoryConfig.name.toLowerCase()} for tattoo artists and collectors.`,
+            url: `https://tattoosmap.com/products/${resolvedParams.category}`,
+            type: "website"
+        }
     };
 }
 
@@ -56,8 +65,8 @@ export default async function CategoryPage({
     const mapLegacyCategory = (legacyCat: string) => {
         const catLower = legacyCat.toLowerCase();
         if (catLower.includes("aftercare") || catLower.includes("healing")) return "Healing & Aftercare";
-        if (catLower.includes("ink") || catLower.includes("pigment") || catLower.includes("color")) return "Inks & Pigments";
         if (catLower.includes("machine") || catLower.includes("power") || catLower.includes("equipment")) return "Tattoo Machines & Power";
+        if (catLower.includes("ink") || catLower.includes("pigment") || catLower.includes("color")) return "Inks & Pigments";
         if (catLower.includes("needle") || catLower.includes("cartridge")) return "Needles & Cartridges";
         if (catLower.includes("practice") || catLower.includes("skin") || catLower.includes("book")) return "Practice & Learning";
         if (catLower.includes("hygiene") || catLower.includes("prep") || catLower.includes("soap") || catLower.includes("numbing")) return "Hygiene & Prep";
