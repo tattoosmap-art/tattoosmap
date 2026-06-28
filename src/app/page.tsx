@@ -197,7 +197,7 @@ export default async function LandingPage() {
         <h2 className="font-mono text-[13px] uppercase tracking-[0.2em] text-brand-red mb-16 px-4">WHAT BRINGS YOU HERE?</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-0 border-t border-l border-gray-light">
           {[
-            { id: 1, name: "The First-Timer", icon: "needle", head: "Getting Your First Tattoo", body: "Pain guides, placement science, aftercare protocols. Everything your artist should tell you but probably won't.", link: "/blog/category/care-guides", cta: "Start Here →" },
+            { id: 1, name: "The First-Timer", icon: "needle", head: "Getting Your First Tattoo", body: "Pain guides, placement science, aftercare protocols. Everything your artist should tell you but probably won't.", link: "/first-tattoo", cta: "Start Here →" },
             { id: 2, name: "The Planner", icon: "body", head: "Planning Your Next Piece", body: "Browse designs by meaning, style, and placement. Build your consultation collection.", link: "/gallery", cta: "Browse Designs →" },
             { id: 3, name: "The Enthusiast", icon: "compass", head: "Understanding the Meaning", body: "The symbolism, cultural origin, and significance behind every design. Meaning documented for every design in our library.", link: "/gallery", cta: "Explore Meaning →" },
             { id: 4, name: "The Collector", icon: "marker", head: "Finding the Right Artist", body: "Browse our artist directory — each artist has a dedicated profile card with their portfolio, location, specialty.", link: "/artists", cta: "Find Artists →" },
