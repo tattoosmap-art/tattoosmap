@@ -89,7 +89,7 @@ export const designService = {
 
             let query = supabase
                 .from('designs')
-                .select('id, slug, title, subject, image_url, alt_text, updated_at, uploaded_at, style, body_part, gender, elements, public_category, save_count, view_count, image_fresh_url, image_healed_url, sge_snippet, semantic_entities, conversational_faqs')
+                .select('id, slug, title, subject, image_url, alt_text, updated_at, uploaded_at, style, body_part, gender, elements, public_category, save_count, view_count, image_fresh_url, image_healed_url')
                 .eq('is_published', true);
 
             if (style) {

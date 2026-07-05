@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Design } from "@/types/database.types";
@@ -13,17 +13,32 @@ import { toggleDefaultSave, getSavedDesignIds } from "@/actions/collections";
 import { useRouter } from "next/navigation";
 import Masonry from "react-masonry-css";
 
-export default function GalleryGrid({ initialDesigns }: { initialDesigns: Design[] }) {
-    const [designs, setDesigns] = useState<Design[]>(initialDesigns);
+interface GalleryGridProps {
+    initialDesigns: Design[];
+    totalDesignsCount: number;
+    filters: {
+        style?: string;
+        bodyPart?: string;
+        gender?: string;
+        sort?: string;
+    };
+}
 
-    // Map of designId -> saved state (tri-state: undefined = not yet loaded)
+export default function GalleryGrid({ initialDesigns, totalDesignsCount, filters }: GalleryGridProps) {
+    const [designs, setDesigns] = useState<Design[]>(initialDesigns);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(initialDesigns.length < totalDesignsCount);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+    // Map of designId -> saved state
     const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
-    // Track which buttons are mid-request so we can show a spinner
+    // Track which buttons are mid-request
     const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
     const { user } = useAuth();
     const { openLoginModal } = useModal();
     const { showToast } = useToast();
     const router = useRouter();
+    const loaderRef = useRef<HTMLDivElement>(null);
 
     // Load the user's saved designs from the DB on mount / login
     useEffect(() => {
@@ -32,16 +47,93 @@ export default function GalleryGrid({ initialDesigns }: { initialDesigns: Design
             return;
         }
 
-        // Fetch all saved IDs for the user
         let cancelled = false;
-
         getSavedDesignIds().then(res => {
             if (cancelled) return;
             setSavedIds(new Set(res.data));
         });
 
         return () => { cancelled = true; };
-    }, [user, initialDesigns]);
+    }, [user]);
+
+    // Keep designs in sync with initialDesigns when filters are reset/applied on SSR
+    useEffect(() => {
+        setDesigns(initialDesigns);
+        setPage(1);
+        setHasMore(initialDesigns.length < totalDesignsCount);
+    }, [initialDesigns, totalDesignsCount]);
+
+    // Fetch next batch of designs from API route on scroll
+    const fetchNextDesigns = useCallback(async () => {
+        if (isLoadingMore || !hasMore) return;
+
+        setIsLoadingMore(true);
+        const nextPage = page + 1;
+
+        try {
+            const queryParams = new URLSearchParams();
+            if (filters.style) queryParams.set("style", filters.style);
+            if (filters.bodyPart) queryParams.set("body_part", filters.bodyPart);
+            if (filters.gender) queryParams.set("gender", filters.gender);
+            if (filters.sort) queryParams.set("sort", filters.sort);
+            queryParams.set("page", nextPage.toString());
+            queryParams.set("limit", "24");
+
+            const res = await fetch(`/api/designs?${queryParams.toString()}`);
+            if (res.ok) {
+                const nextDesigns: Design[] = await res.json();
+                
+                if (nextDesigns && nextDesigns.length > 0) {
+                    setDesigns(prev => {
+                        const existingIds = new Set(prev.map(d => d.id));
+                        const filteredNext = nextDesigns.filter(d => !existingIds.has(d.id));
+                        const updated = [...prev, ...filteredNext];
+                        if (updated.length >= totalDesignsCount || nextDesigns.length < 24) {
+                            setHasMore(false);
+                        }
+                        return updated;
+                    });
+                    setPage(nextPage);
+                } else {
+                    setHasMore(false);
+                }
+            } else {
+                console.error("Failed to load next designs page");
+            }
+        } catch (error) {
+            console.error("Error fetching more designs: ", error);
+        } finally {
+            setIsLoadingMore(false);
+        }
+    }, [page, hasMore, isLoadingMore, filters, totalDesignsCount]);
+
+    // Intersection Observer callback
+    useEffect(() => {
+        if (!hasMore) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    fetchNextDesigns();
+                }
+            },
+            {
+                threshold: 0.1,
+                rootMargin: "300px"
+            }
+        );
+
+        const currentLoader = loaderRef.current;
+        if (currentLoader) {
+            observer.observe(currentLoader);
+        }
+
+        return () => {
+            if (currentLoader) {
+                observer.unobserve(currentLoader);
+            }
+        };
+    }, [fetchNextDesigns, hasMore]);
 
     const breakpointColumnsObj = {
         default: 4,
@@ -49,11 +141,6 @@ export default function GalleryGrid({ initialDesigns }: { initialDesigns: Design
         768: 2,
         640: 2
     };
-
-    // Keep designs in sync with initialDesigns when filters are applied
-    useEffect(() => {
-        setDesigns(initialDesigns);
-    }, [initialDesigns]);
 
     const handleSave = async (e: React.MouseEvent, designId: string) => {
         e.preventDefault();
@@ -157,9 +244,22 @@ export default function GalleryGrid({ initialDesigns }: { initialDesigns: Design
                 })}
             </Masonry>
 
-            {/* Gallery Footer */}
-            <div className="h-20 w-full flex items-center justify-center mt-12 border-t border-gray-light">
-                <span className="text-[12px] text-gray-mid font-mono uppercase tracking-[0.1em]">End of gallery</span>
+            {/* Gallery Footer & Loading Trigger */}
+            <div 
+                ref={loaderRef} 
+                className="h-32 w-full flex flex-col items-center justify-center mt-12 border-t border-gray-light"
+            >
+                {hasMore ? (
+                    <div className="flex flex-col items-center gap-2">
+                        <Loader2 className="w-6 h-6 animate-spin text-brand-red" />
+                        <span className="text-[10px] text-gray-mid font-mono uppercase tracking-[0.2em] animate-pulse">Loading more designs...</span>
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center gap-1">
+                        <span className="text-[12px] text-gray-mid font-mono uppercase tracking-[0.15em]">End of gallery</span>
+                        <span className="text-[10px] text-gray-400 font-mono">Showing all {designs.length} of {totalDesignsCount} designs</span>
+                    </div>
+                )}
             </div>
         </>
     );

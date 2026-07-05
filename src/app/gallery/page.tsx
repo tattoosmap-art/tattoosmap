@@ -75,22 +75,16 @@ export default async function GalleryIndex(props: {
 
             <main className="max-w-[1280px] mx-auto px-4 md:px-6 pt-12">
                 {validDesigns.length > 0 ? (
-                    <>
-                        <GalleryGrid initialDesigns={validDesigns} />
-                        <div className="flex flex-col items-center justify-center mt-12 space-y-4">
-                            <p className="text-sm font-mono text-gray-mid tracking-widest uppercase">
-                                SHOWING {showingX} OF {totalDesigns} DESIGNS
-                            </p>
-                            {hasMore && (
-                                <Link 
-                                    href={nextUrl} 
-                                    className="px-8 py-3 bg-black text-white font-mono text-sm uppercase tracking-widest hover:bg-brand-red transition-colors"
-                                >
-                                    LOAD MORE DESIGNS
-                                </Link>
-                            )}
-                        </div>
-                    </>
+                    <GalleryGrid 
+                        initialDesigns={validDesigns} 
+                        totalDesignsCount={totalDesigns}
+                        filters={{
+                            style: styleParam,
+                            bodyPart: bodyPartParam,
+                            gender: genderParam,
+                            sort: sortParam
+                        }}
+                    />
                 ) : (
                     <div className="w-full py-24 flex flex-col items-center justify-center text-center">
                         <p className="text-[18px] text-black font-display mb-2">No designs found.</p>
