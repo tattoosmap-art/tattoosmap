@@ -40,7 +40,7 @@ const jsonLd = [
     '@type': 'Organization',
     name: 'TattoosMap',
     url: 'https://tattoosmap.com',
-    foundingDate: '2024',
+    foundingDate: '2018',
     founder: {
       '@type': 'Person',
       name: 'Ezzaki Diaa'
@@ -86,7 +86,7 @@ export default function AboutPage() {
           <div className="max-w-[1200px] mx-auto px-6 py-12">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-gray-light border border-gray-light">
               {[
-                { number: '2024', label: 'Founded' },
+                { number: '2018', label: 'Founded' },
                 { number: '6', label: 'Interactive tools' },
                 { number: '3', label: 'Blog templates' },
                 { number: '5', label: 'Languages planned' },
