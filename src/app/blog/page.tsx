@@ -7,6 +7,9 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
     title: "Tattoo Meanings, Care Guides & Inspiration Blog | TattoosMap",
     description: "Explore the deep meanings, symbolism, placement suggestions, and professional care guides for all tattoo styles on TattoosMap.",
+    alternates: {
+        canonical: "https://tattoosmap.com/blog",
+    },
     openGraph: {
         title: "Tattoo Meanings, Care Guides & Inspiration Blog | TattoosMap",
         description: "Explore the deep meanings, symbolism, placement suggestions, and professional care guides for all tattoo styles on TattoosMap.",
