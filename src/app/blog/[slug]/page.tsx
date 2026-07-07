@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { supabaseAnon } from "@/lib/supabase-anon";
 import { Post } from "@/types/database.types";
 import BlogMetaBar from "@/components/blog/BlogMetaBar";
 import SocialShare from "@/components/blog/SocialShare";
@@ -123,8 +124,7 @@ const remarkPluginsList = [remarkGfm];
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
-    const supabase = await createClient();
-    const { data: post } = await supabase
+    const { data: post } = await supabaseAnon
         .from("posts")
         .select("title, meta_title, meta_description, excerpt, cover_image_url")
         .eq("slug", slug)

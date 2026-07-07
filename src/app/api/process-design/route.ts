@@ -43,6 +43,7 @@ Analyze the image and return ONLY a valid JSON object. Do NOT wrap it in markdow
   "ip_flag": boolean,
   "low_confidence_flag": boolean,
   "meta_title": "Generate an SEO-optimized page title for this design following this exact format: '[Subject] — Meaning & Symbolism | TattoosMap'. Maximum 60 characters. Note: the '[Subject]' should be the generated subject ending with Tattoo Design.",
+  "meta_description": "Write an SEO meta description for this tattoo design. Max 155 characters. Must include the subject name, style, and a benefit or emotional hook. Do not start with 'Explore' or 'Discover'. Be specific.",
   "focus_keyword": "Identify the single highest-volume, lowest-difficulty keyword this design should rank for. Format: '[subject] tattoo meaning' as the default."
 }`;
 
@@ -63,7 +64,7 @@ CRITICAL: Do NOT truncate the output. You MUST complete the entire JSON object t
 Analyze the image and return ONLY a valid JSON object. Do NOT wrap it in markdown blockquotes like \`\`\`json.
 {
   "meaning": "2-4 sentences explaining what this design symbolizes. Be specific to the exact subject. Example for snake and flower: explain the duality of danger and beauty, transformation through shedding, the tension between mortality and renewal. Never be generic.",
-  "cultural_origin": "one sentence stating the cultural or historical tradition this design draws from. Example: Japanese Irezumi, Victorian memento mori, Norse mythology, American Traditional. If purely decorative state that clearly.",
+  "cultural_origin": "The cultural or historical tradition name only. 2-6 words max. Examples: 'Japanese Irezumi', 'Victorian Memento Mori', 'Norse Mythology', 'American Traditional'. Do NOT write a full sentence. If purely decorative write: 'Contemporary Western Illustrative'.",
   "cultural_sensitivity": "null if no sensitivity concerns. If the design incorporates Indigenous, Polynesian, Maori, First Nations, or other closed cultural practices write one sentence explaining the cultural context.",
   "emotion_tags": ["array of 2-4 emotion or meaning keywords that describe what this design represents. Examples: transformation, resilience, freedom, grief, love, power, protection."],
   "minimum_size_cm": number,
@@ -96,7 +97,7 @@ Analyze the image and return ONLY a valid JSON object. Do NOT wrap it in markdow
 }`;
 
 function createSlug(subject: string) {
-    return subject.toLowerCase().replace(/[^a-z0-z\s-]/g, '').trim().split(/\s+/).slice(0, 5).join('-');
+    return subject.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().split(/\s+/).slice(0, 5).join('-');
 }
 
 const FAMILY_CODES: Record<string, string> = {

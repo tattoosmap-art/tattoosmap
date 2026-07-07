@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { designService } from "@/services/designService";
 import { Metadata } from "next";
+import { supabaseAnon } from "@/lib/supabase-anon";
 
 // Dynamic Client Component
 import DesignDetailClient from "@/components/gallery/DesignDetailClient";
@@ -8,37 +9,64 @@ import SimilarDesignsBar from "@/components/gallery/SimilarDesignsBar";
 
 export const revalidate = 600; // Cache gallery detail page for 10 minutes
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-    const { id } = await params;
-    const { design } = await designService.getDesignPageData(id);
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
+  const { data: design } = await supabaseAnon
+    .from('designs')
+    .select('subject, style, placement_recommendations, meaning, alt_text, image_url, meta_title, meta_description, slug')
+    .eq('slug', params.id)
+    .eq('is_published', true)
+    .single();
 
-    if (!design) return { title: "Design Not Found - Tattoosmap" };
-
-    const subject = design.title || "Untitled";
-    
-    // Priority: DB SEO Fields > Generation Fallbacks
-    const metaTitle = design.meta_title || `${subject} Tattoo — Meaning, Symbolism & Cultural Origin | TattoosMap`;
-    const metaDescription = design.meta_description || `${design.meaning ? design.meaning.substring(0, 155) : design.alt_text} Explore ${subject} tattoo designs, placement guides, and artist recommendations on TattoosMap.`.trim();
-    const focusKeyword = design.focus_keyword || `${subject} tattoo meaning`;
-
+  if (!design) {
     return {
-        title: metaTitle,
-        description: metaDescription,
-        keywords: [focusKeyword, ...(design?.style_tags || []), ...(design?.emotion_tags || [])],
-        alternates: {
-            canonical: `https://tattoosmap.com/gallery/${id}`,
-        },
-        openGraph: {
-            title: metaTitle,
-            description: metaDescription,
-            url: `https://tattoosmap.com/gallery/${id}`,
-            images: [{ url: design.image_url }]
-        }
+      title: 'Tattoo Design | TattoosMap',
     };
+  }
+
+  const title = design.meta_title ||
+    `${design.subject} Tattoo Design — Meaning & Symbolism | TattoosMap`;
+
+  const description = design.meta_description ||
+    `Explore this ${design.style?.toLowerCase() || ''} ${design.subject?.toLowerCase()} tattoo design. Discover its meaning, best placements, and technical specifications on TattoosMap.`;
+
+  const imageUrl = design.image_url || 'https://tattoosmap.com/brand-logo.png';
+  const canonicalUrl = `https://tattoosmap.com/gallery/${design.slug}`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      type: 'website',
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: design.alt_text || `${design.subject} tattoo design`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [imageUrl],
+    },
+  };
 }
 
-export default async function DesignPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
+export default async function DesignPage({ params }: { params: { id: string } }) {
+    const { id } = params;
 
     // Fetch full dataset (SSR with Incremental Revalidation)
     const pageData = await designService.getDesignPageData(id);
@@ -50,22 +78,27 @@ export default async function DesignPage({ params }: { params: Promise<{ id: str
 
     // JSON-LD Artwork Schema
     const jsonLd = {
-        "@context": "https://schema.org",
-        "@type": "VisualArtwork",
-        "name": `${design.title || "Untitled"} Fine Line Tattoo Design`,
-        "description": `${design.meaning || ""} — ${design.alt_text || ""}`.trim(),
-        "artform": "Tattoo Design",
-        "artMedium": "Fine Line Ink",
-        "genre": "tattoo",
-        "keywords": `${design.emotion_tags?.join(', ') || ''}, ${design.style_tags?.join(', ') || ''}, fine line tattoo`,
-        "image": design.image_url,
-        "interactionStatistic": [
-            {
-                "@type": "InteractionCounter",
-                "interactionType": "https://schema.org/LikeAction",
-                "userInteractionCount": design.real_save_count || 0
-            }
-        ]
+      '@context': 'https://schema.org',
+      '@type': 'VisualArtwork',
+      name: `${design.subject || design.title || 'Untitled'} Tattoo Design`,
+      description: design.meaning || design.meta_description,
+      artform: 'Tattoo',
+      artMedium: design.style || 'Ink',
+      url: `https://tattoosmap.com/gallery/${design.slug}`,
+      image: design.image_url,
+      creator: {
+        '@type': 'Organization',
+        name: 'TattoosMap',
+        url: 'https://tattoosmap.com'
+      },
+      keywords: [
+        design.subject,
+        design.style,
+        'tattoo design',
+        'tattoo meaning',
+        `${design.subject} tattoo`,
+        `${design.subject} tattoo meaning`,
+      ].filter(Boolean).join(', ')
     };
 
     // JSON-LD FAQ Search Schema
@@ -115,7 +148,7 @@ export default async function DesignPage({ params }: { params: Promise<{ id: str
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
             />
             
-            <h1 className="sr-only">{design.title || design.subject || "Tattoo Design"}</h1>
+
 
             {/* MASTER DYNAMIC CLIENT BLOCK (PORTS THE FULL PREMIUM DESIGN LAB STRUCTURE) */}
             <DesignDetailClient 

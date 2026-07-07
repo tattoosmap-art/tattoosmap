@@ -457,7 +457,7 @@ export default async function LandingPage() {
               <li><Link href="/blog" className="hover:text-white transition-colors">Aftercare Science</Link></li>
               <li><Link href="/gallery" className="hover:text-white transition-colors">Style Guides</Link></li>
               <li><Link href="/artists" className="hover:text-white transition-colors">Artist Spotlights</Link></li>
-              <li><Link href="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
+              <li><Link href="/blog" className="hover:text-white transition-colors">FAQ</Link></li>
             </ul>
           </div>
           <div>
@@ -465,7 +465,7 @@ export default async function LandingPage() {
             <ul className="space-y-4 font-mono text-[12px] text-gray-mid uppercase tracking-wide">
               <li><Link href="/artists" className="hover:text-white transition-colors">Artist Verification</Link></li>
               <li><Link href="/products" className="hover:text-white transition-colors">Tattoo Products</Link></li>
-              <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
+              <li><Link href="/contact" className="hover:text-white transition-colors">About</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
             </ul>
           </div>

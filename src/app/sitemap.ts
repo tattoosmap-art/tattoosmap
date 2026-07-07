@@ -83,7 +83,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const galleryRoutes = (designs || []).map((design) => ({
         url: `${baseUrl}/gallery/${design.slug || design.id}`,
         lastModified: new Date(design.updated_at || new Date()),
-        changeFrequency: 'yearly' as const,
+        changeFrequency: 'monthly' as const,
         priority: 0.7,
     }));
 

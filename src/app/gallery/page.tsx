@@ -9,14 +9,14 @@ import { Metadata } from "next";
 export const revalidate = 300; // Cache gallery index for 5 minutes
 
 export const metadata: Metadata = {
-    title: "Tattoo Gallery Website | Explore Thousands of Designs & Portfolios",
-    description: "Browse our tattoo gallery website featuring thousands of curated tattoo design websites, styles, meanings and tattoo portfolio websites from around the world.",
+    title: "Tattoo Design Gallery | Browse by Style, Meaning & Placement | TattoosMap",
+    description: "Browse thousands of curated tattoo designs by style, meaning, and placement. Each design includes symbolism guides, aging predictions, and artist recommendations.",
     alternates: {
         canonical: "https://tattoosmap.com/gallery"
     },
     openGraph: {
-        title: "Tattoo Gallery Website | Explore Thousands of Designs & Portfolios",
-        description: "Browse our tattoo gallery website featuring thousands of curated tattoo design websites, styles, meanings and tattoo portfolio websites from around the world.",
+        title: "Tattoo Design Gallery | Browse by Style, Meaning & Placement | TattoosMap",
+        description: "Browse thousands of curated tattoo designs by style, meaning, and placement. Each design includes symbolism guides, aging predictions, and artist recommendations.",
         url: "https://tattoosmap.com/gallery",
         type: "website",
     }
@@ -94,8 +94,8 @@ export default async function GalleryIndex(props: {
                     __html: JSON.stringify({
                         "@context": "https://schema.org",
                         "@type": "CollectionPage",
-                        "name": "Tattoo Gallery Website | TattoosMap",
-                        "description": "Browse our tattoo gallery website featuring thousands of curated tattoo design websites, styles, meanings and tattoo portfolio websites from around the world.",
+                        "name": "Tattoo Design Gallery | Browse by Style, Meaning & Placement | TattoosMap",
+                        "description": "Browse thousands of curated tattoo designs by style, meaning, and placement. Each design includes symbolism guides, aging predictions, and artist recommendations.",
                         "url": "https://tattoosmap.com/gallery",
                         "provider": { "@type": "Organization", "name": "TattoosMap" }
                     })
