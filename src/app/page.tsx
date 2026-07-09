@@ -3,6 +3,35 @@ import Image from "next/image";
 import { getSupabaseAnon } from "@/lib/supabase-anon";
 import WaitlistForm from "@/components/ui/WaitlistForm";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "TattoosMap | The #1 Tattoo Design Website & Artist Directory",
+  description: "TattoosMap is the best tattoo design website to explore thousands of curated designs, find tattoo website inspiration, connect with verified artists, and discover meaning behind every style.",
+  alternates: {
+    canonical: "https://tattoosmap.com",
+  },
+  openGraph: {
+    title: "TattoosMap — Find Your Perfect Tattoo",
+    description: "Explore thousands of tattoo designs, read science-backed aftercare guides, and book direct with verified artists.",
+    url: "https://tattoosmap.com",
+    images: [
+      {
+        url: "https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/designs/fine-line-split-tiger-and-hannya-mask-illustrative-cm.webp",
+        width: 1200,
+        height: 630,
+        alt: "TattoosMap Gallery",
+      }
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TattoosMap — Discover Your Perfect Tattoo",
+    description: "Browse thousands of curated tattoo designs, discover meaning, and connect with verified artists.",
+    images: ["https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/designs/fine-line-split-tiger-and-hannya-mask-illustrative-cm.webp"],
+  },
+};
+
 export const revalidate = 60; // Cache landing page for 60 seconds (1 minute)
 
 // Helper for SVG icons to keep the main file clean
@@ -79,7 +108,9 @@ export default async function LandingPage() {
 
   return (
     <main className="w-full bg-white text-black selection:bg-brand-red selection:text-white">
-      
+      <h1 className="sr-only">
+        TattoosMap — Tattoo Design Gallery, Artist Directory and Aftercare Guides
+      </h1>
 
       {/* SECTION 2 — The Hero */}
       <section className="min-h-[calc(100vh-56px)] grid grid-cols-1 lg:grid-cols-[55%_45%] border-b border-gray-light">
@@ -176,31 +207,12 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* SECTION 3 — The Trust Bar (Hidden until metrics are established)
-      <section className="h-auto md:h-24 py-8 md:py-0 w-full bg-off-white border-b border-gray-light flex flex-wrap items-center justify-around px-8">
-        {[
-          { label: 'DESIGNS', value: 'GROWING' },
-          { label: 'CATEGORIES', value: '5' },
-          { label: 'AI CO-CREATED', value: '50%' },
-          { label: 'BOOKING ABANDONMENT', value: '79%', note: 'WE SOLVE' },
-          { label: 'ORIGINAL ARTWORK', value: '100%' }
-        ].map((stat, i) => (
-          <div key={i} className="flex flex-col items-center justify-center text-center p-4">
-            <span className="font-display text-2xl lg:text-3xl mb-1">{stat.value}</span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-gray-mid">
-              {stat.label} {stat.note && <span className="block text-brand-red">{stat.note}</span>}
-            </span>
-          </div>
-        ))}
-      </section>
-      */}
-
       {/* SECTION 4 — The Five Persona Entry Points */}
       <section className="py-24 px-8 border-b border-gray-light">
         <h2 className="font-mono text-[13px] uppercase tracking-[0.2em] text-brand-red mb-16 px-4">WHAT BRINGS YOU HERE?</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-0 border-t border-l border-gray-light">
           {[
-            { id: 1, name: "The First-Timer", icon: "needle", head: "Getting Your First Tattoo", body: "Pain guides, placement science, aftercare protocols. Everything your artist should tell you but probably won't.", link: "/blog/category/care-guides", cta: "Start Here →" },
+            { id: 1, name: "The First-Timer", icon: "needle", head: "Getting Your First Tattoo", body: "Pain guides, placement science, aftercare protocols. Everything your artist should tell you but probably won't.", link: "/first-tattoo", cta: "Start Here →" },
             { id: 2, name: "The Planner", icon: "body", head: "Planning Your Next Piece", body: "Browse designs by meaning, style, and placement. Build your consultation collection.", link: "/gallery", cta: "Browse Designs →" },
             { id: 3, name: "The Enthusiast", icon: "compass", head: "Understanding the Meaning", body: "The symbolism, cultural origin, and significance behind every design. Meaning documented for every design in our library.", link: "/gallery", cta: "Explore Meaning →" },
             { id: 4, name: "The Collector", icon: "marker", head: "Finding the Right Artist", body: "Browse our artist directory — each artist has a dedicated profile card with their portfolio, location, specialty.", link: "/artists", cta: "Find Artists →" },
@@ -224,7 +236,7 @@ export default async function LandingPage() {
       <section className="py-24 px-8 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-2 gap-24 border-b border-gray-light">
         <div>
           <h2 className="font-display text-[48px] md:text-[64px] uppercase leading-[0.95] mb-12 tracking-tighter">
-            ELEVATE YOUR<br />NEXT TATTOO<br />EXPERIENCE.<br /><span className="text-brand-red">INTELLIGENT &<br />SEAMLESS.</span>
+            PLAN YOUR<br />NEXT TATTOO.<br />DESIGN.<br /><span className="text-brand-red">MEANING.<br />AFTERCARE.</span>
           </h2>
           <p className="text-[18px] text-gray-mid leading-relaxed max-w-[480px]">
             TattoosMap simplifies how you find, preview, and plan your next piece. Explore a curated library with technical specifications, test placements virtually with our try-on studio, and connect directly with verified artists.
@@ -290,7 +302,7 @@ export default async function LandingPage() {
         </div>
         <div className="flex flex-wrap items-center justify-center gap-4 px-8 my-16">
           {['Traditional', 'Realism', 'Blackwork', 'Japanese', 'Geometric', 'Fine Line', 'Minimalist'].map((style) => (
-            <Link key={style} href={`/gallery?style=${style.toLowerCase()}`} className="px-6 py-3 border border-gray-light hover:border-brand-red transition-all font-mono text-[11px] uppercase tracking-widest bg-white">
+            <Link key={style} href={`/gallery?style=${style.toLowerCase().replace(" ", "-")}`} className="px-6 py-3 border border-gray-light hover:border-brand-red transition-all font-mono text-[11px] uppercase tracking-widest bg-white">
               {style}
             </Link>
           ))}
@@ -386,7 +398,7 @@ export default async function LandingPage() {
           ))}
         </div>
         <div className="mt-16 flex justify-center">
-          <Link href="/blog/dermatologists-guide-aftercare" className="font-mono text-[12px] uppercase tracking-[0.1em] border-b border-black pb-1 hover:text-brand-red hover:border-brand-red transition-all">
+          <Link href="/blog" className="font-mono text-[12px] uppercase tracking-[0.1em] border-b border-black pb-1 hover:text-brand-red hover:border-brand-red transition-all">
             READ THE COMPLETE AFTERCARE SCIENCE GUIDE
           </Link>
         </div>
@@ -460,7 +472,7 @@ export default async function LandingPage() {
               <li><Link href="/blog" className="hover:text-white transition-colors">Aftercare Science</Link></li>
               <li><Link href="/gallery" className="hover:text-white transition-colors">Style Guides</Link></li>
               <li><Link href="/artists" className="hover:text-white transition-colors">Artist Spotlights</Link></li>
-              <li><Link href="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
+              <li><Link href="/blog" className="hover:text-white transition-colors">FAQ</Link></li>
             </ul>
           </div>
           <div>

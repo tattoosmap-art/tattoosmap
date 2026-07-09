@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getSupabaseAnon } from "@/lib/supabase-anon";
+import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { supabaseAnon } from "@/lib/supabase-anon";
 import { Post } from "@/types/database.types";
 import BlogMetaBar from "@/components/blog/BlogMetaBar";
 import SocialShare from "@/components/blog/SocialShare";
@@ -14,7 +15,7 @@ import { Sparkles } from "lucide-react";
 import ReadingProgressBar from "@/components/blog/ReadingProgressBar";
 import FAQAccordion from "@/components/blog/FAQAccordion";
 import BlogTOC from "@/components/blog/BlogTOC";
-import { EmbeddedToolClientDynamic as EmbeddedToolClient } from "@/components/blog/EmbeddedToolClientDynamic";
+import EmbeddedToolClient from "@/components/blog/EmbeddedToolClient";
 import React from "react";
 import VisualStepTemplate from "@/components/blog/VisualStepTemplate";
 import RelatedPosts from "@/components/blog/RelatedPosts";
@@ -123,19 +124,14 @@ const remarkPluginsList = [remarkGfm];
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
-    const supabase = getSupabaseAnon();
-    const { data: post, error } = await supabase
+    const { data: post } = await supabaseAnon
         .from("posts")
         .select("title, meta_title, meta_description, excerpt, cover_image_url")
         .eq("slug", slug)
         .single();
     
-    if (error) {
-        console.error('[DATABASE ERROR] generateMetadata failed to fetch post:', {
-            slug,
-            message: error.message,
-            code: error.code
-        });
+    if (!post) {
+        notFound();
     }
     
     const title = post?.meta_title || post?.title || "Blog Post";
@@ -146,12 +142,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         title,
         description,
         alternates: {
-            canonical: `https://tattoosmap.com/blog/${slug}`
+            canonical: `https://tattoosmap.com/blog/${slug}`,
         },
         openGraph: {
             title,
             description,
             type: "article",
+            url: `https://tattoosmap.com/blog/${slug}`,
             images: imageUrl ? [{ url: imageUrl }] : [],
         },
         twitter: {
@@ -163,24 +160,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
 }
 
-export async function generateStaticParams() {
-    const { data: posts } = await supabaseAdmin
-        .from("posts")
-        .select("slug")
-        .eq("is_published", true)
-        .order("published_at", { ascending: false })
-        .limit(50);
-        
-    return (posts || []).map((post) => ({
-        slug: post.slug,
-    }));
-}
 
 export const revalidate = 300; // Cache blog detail pages for 5 minutes
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const supabase = getSupabaseAnon();
+    const supabase = await createClient();
     
     let post: Post = null as any;
     let relatedPosts = [];
@@ -195,16 +180,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             .eq("is_published", true)
             .is("deleted_at", null)
             .single();
-
-        if (error) {
-            console.error('[DATABASE ERROR] Failed to fetch blog post by slug from Supabase:', {
-                slug,
-                message: error.message,
-                details: error.details,
-                hint: error.hint,
-                code: error.code
-            });
-        }
 
         if (!error && livePost) {
             let profile: any = {};
@@ -224,9 +199,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 ...livePost,
                 author: {
                     id: profile.id || livePost.author_id || "a1",
-                    name: "TattoosMap",
-                    avatar_url: "/brand-logo.png",
-                    bio: "The official editorial voice of TattoosMap."
+                    name: profile.username || profile.name || "TattoosMap Editorial",
+                    avatar_url: profile.avatar_url || "/brand-logo.png",
+                    bio: profile.bio || "The official editorial voice of TattoosMap."
                 }
             };
 
@@ -398,6 +373,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 relatedPosts={relatedPosts}
                 postId={post.id}
                 comments={comments}
+                authorName={post.author?.name}
+                authorAvatarUrl={post.author?.avatar_url}
             />
         );
     }
@@ -425,7 +402,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
 
                     <div className="font-mono text-[10px] text-neutral-400 mb-8 uppercase tracking-widest text-center leading-relaxed order-4">
-                        By TattoosMap Editorial — {new Date(post.published_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                        By {post.author?.name || "TattoosMap"} — {new Date(post.published_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                         {post.related_products && post.related_products.length > 0 && (
                             <span className="block mt-1">
                                 Contains affiliate links — commission earned at no extra cost to you
@@ -483,13 +460,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                                       {product.tag || product.badge}
                                     </span>
                                     {((product.image_url && product.image_url.trim() !== '') || (product.imageSrc && product.imageSrc.trim() !== '')) && (
-                                      <div className="w-full aspect-[2/1] relative mb-6 bg-off-white border border-gray-light overflow-hidden">
+                                      <div className="w-full max-w-[280px] mx-auto aspect-square relative mb-6 bg-off-white border border-gray-light overflow-hidden flex items-center justify-center min-h-[160px]">
                                         <Image
                                           src={product.image_url || product.imageSrc}
                                           alt={product.imageAlt || product.name}
                                           fill
-                                          sizes="(max-width: 768px) 100vw, 680px"
-                                          className="object-cover"
+                                          sizes="(max-width: 768px) 100vw, 280px"
+                                          className="object-contain p-4"
                                         />
                                       </div>
                                     )}

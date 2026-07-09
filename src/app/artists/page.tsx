@@ -1,10 +1,27 @@
 import { getSupabaseAnon } from "@/lib/supabase-anon";
+import { createClient } from "@/lib/supabase-server";
+import { ADMIN_EMAILS } from "@/lib/admin";
 import { AddArtistButton } from "@/components/artists/AddArtistButton";
 import { ArtistsFeedClient } from "@/components/artists/ArtistsFeedClient";
 
-export const metadata = {
-    title: "World-Class Artists | TattoosMap",
-    description: "Discover and connect with elite tattooers globally.",
+import { Metadata } from "next";
+
+const title = 'Tattoo Artist Directory — Verified Artists Worldwide | TattoosMap';
+
+export const metadata: Metadata = {
+    title,
+    description: "Discover the world's best tattoo artist website profiles. Browse verified artists by style and location on TattoosMap — the leading tattoo portfolio website directory.",
+    alternates: { canonical: "https://tattoosmap.com/artists" },
+    openGraph: {
+        title,
+        description: "Discover the world's best tattoo artist website profiles on TattoosMap.",
+        url: "https://tattoosmap.com/artists",
+        type: "website",
+    },
+    twitter: {
+        title,
+        description: "Discover the world's best tattoo artist website profiles on TattoosMap.",
+    }
 };
 
 export const revalidate = 60;
@@ -42,27 +59,30 @@ type DBartistDisplay = {
 };
 
 export default async function ArtistsDirectory() {
-    // Fetch approved artists from DB statically
+    // Admin auth check
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const isAdmin = !!user && ADMIN_EMAILS.includes(user.email?.toLowerCase().trim() || "");
+
+    // Fetch artists from DB with robust error handling
     let dbArtists: any[] = [];
     try {
-        const supabase = getSupabaseAnon();
-        const { data, error } = await supabase
+        const supabaseAnonClient = getSupabaseAnon();
+        let query = supabaseAnonClient
             .from('artists')
             .select('*')
-            .eq('is_approved', true)
             .order('created_at', { ascending: false });
 
+        // 1. Enforce Public Filtering (Only Admins can see unapproved cards)
+        if (!isAdmin) {
+            query = query.eq('is_approved', true);
+        }
+
+        const { data, error } = await query;
+
         if (error) {
-            console.error("[DATABASE ERROR] Failed to fetch artists from Supabase:", {
-                message: error.message,
-                details: error.details,
-                hint: error.hint,
-                code: error.code
-            });
+            console.warn("[ArtistsPage] Supabase fetch issue:", error.message);
         } else if (data) {
-            if (data.length === 0) {
-                console.warn("[DATABASE WARNING] Supabase artists fetch returned empty array.");
-            }
             dbArtists = data;
         }
     } catch (err: any) {
@@ -86,13 +106,25 @@ export default async function ArtistsDirectory() {
 
     return (
         <div className="w-full bg-white min-h-screen">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "ItemList",
+                        "name": "Tattoo Artist Directory",
+                        "description": "World-class tattoo artists on TattoosMap",
+                        "url": "https://tattoosmap.com/artists"
+                    })
+                }}
+            />
 
             {/* Hero */}
             <section className="pt-24 pb-16 px-4 max-w-[1280px] mx-auto border-b border-gray-100">
                 <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-4">
                     <div className="text-center md:text-left">
                         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-brand-red font-bold">
-                            {liveArtists.length} Artists in Directory
+                            {liveArtists.length} {isAdmin ? "Total Profiles Loaded" : "Artists in Directory"}
                         </span>
                         <h1 className="font-display text-[48px] md:text-[64px] text-black leading-tight tracking-tight mt-2">
                             World-Class Artists.
@@ -103,12 +135,12 @@ export default async function ArtistsDirectory() {
                     </div>
 
                     {/* Public Submission & Admin Action Gateway */}
-                    <AddArtistButton />
+                    <AddArtistButton isAdmin={isAdmin} isLoggedIn={!!user} />
                 </div>
             </section>
 
             {/* Client Interactive Search, Categories, and Grid */}
-            <ArtistsFeedClient artists={liveArtists} />
+            <ArtistsFeedClient artists={liveArtists} isAdmin={isAdmin} />
         </div>
     );
 }

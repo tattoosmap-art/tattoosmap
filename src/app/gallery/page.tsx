@@ -1,90 +1,137 @@
 import { Suspense } from "react";
 import GalleryGrid from "@/components/gallery/GalleryGrid";
 import GalleryFilters from "@/components/gallery/GalleryFilters";
+import { Design } from "@/types/database.types";
 import { designService } from "@/services/designService";
-import { getSupabaseAnon } from "@/lib/supabase-anon";
-import Link from "next/link";
+
+import { Metadata } from "next";
 
 export const revalidate = 300; // Cache gallery index for 5 minutes
+
+export const metadata: Metadata = {
+    title: "Tattoo Design Gallery | Browse by Style, Meaning & Placement | TattoosMap",
+    description: "Browse thousands of curated tattoo designs by style, meaning, and placement. Each design includes symbolism guides, aging predictions, and artist recommendations.",
+    alternates: {
+        canonical: "https://tattoosmap.com/gallery"
+    },
+    openGraph: {
+        title: "Tattoo Design Gallery | Browse by Style, Meaning & Placement | TattoosMap",
+        description: "Browse thousands of curated tattoo designs by style, meaning, and placement. Each design includes symbolism guides, aging predictions, and artist recommendations.",
+        url: "https://tattoosmap.com/gallery",
+        type: "website",
+        images: [
+            {
+                url: 'https://tattoosmap.com/brand-logo.png',
+                width: 1200,
+                height: 630,
+                alt: 'TattoosMap Tattoo Design Gallery',
+            }
+        ]
+    },
+    twitter: {
+        title: "Tattoo Design Gallery | Browse by Style, Meaning & Placement | TattoosMap",
+        description: "Browse thousands of curated tattoo designs by style, meaning, and placement. Each design includes symbolism guides, aging predictions, and artist recommendations.",
+        images: [
+            {
+                url: 'https://tattoosmap.com/brand-logo.png',
+                width: 1200,
+                height: 630,
+                alt: 'TattoosMap Tattoo Design Gallery',
+            }
+        ]
+    }
+};
 
 export default async function GalleryIndex(props: {
     searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
     const searchParams = await props.searchParams;
 
+    // Fetch Live Designs (Falls back to MOCK_DESIGNS inside service if DB is empty)
+    const baseDesigns = await designService.getDesigns();
+
     // Parse Search Params
-    const styleParam = typeof searchParams?.style === 'string' ? searchParams.style : undefined;
-    const bodyPartParam = typeof searchParams?.body_part === 'string' ? searchParams.body_part : undefined;
-    const genderParam = typeof searchParams?.gender === 'string' ? searchParams.gender : undefined;
-    const sortParam = typeof searchParams?.sort === 'string' ? searchParams.sort : 'recent';
-    const pageParam = typeof searchParams?.page === 'string' ? parseInt(searchParams.page, 10) : 1;
-    const page = isNaN(pageParam) ? 1 : pageParam;
-    const limit = 24;
+    const styleParam = typeof searchParams?.style === 'string' ? searchParams.style.toLowerCase() : null;
+    const bodyPartParam = typeof searchParams?.body_part === 'string' ? searchParams.body_part.toLowerCase() : null;
+    const genderParam = typeof searchParams?.gender === 'string' ? searchParams.gender.toLowerCase() : null;
+    const sortParam = typeof searchParams?.sort === 'string' ? searchParams.sort : 'recommended';
+    const qParam = typeof searchParams?.q === 'string' ? searchParams.q.toLowerCase() : null;
 
-    // Fetch Live Designs with Database-level Pagination and Filtering
-    const validDesigns = await designService.getDesigns({
-        page,
-        limit,
-        style: styleParam,
-        placement: bodyPartParam,
-        gender: genderParam,
-        sort: sortParam
-    });
+    // Filter the returned designs
+    let filteredDesigns = [...baseDesigns];
 
-    // Optional: get total count for "X of Y" display
-    let totalDesigns = 0;
-    try {
-        const supabase = getSupabaseAnon();
-        let countQuery = supabase.from('designs').select('*', { count: 'exact', head: true }).eq('is_published', true);
-        if (styleParam) countQuery = countQuery.contains('style', [styleParam]);
-        if (bodyPartParam) countQuery = countQuery.contains('body_part', [bodyPartParam]);
-        if (genderParam) countQuery = countQuery.eq('gender', genderParam);
-        
-        const { count, error } = await countQuery;
-        if (error) {
-            console.error('[DATABASE ERROR] Failed to fetch total count from Supabase:', {
-                message: error.message,
-                details: error.details,
-                hint: error.hint,
-                code: error.code
-            });
-        } else {
-            totalDesigns = count || 0;
-        }
-    } catch (err: any) {
-        console.error('[DATABASE FATAL] Failed to fetch total count:', err);
+    if (styleParam) {
+        filteredDesigns = filteredDesigns.filter(d => 
+            d.style.some(s => {
+                const normS = s.toLowerCase().replace(/[\s-_]/g, '');
+                const normParam = styleParam.toLowerCase().replace(/[\s-_]/g, '');
+                return normS === normParam || normS.includes(normParam) || normParam.includes(normS);
+            })
+        );
     }
 
-    const showingX = Math.min(page * limit, totalDesigns);
-    const hasMore = showingX < totalDesigns;
+    if (bodyPartParam) {
+        filteredDesigns = filteredDesigns.filter(d => d.body_part.map(b => b.toLowerCase()).includes(bodyPartParam));
+    }
 
-    // Build next page URL keeping existing params
-    const nextParams = new URLSearchParams();
-    if (styleParam) nextParams.set('style', styleParam);
-    if (bodyPartParam) nextParams.set('body_part', bodyPartParam);
-    if (genderParam) nextParams.set('gender', genderParam);
-    if (sortParam) nextParams.set('sort', sortParam);
-    nextParams.set('page', (page + 1).toString());
-    const nextUrl = `/gallery?${nextParams.toString()}`;
+    if (genderParam) {
+        filteredDesigns = filteredDesigns.filter(d => {
+            const g = d.gender?.toLowerCase() || '';
+            if (genderParam === 'male') {
+                return g === 'male' || g === 'male-leaning' || g === 'unisex' || g === 'men and women';
+            }
+            if (genderParam === 'female') {
+                return g === 'female' || g === 'female-leaning' || g === 'unisex' || g === 'men and women';
+            }
+            return g === genderParam;
+        });
+    }
+
+    if (qParam) {
+        filteredDesigns = filteredDesigns.filter(d => {
+            const indexBuffer = `${d.title} ${d.artist_name} ${d.style.join(" ")} ${d.body_part.join(" ")} ${d.tags?.join(" ")}`.toLowerCase();
+            return indexBuffer.includes(qParam);
+        });
+    }
+
+    // Sorting logic
+    if (sortParam === 'recommended') {
+        filteredDesigns = designService.getRecommendedDesigns(filteredDesigns);
+    } else if (sortParam === 'saved') {
+        filteredDesigns.sort((a, b) => b.save_count - a.save_count);
+    } else if (sortParam === 'viewed') {
+        filteredDesigns.sort((a, b) => b.view_count - a.view_count);
+    }
+
+    // Task 2: Dead Link Shield - Bypassed for instant loading
+    const validDesigns = filteredDesigns;
 
     return (
         <div className="w-full bg-white pb-32">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "CollectionPage",
+                        "name": "Tattoo Design Gallery | Browse by Style, Meaning & Placement | TattoosMap",
+                        "description": "Browse thousands of curated tattoo designs by style, meaning, and placement. Each design includes symbolism guides, aging predictions, and artist recommendations.",
+                        "url": "https://tattoosmap.com/gallery",
+                        "provider": { "@type": "Organization", "name": "TattoosMap" }
+                    })
+                }}
+            />
+            <h1 className="sr-only">
+                Tattoo Design Gallery — Browse Thousands of Curated Tattoo Designs
+            </h1>
             <Suspense fallback={<div className="h-[73px] w-full border-b border-gray-light bg-white" />}>
                 <GalleryFilters />
             </Suspense>
 
+            {/* Gallery Grid (CSS Masonry) */}
             <main className="max-w-[1280px] mx-auto px-4 md:px-6 pt-12">
                 {validDesigns.length > 0 ? (
-                    <GalleryGrid 
-                        initialDesigns={validDesigns} 
-                        totalDesignsCount={totalDesigns}
-                        filters={{
-                            style: styleParam,
-                            bodyPart: bodyPartParam,
-                            gender: genderParam,
-                            sort: sortParam
-                        }}
-                    />
+                    <GalleryGrid initialDesigns={validDesigns} />
                 ) : (
                     <div className="w-full py-24 flex flex-col items-center justify-center text-center">
                         <p className="text-[18px] text-black font-display mb-2">No designs found.</p>
