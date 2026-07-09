@@ -6,15 +6,21 @@ import { ArtistsFeedClient } from "@/components/artists/ArtistsFeedClient";
 
 import { Metadata } from "next";
 
+const title = 'Tattoo Artist Directory — Verified Artists Worldwide | TattoosMap';
+
 export const metadata: Metadata = {
-    title: "Tattoo Artist Website Directory | World-Class Artists | TattoosMap",
+    title,
     description: "Discover the world's best tattoo artist website profiles. Browse verified artists by style and location on TattoosMap — the leading tattoo portfolio website directory.",
     alternates: { canonical: "https://tattoosmap.com/artists" },
     openGraph: {
-        title: "Tattoo Artist Directory | TattoosMap",
+        title,
         description: "Discover the world's best tattoo artist website profiles on TattoosMap.",
         url: "https://tattoosmap.com/artists",
         type: "website",
+    },
+    twitter: {
+        title,
+        description: "Discover the world's best tattoo artist website profiles on TattoosMap.",
     }
 };
 

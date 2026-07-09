@@ -23,9 +23,7 @@ export async function generateMetadata({
     .single();
 
   if (!design) {
-    return {
-      title: 'Tattoo Design | TattoosMap',
-    };
+    notFound();
   }
 
   const title = design.meta_title ||

@@ -130,6 +130,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         .eq("slug", slug)
         .single();
     
+    if (!post) {
+        notFound();
+    }
+    
     const title = post?.meta_title || post?.title || "Blog Post";
     const description = post?.meta_description || post?.excerpt || "Tattoo inspiration and guides from TattoosMap.";
     const imageUrl = post?.cover_image_url || "/brand-logo.png";

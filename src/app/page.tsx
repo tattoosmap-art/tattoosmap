@@ -15,7 +15,26 @@ export const metadata: Metadata = {
     title: "TattoosMap — Find Your Perfect Tattoo",
     description: "Explore thousands of tattoo designs, read science-backed aftercare guides, and book direct with verified artists.",
     url: "https://tattoosmap.com",
-    images: ["/brand-logo.png"],
+    images: [
+      {
+        url: 'https://tattoosmap.com/brand-logo.png', // TODO: replace with Supabase URL
+        width: 1200,
+        height: 630,
+        alt: 'TattoosMap — Tattoo Design Gallery',
+      }
+    ],
+  },
+  twitter: {
+    title: "TattoosMap — Find Your Perfect Tattoo",
+    description: "Explore thousands of tattoo designs, read science-backed aftercare guides, and book direct with verified artists.",
+    images: [
+      {
+        url: 'https://tattoosmap.com/brand-logo.png', // TODO: replace with Supabase URL
+        width: 1200,
+        height: 630,
+        alt: 'TattoosMap — Tattoo Design Gallery',
+      }
+    ],
   },
 };
 
@@ -95,7 +114,9 @@ export default async function LandingPage() {
 
   return (
     <main className="w-full bg-white text-black selection:bg-brand-red selection:text-white">
-      
+      <h1 className="sr-only">
+        TattoosMap — Tattoo Design Gallery, Artist Directory and Aftercare Guides
+      </h1>
 
       {/* SECTION 2 — The Hero */}
       <section className="min-h-[calc(100vh-56px)] grid grid-cols-1 lg:grid-cols-[55%_45%] border-b border-gray-light">
@@ -221,7 +242,7 @@ export default async function LandingPage() {
       <section className="py-24 px-8 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-2 gap-24 border-b border-gray-light">
         <div>
           <h2 className="font-display text-[48px] md:text-[64px] uppercase leading-[0.95] mb-12 tracking-tighter">
-            ELEVATE YOUR<br />NEXT TATTOO<br />EXPERIENCE.<br /><span className="text-brand-red">INTELLIGENT &<br />SEAMLESS.</span>
+            PLAN YOUR<br />NEXT TATTOO.<br />DESIGN.<br /><span className="text-brand-red">MEANING.<br />AFTERCARE.</span>
           </h2>
           <p className="text-[18px] text-gray-mid leading-relaxed max-w-[480px]">
             TattoosMap simplifies how you find, preview, and plan your next piece. Explore a curated library with technical specifications, test placements virtually with our try-on studio, and connect directly with verified artists.
@@ -287,7 +308,7 @@ export default async function LandingPage() {
         </div>
         <div className="flex flex-wrap items-center justify-center gap-4 px-8 my-16">
           {['Traditional', 'Realism', 'Blackwork', 'Japanese', 'Geometric', 'Fine Line', 'Minimalist'].map((style) => (
-            <Link key={style} href={`/gallery?style=${style.toLowerCase()}`} className="px-6 py-3 border border-gray-light hover:border-brand-red transition-all font-mono text-[11px] uppercase tracking-widest bg-white">
+            <Link key={style} href={`/gallery?style=${style.toLowerCase().replace(" ", "-")}`} className="px-6 py-3 border border-gray-light hover:border-brand-red transition-all font-mono text-[11px] uppercase tracking-widest bg-white">
               {style}
             </Link>
           ))}
@@ -383,7 +404,7 @@ export default async function LandingPage() {
           ))}
         </div>
         <div className="mt-16 flex justify-center">
-          <Link href="/blog/dermatologists-guide-aftercare" className="font-mono text-[12px] uppercase tracking-[0.1em] border-b border-black pb-1 hover:text-brand-red hover:border-brand-red transition-all">
+          <Link href="/blog" className="font-mono text-[12px] uppercase tracking-[0.1em] border-b border-black pb-1 hover:text-brand-red hover:border-brand-red transition-all">
             READ THE COMPLETE AFTERCARE SCIENCE GUIDE
           </Link>
         </div>
@@ -465,7 +486,7 @@ export default async function LandingPage() {
             <ul className="space-y-4 font-mono text-[12px] text-gray-mid uppercase tracking-wide">
               <li><Link href="/artists" className="hover:text-white transition-colors">Artist Verification</Link></li>
               <li><Link href="/products" className="hover:text-white transition-colors">Tattoo Products</Link></li>
-              <li><Link href="/contact" className="hover:text-white transition-colors">About</Link></li>
+              <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
             </ul>
           </div>

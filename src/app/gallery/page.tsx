@@ -19,6 +19,26 @@ export const metadata: Metadata = {
         description: "Browse thousands of curated tattoo designs by style, meaning, and placement. Each design includes symbolism guides, aging predictions, and artist recommendations.",
         url: "https://tattoosmap.com/gallery",
         type: "website",
+        images: [
+            {
+                url: 'https://tattoosmap.com/brand-logo.png',
+                width: 1200,
+                height: 630,
+                alt: 'TattoosMap Tattoo Design Gallery',
+            }
+        ]
+    },
+    twitter: {
+        title: "Tattoo Design Gallery | Browse by Style, Meaning & Placement | TattoosMap",
+        description: "Browse thousands of curated tattoo designs by style, meaning, and placement. Each design includes symbolism guides, aging predictions, and artist recommendations.",
+        images: [
+            {
+                url: 'https://tattoosmap.com/brand-logo.png',
+                width: 1200,
+                height: 630,
+                alt: 'TattoosMap Tattoo Design Gallery',
+            }
+        ]
     }
 };
 

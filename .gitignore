@@ -40,11 +40,13 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# scratch and local test scripts
-scratch/
-scratch.js
-scratch_dashboard.js
-seed_tests.js
-test-db.js
-test-db.js
-seed_tests.js
+# local standalone binaries
+/git-lfs
+
+# local scratch and test files
+/scratch/
+/scratch.js
+/scratch.ts
+/test-db.js
+/seed_tests.js
+/seed_tests.ts
