@@ -12,12 +12,13 @@ export const revalidate = 600; // Cache gallery detail page for 10 minutes
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
+  const { id } = await params;
   const { data: design } = await supabaseAnon
     .from('designs')
     .select('subject, style, placement_recommendations, meaning, alt_text, image_url, meta_title, meta_description, slug')
-    .eq('slug', params.id)
+    .eq('slug', id)
     .eq('is_published', true)
     .single();
 
@@ -65,8 +66,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function DesignPage({ params }: { params: { id: string } }) {
-    const { id } = params;
+export default async function DesignPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
 
     // Fetch full dataset (SSR with Incremental Revalidation)
     const pageData = await designService.getDesignPageData(id);
