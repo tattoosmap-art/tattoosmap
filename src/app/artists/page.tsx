@@ -135,12 +135,12 @@ export default async function ArtistsDirectory() {
                     </div>
 
                     {/* Public Submission & Admin Action Gateway */}
-                    <AddArtistButton isAdmin={isAdmin} isLoggedIn={!!user} />
+                    <AddArtistButton />
                 </div>
             </section>
 
             {/* Client Interactive Search, Categories, and Grid */}
-            <ArtistsFeedClient artists={liveArtists} isAdmin={isAdmin} />
+            <ArtistsFeedClient artists={liveArtists} />
         </div>
     );
 }

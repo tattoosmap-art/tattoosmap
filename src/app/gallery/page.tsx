@@ -131,7 +131,16 @@ export default async function GalleryIndex(props: {
             {/* Gallery Grid (CSS Masonry) */}
             <main className="max-w-[1280px] mx-auto px-4 md:px-6 pt-12">
                 {validDesigns.length > 0 ? (
-                    <GalleryGrid initialDesigns={validDesigns} />
+                    <GalleryGrid 
+                        initialDesigns={validDesigns} 
+                        totalDesignsCount={validDesigns.length}
+                        filters={{
+                            style: styleParam || undefined,
+                            bodyPart: bodyPartParam || undefined,
+                            gender: genderParam || undefined,
+                            sort: sortParam || undefined
+                        }}
+                    />
                 ) : (
                     <div className="w-full py-24 flex flex-col items-center justify-center text-center">
                         <p className="text-[18px] text-black font-display mb-2">No designs found.</p>
