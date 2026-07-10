@@ -60,10 +60,27 @@ export default function RootLayout({
                   type="application/ld+json"
                   dangerouslySetInnerHTML={{
                     __html: JSON.stringify({
-                      "@context": "https://schema.org",
-                      "@type": "WebSite",
-                      "name": "TattoosMap",
-                      "url": "https://tattoosmap.com/"
+                      '@context': 'https://schema.org',
+                      '@graph': [
+                        {
+                          '@type': 'WebSite',
+                          'name': 'TattoosMap',
+                          'url': 'https://tattoosmap.com',
+                          'potentialAction': {
+                            '@type': 'SearchAction',
+                            'target': 'https://tattoosmap.com/gallery?q={search_term_string}',
+                            'query-input': 'required name=search_term_string'
+                          }
+                        },
+                        {
+                          '@type': 'Organization',
+                          'name': 'TattoosMap',
+                          'url': 'https://tattoosmap.com',
+                          'logo': 'https://tattoosmap.com/brand-logo.png',
+                          'description': 'The first objective tattoo discovery platform combining a curated design gallery, verified artist directory, interactive tools, and science-backed aftercare guides.',
+                          'sameAs': ['https://instagram.com/tattoosmap']
+                        }
+                      ]
                     })
                   }}
                 />
