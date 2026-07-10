@@ -5,14 +5,16 @@ import WaitlistForm from "@/components/ui/WaitlistForm";
 
 import { Metadata } from "next";
 
+const homeTitle = 'TattoosMap | Tattoo Design Gallery, Artist Directory & Aftercare Guides';
+
 export const metadata: Metadata = {
-  title: "TattoosMap | The #1 Tattoo Design Website & Artist Directory",
+  title: homeTitle,
   description: "TattoosMap is the best tattoo design website to explore thousands of curated designs, find tattoo website inspiration, connect with verified artists, and discover meaning behind every style.",
   alternates: {
     canonical: "https://tattoosmap.com",
   },
   openGraph: {
-    title: "TattoosMap — Find Your Perfect Tattoo",
+    title: homeTitle,
     description: "Explore thousands of tattoo designs, read science-backed aftercare guides, and book direct with verified artists.",
     url: "https://tattoosmap.com",
     images: [
@@ -26,7 +28,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "TattoosMap — Discover Your Perfect Tattoo",
+    title: homeTitle,
     description: "Browse thousands of curated tattoo designs, discover meaning, and connect with verified artists.",
     images: ["https://smrnldmbvtflavzswghh.supabase.co/storage/v1/object/public/designs/fine-line-split-tiger-and-hannya-mask-illustrative-cm.webp"],
   },
@@ -455,7 +457,25 @@ export default async function LandingPage() {
           <div>
             <h2 className="font-display text-3xl mb-4 tracking-tighter">TattoosMap</h2>
             <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-brand-red mb-6">THE CARTOGRAPHER OF INK</div>
-            <p className="text-[14px] text-gray-mid leading-relaxed">A global tattoo discovery and trust platform. Precision designs, science-backed care.</p>
+            <p className="text-[14px] text-gray-mid leading-relaxed mb-6">A global tattoo discovery and trust platform. Precision designs, science-backed care.</p>
+            <div className="flex gap-4">
+              <a 
+                href="https://instagram.com/tattoosmap" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="font-mono text-[11px] uppercase tracking-wider text-gray-mid hover:text-white transition-colors"
+              >
+                Instagram
+              </a>
+              <a 
+                href="https://pinterest.com/tattoosmap" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="font-mono text-[11px] uppercase tracking-wider text-gray-mid hover:text-white transition-colors"
+              >
+                Pinterest
+              </a>
+            </div>
           </div>
           <div>
             <h4 className="font-mono text-[12px] uppercase tracking-[0.1em] mb-8 text-white">Explore</h4>
