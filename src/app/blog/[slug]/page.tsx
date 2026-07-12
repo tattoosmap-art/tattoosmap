@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { supabaseAnon } from "@/lib/supabase-anon";
 import { Post } from "@/types/database.types";
@@ -165,7 +164,7 @@ export const revalidate = 300; // Cache blog detail pages for 5 minutes
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const supabase = await createClient();
+    const supabase = supabaseAnon;
     
     let post: Post = null as any;
     let relatedPosts = [];

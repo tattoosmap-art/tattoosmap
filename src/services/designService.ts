@@ -81,7 +81,7 @@ export const designService = {
         try {
             const supabase = getSupabaseAnon();
             const page = params?.page || 1;
-            const limit = params?.limit || 24;
+            const limit = params?.limit || 200;
             const style = params?.style;
             const placement = params?.placement;
             const gender = params?.gender;

@@ -48,7 +48,7 @@ export default async function GalleryIndex(props: {
     const searchParams = await props.searchParams;
 
     // Fetch Live Designs (Falls back to MOCK_DESIGNS inside service if DB is empty)
-    const baseDesigns = await designService.getDesigns();
+    const baseDesigns = await designService.getDesigns({ limit: 200 });
 
     // Parse Search Params
     const styleParam = typeof searchParams?.style === 'string' ? searchParams.style.toLowerCase() : null;
