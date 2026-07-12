@@ -26,7 +26,7 @@ export default function Footer() {
                             <Link href="/gallery" className="text-[13px] text-gray-mid hover:text-brand-red transition-colors">Gallery</Link>
                             <Link href="/blog" className="text-[13px] text-gray-mid hover:text-brand-red transition-colors">Journal</Link>
                             <Link href="/tools" className="text-[13px] text-gray-mid hover:text-brand-red transition-colors">Tools</Link>
-                            <Link href="/about" className="text-[13px] text-gray-mid hover:text-brand-red transition-colors">About / Contact</Link>
+                            <Link href="/about" className="text-[13px] text-gray-mid hover:text-brand-red transition-colors">About</Link>
                         </nav>
                     </div>
 
@@ -36,8 +36,7 @@ export default function Footer() {
                         <nav className="flex flex-col gap-3">
                             <a href="https://instagram.com/tattoosmap" target="_blank" rel="noopener noreferrer" className="text-[13px] text-gray-mid hover:text-brand-red transition-colors">Instagram</a>
                             <a href="https://pinterest.com/tattoosmap" target="_blank" rel="noopener noreferrer" className="text-[13px] text-gray-mid hover:text-brand-red transition-colors">Pinterest</a>
-                            <Link href="/contact" className="text-[13px] text-gray-mid hover:text-brand-red transition-colors">Contact Us</Link>
-                            <Link href="/contact" className="text-[13px] text-gray-mid hover:text-brand-red transition-colors">Contact & Legal</Link>
+                            <Link href="/contact" className="text-[13px] text-gray-mid hover:text-brand-red transition-colors">Privacy Policy</Link>
                         </nav>
                     </div>
 

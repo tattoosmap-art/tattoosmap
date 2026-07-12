@@ -1,0 +1,30 @@
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Magic Tool | Solo Founder OS",
+  description: "10-Year Operational Field Manual for TattoosMap",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en" className={`${geistMono.variable} antialiased h-full`}>
+      <body className="font-mono min-h-full flex flex-col">{children}</body>
+    </html>
+  );
+}
