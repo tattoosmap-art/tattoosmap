@@ -298,20 +298,35 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     };
 
     if (post.schema_type === "HowTo") {
-        jsonLd.step = [{
+        jsonLd.step = post.protocol_steps?.map((step: { number: string; title: string; content: string }) => ({
+            "@type": "HowToStep",
+            "name": step.title,
+            "text": step.content
+        })) || [{
             "@type": "HowToStep",
             "text": "Check the guide content for detailed steps."
         }];
     } else if (post.schema_type === "FAQPage") {
         jsonLd["@type"] = "FAQPage";
-        jsonLd.mainEntity = [{
-            "@type": "Question",
-            "name": post.title,
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": post.excerpt
-            }
-        }];
+        if (post.faq_items && post.faq_items.length > 0) {
+            jsonLd.mainEntity = post.faq_items.map((faq: { question: string; answer: string }) => ({
+                "@type": "Question",
+                "name": faq.question,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": faq.answer
+                }
+            }));
+        } else {
+            jsonLd.mainEntity = [{
+                "@type": "Question",
+                "name": post.title,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": post.excerpt || ""
+                }
+            }];
+        }
     }
 
     const configRegex = /:::config\n([\s\S]*?)\n:::/;
