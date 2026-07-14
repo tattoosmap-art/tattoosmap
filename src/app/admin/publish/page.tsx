@@ -999,26 +999,6 @@ function PublishPostContent() {
             {/* CANVAS */}
             {postType && (
                 <div className="relative pt-0">
-                    {/* Body Content */}
-                    <div className="max-w-[680px] mx-auto pt-8">
-                        <div className="border-b border-gray-light pb-8 mb-8">
-                            <label className="font-mono text-[10px] uppercase tracking-widest text-neutral-400 block mb-3">
-                                Body Content
-                                <span className="text-neutral-300 ml-2 normal-case tracking-normal">
-                                    — paste full Claude output here (hook, short answer, science, ranked list)
-                                </span>
-                            </label>
-                            <textarea
-                                value={bodyContent}
-                                onChange={(e) => setBodyContent(e.target.value)}
-                                placeholder="Paste the complete blog post content from Claude here. Include the hook, short answer, science section, and all body sections. The FAQ items, protocol steps, and avoid items below are separate structured fields."
-                                className="w-full h-80 border border-gray-light p-4 font-sans text-[14px] text-black leading-relaxed resize-y focus:outline-none focus:border-black placeholder:text-neutral-300"
-                            />
-                            <p className="font-mono text-[9px] uppercase tracking-widest text-neutral-300 mt-2">
-                                {bodyContent.length} characters — target 2,000-4,000 for competitive posts
-                            </p>
-                        </div>
-                    </div>
                     {/* Template Loader Component removed per user request */}
 
 
@@ -1030,6 +1010,8 @@ function PublishPostContent() {
                             postType={postType}
                             sharedStateRef={editorStateRef}
                             onChange={(state) => setEditorState((prev: any) => ({ ...prev, ...state }))}
+                            bodyContent={bodyContent}
+                            setBodyContent={setBodyContent}
                             {...editorState}
                         />
                     ) : (
@@ -1040,6 +1022,8 @@ function PublishPostContent() {
                             postType={postType}
                             sharedStateRef={editorStateRef}
                             onChange={(state) => setEditorState((prev: any) => ({ ...prev, ...state }))}
+                            bodyContent={bodyContent}
+                            setBodyContent={setBodyContent}
                             {...editorState}
                         />
                     )}

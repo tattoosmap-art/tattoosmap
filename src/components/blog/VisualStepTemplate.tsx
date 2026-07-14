@@ -133,6 +133,8 @@ interface VisualStepTemplateProps {
   sharedStateRef?: React.RefObject<any>;
   authorName?: string;
   authorAvatarUrl?: string;
+  bodyContent?: string;
+  setBodyContent?: (val: string) => void;
 }
 
 export default function VisualStepTemplate({
@@ -166,7 +168,9 @@ export default function VisualStepTemplate({
   mode = "create",
   sharedStateRef,
   authorName = "TattoosMap Editorial",
-  authorAvatarUrl
+  authorAvatarUrl,
+  bodyContent = "",
+  setBodyContent
 }: VisualStepTemplateProps) {
   const router = useRouter();
 
@@ -448,6 +452,26 @@ export default function VisualStepTemplate({
             <h1 className="font-display text-[34px] md:text-[48px] leading-[1.1] text-black mb-6 text-center">
               <Editable isAdmin={isAdmin} onInputText={(v) => updateSharedRef('title', v)} onSave={(v) => handleTextChange(setTitle, v)} placeholder="Click to write your post title...">{title}</Editable>
             </h1>
+
+            {isAdmin && setBodyContent && (
+              <div className="border-b border-gray-light pb-8 mb-8 text-left max-w-[680px] mx-auto">
+                <label className="font-mono text-[10px] uppercase tracking-widest text-neutral-400 block mb-3">
+                  Body Content
+                  <span className="text-neutral-300 ml-2 normal-case tracking-normal">
+                    — paste full Claude output here (hook, short answer, science, ranked list)
+                  </span>
+                </label>
+                <textarea
+                  value={bodyContent}
+                  onChange={(e) => setBodyContent(e.target.value)}
+                  placeholder="Paste the complete blog post content from Claude here. Include the hook, short answer, science section, and all body sections. The FAQ items, protocol steps, and avoid items below are separate structured fields."
+                  className="w-full h-80 border border-gray-light p-4 font-sans text-[14px] text-black leading-relaxed resize-y focus:outline-none focus:border-black placeholder:text-neutral-300 bg-white"
+                />
+                <p className="font-mono text-[9px] uppercase tracking-widest text-neutral-300 mt-2">
+                  {(bodyContent || '').length} characters — target 2,000-4,000 for competitive posts
+                </p>
+              </div>
+            )}
 
             <div className="italic text-[18px] border-l-[3px] border-brand-red pl-6 mb-8 text-black/90 leading-[1.6]">
               <Editable isAdmin={isAdmin} onInputText={(v) => updateSharedRef('executiveSummary', v)} onSave={(v) => handleTextChange(setExecutiveSummary, v)} placeholder="Click to write executive summary...">{executiveSummary}</Editable>
