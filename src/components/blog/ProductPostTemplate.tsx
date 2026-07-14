@@ -125,6 +125,7 @@ export interface ProductPostTemplateProps {
   avoidHeading?: string;
   faqHeading?: string;
   shortAnswerHeading?: string;
+  shortAnswer?: string;
   toolMarkers?: { toolId: string; anchor: string }[];
   mode?: "edit" | "create";
   onCreate?: (data: any) => Promise<void>;
@@ -253,6 +254,7 @@ export default function ProductPostTemplate({
   faqHeading: initialFaqHeading = "Frequently Asked Questions",
   shortAnswerHeading: initialShortAnswerHeading = "The Short Answer",
   sharedStateRef,
+  shortAnswer,
   bodyContent = "",
   setBodyContent
 }: ProductPostTemplateProps) {
@@ -944,9 +946,16 @@ export default function ProductPostTemplate({
                 <SectionToolbar isAdmin={isAdmin} onRemove={() => { if(window.confirm("Remove entire short answer section?")) handleTextChange(setExecutiveSummary, null); }} />
                 
                 {shortAnswerHeading && (
-                  <h2 id="auto-short-answer" className="font-display text-[28px] uppercase tracking-tight text-black mb-4 mt-12 text-center">
-                    <Editable isAdmin={isAdmin} onSave={(v) => handleTextChange(setShortAnswerHeading, v)}>{shortAnswerHeading}</Editable>
-                  </h2>
+                  <>
+                    <h2 id="auto-short-answer" className="font-display text-[28px] uppercase tracking-tight text-black mb-4 mt-12 text-center">
+                      <Editable isAdmin={isAdmin} onSave={(v) => handleTextChange(setShortAnswerHeading, v)}>{shortAnswerHeading}</Editable>
+                    </h2>
+                    {shortAnswer && (
+                      <p className="font-sans text-[17px] leading-relaxed text-black/80 border-l-2 border-brand-red pl-6 py-2 mb-8">
+                        {shortAnswer}
+                      </p>
+                    )}
+                  </>
                 )}
                 
                 <p className="font-sans text-[17px] leading-[1.5] text-black/90 mb-12">

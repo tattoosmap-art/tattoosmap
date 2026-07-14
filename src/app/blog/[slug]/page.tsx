@@ -390,7 +390,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
     const saRegex = /:::shortanswer\n([\s\S]*?)\n:::/;
     const saMatch = displayBodyContent.match(saRegex);
-    const extractedShortAnswer = saMatch ? saMatch[1].trim() : (post.excerpt || "");
+    const extractedShortAnswerFromMarkdown = saMatch ? saMatch[1].trim() : (post.excerpt || "");
+    const extractedShortAnswer = (post as any).short_answer || extractedShortAnswerFromMarkdown || "";
+
+    const faqItemsToPass = post.post_template_type === "VISUAL STEP GUIDE" ? post.faq_items : [];
+    const bodyContentToPass = post.post_template_type === "VISUAL STEP GUIDE" ? displayBodyContent : "";
 
     if (post.post_template_type === "VISUAL STEP GUIDE") {
         const mappedSteps = (post.visual_steps || []).map((step: any, idx: number) => ({
@@ -419,7 +423,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 scienceContent={post.science_content || ""}
                 pullQuote={post.pull_quote || ""}
                 steps={mappedSteps}
-                faqItems={post.faq_items || []}
+                faqItems={faqItemsToPass as any}
                 investContent={extractedInvest}
                 shortAnswerHeading={headings.shortAnswer}
                 relatedPosts={relatedPosts}
@@ -427,7 +431,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 comments={comments}
                 authorName={post.author?.name}
                 authorAvatarUrl={post.author?.avatar_url}
-                bodyContent={post.body_content}
+                bodyContent={bodyContentToPass}
             />
         );
     }
@@ -484,9 +488,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                           <>
                             {/* SHORT ANSWER CONTENT */}
                             {headings.shortAnswer !== "" && (
-                              <h2 id="auto-short-answer" className="font-display text-[28px] uppercase tracking-tight text-black mb-4 mt-12 text-center">
-                                {headings.shortAnswer || "The Short Answer"}
-                              </h2>
+                              <>
+                                <h2 id="auto-short-answer" className="font-display text-[28px] uppercase tracking-tight text-black mb-4 mt-12 text-center">
+                                  {headings.shortAnswer || "The Short Answer"}
+                                </h2>
+                                {extractedShortAnswer && (
+                                  <p className="font-sans text-[17px] leading-relaxed text-black/80 border-l-2 border-brand-red pl-6 py-2 mb-8">
+                                    {extractedShortAnswer}
+                                  </p>
+                                )}
+                              </>
                             )}
                             <div className="prose prose-lg max-w-none break-words">
                                 {renderContentWithTools(displayBodyContent)}
@@ -659,9 +670,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
                             {/* MAIN CONTENT */}
                             {headings.shortAnswer !== "" && (
-                              <h2 id="auto-short-answer" className="font-display text-[28px] uppercase tracking-tight text-black mb-4 mt-12 text-center">
-                                {headings.shortAnswer || "The Short Answer"}
-                              </h2>
+                              <>
+                                <h2 id="auto-short-answer" className="font-display text-[28px] uppercase tracking-tight text-black mb-4 mt-12 text-center">
+                                  {headings.shortAnswer || "The Short Answer"}
+                                </h2>
+                                {extractedShortAnswer && (
+                                  <p className="font-sans text-[17px] leading-relaxed text-black/80 border-l-2 border-brand-red pl-6 py-2 mb-8">
+                                    {extractedShortAnswer}
+                                  </p>
+                                )}
+                              </>
                             )}
                             <div className="prose prose-lg max-w-none break-words">
                                 {renderContentWithTools(displayBodyContent)}
