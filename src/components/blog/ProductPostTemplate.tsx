@@ -11,6 +11,37 @@ import {
 } from "lucide-react";
 import { uploadProductImageAction, updatePostAction } from "@/actions/admin";
 import { useRouter } from "next/navigation";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+
+const MarkdownComponents: any = {
+    p: ({children, node, ...props}: any) => {
+        const getTextContent = (node: any): string => {
+            if (typeof node === 'string') return node;
+            if (Array.isArray(node)) return node.map(getTextContent).join('');
+            if (node?.props?.children) return getTextContent(node.props.children);
+            return '';
+        };
+        const text = getTextContent(children);
+        const honestLimitationRegex = /^["'*]*HONEST LIMITATION["'*]*\s*:\s*([\s\S]*)$/i;
+        const match = text.match(honestLimitationRegex);
+        if (match) {
+            const cleanedText = match[1].trim();
+            return (
+                <div className="w-full bg-neutral-50 border-l-2 border-neutral-200 p-4 mb-6">
+                    <span className="font-mono text-[9px] uppercase text-neutral-400 tracking-widest block mb-2 font-bold">
+                        HONEST LIMITATION
+                    </span>
+                    <p className="font-sans text-[13px] text-neutral-600 italic">
+                        {cleanedText}
+                    </p>
+                </div>
+            );
+        }
+        return <p className="mb-6 font-sans text-[18px] leading-[1.6] text-black/90 break-words" {...props}>{children}</p>;
+    }
+};
 
 export interface ProductPostTemplateProps {
   isAdmin?: boolean;
@@ -921,6 +952,18 @@ export default function ProductPostTemplate({
                 <p className="font-sans text-[17px] leading-[1.5] text-black/90 mb-12">
                   <Editable isAdmin={isAdmin} onSave={(v) => handleTextChange(setExecutiveSummary, v)} placeholder="Click to write your executive summary — 2 sentences that hook the reader...">{executiveSummary}</Editable>
                 </p>
+              </div>
+            )}
+
+            {!isAdmin && bodyContent && (
+              <div className="prose prose-lg max-w-none break-words mb-12">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw]}
+                  components={MarkdownComponents}
+                >
+                  {bodyContent}
+                </ReactMarkdown>
               </div>
             )}
 

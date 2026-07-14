@@ -21,16 +21,40 @@ import RelatedPosts from "@/components/blog/RelatedPosts";
 import CommentSection from "@/components/blog/CommentSection";
 
 const MarkdownComponents: any = {
-    h2: ({children, ...props}: any) => {
+    h2: ({children, node, ...props}: any) => {
         const text = children?.toString() || "";
         const id = text.toLowerCase()
             .replace(/[^\w\s-]/g, "")
             .replace(/\s+/g, "-");
         return <h2 id={id} className="text-[28px] font-display mt-16 mb-6 uppercase tracking-tight" {...props}>{children}</h2>;
     },
-    h3: ({...props}: any) => <h3 className="text-[22px] font-display mt-12 mb-4" {...props} />,
-    p: ({...props}: any) => <p className="mb-6 font-sans text-[18px] leading-[1.6] text-black/90 break-words" {...props} />,
-    blockquote: ({children, ...props}: any) => {
+    h3: ({node, ...props}: any) => <h3 className="text-[22px] font-display mt-12 mb-4" {...props} />,
+    p: ({children, node, ...props}: any) => {
+        const getTextContent = (node: any): string => {
+            if (typeof node === 'string') return node;
+            if (Array.isArray(node)) return node.map(getTextContent).join('');
+            if (node?.props?.children) return getTextContent(node.props.children);
+            return '';
+        };
+        const text = getTextContent(children);
+        const honestLimitationRegex = /^["'*]*HONEST LIMITATION["'*]*\s*:\s*([\s\S]*)$/i;
+        const match = text.match(honestLimitationRegex);
+        if (match) {
+            const cleanedText = match[1].trim();
+            return (
+                <div className="w-full bg-neutral-50 border-l-2 border-neutral-200 p-4 mb-6">
+                    <span className="font-mono text-[9px] uppercase text-neutral-400 tracking-widest block mb-2 font-bold">
+                        HONEST LIMITATION
+                    </span>
+                    <p className="font-sans text-[13px] text-neutral-600 italic">
+                        {cleanedText}
+                    </p>
+                </div>
+            );
+        }
+        return <p className="mb-6 font-sans text-[18px] leading-[1.6] text-black/90 break-words" {...props}>{children}</p>;
+    },
+    blockquote: ({children, node, ...props}: any) => {
         const text = children?.[0]?.props?.children?.[0] || children?.[0]?.props?.children || "";
         const isPullQuote = typeof text === 'string' && text.trim().startsWith("💡");
         if (isPullQuote) {
@@ -47,7 +71,7 @@ const MarkdownComponents: any = {
             </blockquote>
         );
     },
-    div: ({className, children, ...props}: any) => {
+    div: ({className, children, node, ...props}: any) => {
         if (className === 'invest-block') {
             return (
                 <div className="border border-brand-red bg-brand-red/[0.04] p-[20px_24px] my-8 relative">
@@ -60,15 +84,15 @@ const MarkdownComponents: any = {
         }
         return <div className={className} {...props}>{children}</div>;
     },
-    ul: ({...props}: any) => <ul className="list-disc pl-6 mb-6 space-y-3" {...props} />,
-    ol: ({...props}: any) => <ol className="list-decimal pl-5 mb-6 space-y-3 font-sans text-[18px] leading-[1.6]" {...props} />,
-    li: ({...props}: any) => <li className="font-sans" {...props} />,
-    pre: ({...props}: any) => <pre className="bg-off-white p-6 whitespace-pre-wrap break-words my-8 border border-gray-light font-mono text-[14px] leading-relaxed" {...props} />,
-    code: ({...props}: any) => <code className="bg-off-white px-1 py-0.5 font-mono text-[0.9em] whitespace-pre-wrap break-words" {...props} />,
-    table: ({...props}: any) => <div className="overflow-x-auto mb-[32px] mt-8"><table className="w-full text-left border-collapse border border-gray-light font-sans text-[16px]" {...props} /></div>,
-    th: ({...props}: any) => <th className="bg-off-white border border-gray-light p-4 font-bold text-black uppercase text-[12px] tracking-widest font-mono" {...props} />,
-    td: ({...props}: any) => <td className="border border-gray-light p-4 text-black/80 font-sans" {...props} />,
-    img: ({ src, alt, ...props }: any) => {
+    ul: ({node, ...props}: any) => <ul className="list-disc pl-6 mb-6 space-y-3" {...props} />,
+    ol: ({node, ...props}: any) => <ol className="list-decimal pl-5 mb-6 space-y-3 font-sans text-[18px] leading-[1.6]" {...props} />,
+    li: ({node, ...props}: any) => <li className="font-sans" {...props} />,
+    pre: ({node, ...props}: any) => <pre className="bg-off-white p-6 whitespace-pre-wrap break-words my-8 border border-gray-light font-mono text-[14px] leading-relaxed" {...props} />,
+    code: ({node, ...props}: any) => <code className="bg-off-white px-1 py-0.5 font-mono text-[0.9em] whitespace-pre-wrap break-words" {...props} />,
+    table: ({node, ...props}: any) => <div className="overflow-x-auto mb-[32px] mt-8"><table className="w-full text-left border-collapse border border-gray-light font-sans text-[16px]" {...props} /></div>,
+    th: ({node, ...props}: any) => <th className="bg-off-white border border-gray-light p-4 font-bold text-black uppercase text-[12px] tracking-widest font-mono" {...props} />,
+    td: ({node, ...props}: any) => <td className="border border-gray-light p-4 text-black/80 font-sans" {...props} />,
+    img: ({ src, alt, node, ...props }: any) => {
         if (!src) return null;
         return (
             <div className="my-[48px] space-y-4">
@@ -155,6 +179,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             title,
             description,
             images: imageUrl ? [imageUrl] : [],
+        },
+        other: {
+            "short-answer-marker": "The Short Answer"
         }
     };
 }
@@ -345,6 +372,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     const hasToolMarkers = post.tool_markers && post.tool_markers.length > 0;
     const hasLegacyTool = post.selected_tool && post.selected_tool !== 'NONE' && !hasToolMarkers;
 
+    const renderToolMarkers = (anchor: 'top' | 'science' | 'pull-quote' | 'invest' | 'bottom') => {
+        const markers = post.tool_markers || [];
+        return (markers as any[])
+            .filter((tm: any) => tm.anchor === anchor)
+            .map((tm: any, i: number) => (
+                <div key={`tool-${anchor}-${i}`} className="my-12">
+                    <EmbeddedToolClient toolName={tm.toolId} />
+                </div>
+            ));
+    };
+
     // EXTRACT SPECIAL BLOCKS FROM MARKDOWN FOR VISUAL GUIDES
     const investRegex = /:::invest\n([\s\S]*?)\n:::/;
     const investMatch = displayBodyContent.match(investRegex);
@@ -389,6 +427,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 comments={comments}
                 authorName={post.author?.name}
                 authorAvatarUrl={post.author?.avatar_url}
+                bodyContent={post.body_content}
             />
         );
     }
@@ -618,26 +657,43 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                               DISCLOSURE: This post contains affiliate links. If you purchase through our links we may earn a small commission at no extra cost to you.
                             </p>
 
+                            {/* MAIN CONTENT */}
+                            {headings.shortAnswer !== "" && (
+                              <h2 id="auto-short-answer" className="font-display text-[28px] uppercase tracking-tight text-black mb-4 mt-12 text-center">
+                                {headings.shortAnswer || "The Short Answer"}
+                              </h2>
+                            )}
+                            <div className="prose prose-lg max-w-none break-words">
+                                {renderContentWithTools(displayBodyContent)}
+                            </div>
+                            {renderToolMarkers('top')}
+
                             {/* SCIENCE SECTION */}
                             {post.science_content && (
-                              <div className="relative mb-12">
-                                <h2 className="font-display text-[28px] uppercase tracking-tight text-black mb-4 mt-12 text-center">
-                                  {post.science_heading || "Why This Matters"}
-                                </h2>
-                                <p className="font-sans text-[17px] leading-[1.5] text-black/90 mb-12">
-                                  {post.science_content}
-                                </p>
-                              </div>
+                              <>
+                                <div className="relative mb-12">
+                                  <h2 className="font-display text-[28px] uppercase tracking-tight text-black mb-4 mt-12 text-center">
+                                    {post.science_heading || "Why This Matters"}
+                                  </h2>
+                                  <p className="font-sans text-[17px] leading-[1.5] text-black/90 mb-12">
+                                    {post.science_content}
+                                  </p>
+                                </div>
+                                {renderToolMarkers('science')}
+                              </>
                             )}
 
                             {/* PULL QUOTE */}
                             {post.pull_quote && (
-                              <div className="border-l-4 border-brand-red bg-black p-6 my-12">
-                                <span className="font-mono text-[9px] uppercase text-neutral-500 tracking-widest block mb-3">SHARE THIS</span>
-                                <p className="font-display text-[20px] text-white italic leading-snug">
-                                  "{post.pull_quote}"
-                                </p>
-                              </div>
+                              <>
+                                <div className="border-l-4 border-brand-red bg-black p-6 my-12">
+                                  <span className="font-mono text-[9px] uppercase text-neutral-500 tracking-widest block mb-3">SHARE THIS</span>
+                                  <p className="font-display text-[20px] text-white italic leading-snug">
+                                    "{post.pull_quote}"
+                                  </p>
+                                </div>
+                                {renderToolMarkers('pull-quote')}
+                              </>
                             )}
 
                             {/* INVEST BLOCK */}
@@ -650,6 +706,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                                 </a>
                               </p>
                             </div>
+                            {renderToolMarkers('invest')}
 
                             {/* LEGACY TOOL FALLBACK */}
                             {hasLegacyTool && (
@@ -659,16 +716,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                                     />
                                 </div>
                             )}
-
-                            {/* MAIN CONTENT */}
-                            {headings.shortAnswer !== "" && (
-                              <h2 id="auto-short-answer" className="font-display text-[28px] uppercase tracking-tight text-black mb-4 mt-12 text-center">
-                                {headings.shortAnswer || "The Short Answer"}
-                              </h2>
-                            )}
-                            <div className="prose prose-lg max-w-none break-words">
-                                {renderContentWithTools(displayBodyContent)}
-                            </div>
 
                             {/* PROTOCOL STEPS */}
                             {post.protocol_steps && post.protocol_steps.length > 0 && (
@@ -728,6 +775,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                                 </div>
                               </>
                             )}
+                            {renderToolMarkers('bottom')}
                           </>
                         )}
 
