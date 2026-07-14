@@ -696,6 +696,7 @@ export async function publishLabPostAction(postData: LabPostPayload) {
             .from("posts")
             .insert({
                 ...dbPayload,
+                body_content: postData.body_content || '',
                 protocol_steps: dbPayload.protocol_steps || [],
                 avoid_items: dbPayload.avoid_items || [],
                 faq_items: dbPayload.faq_items || [],

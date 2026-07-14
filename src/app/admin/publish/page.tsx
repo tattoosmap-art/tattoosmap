@@ -44,7 +44,8 @@ const BLANK_STATE = {
     tags: [],
     selectedTool: "NONE",
     toolPosition: "",
-    toolMarkers: []
+    toolMarkers: [],
+    body_content: ""
 };
 
 const VISUAL_BLANK_STATE = {
@@ -58,7 +59,8 @@ const VISUAL_BLANK_STATE = {
         { id: `step-${Date.now()}-1`, number: "01", title: "Step 1 Title", content: "Explain the detailed actions and nuances of step 1...", imageSrc: "", imageAlt: "", tip: "", tipType: "tip" },
         { id: `step-${Date.now()}-2`, number: "02", title: "Step 2 Title", content: "Explain the detailed actions and nuances of step 2...", imageSrc: "", imageAlt: "", tip: "", tipType: "tip" },
         { id: `step-${Date.now()}-3`, number: "03", title: "Step 3 Title", content: "Explain the detailed actions and nuances of step 3...", imageSrc: "", imageAlt: "", tip: "", tipType: "tip" }
-    ]
+    ],
+    body_content: ""
 };
 
 // HELPER: Build Markdown from State for DB storage (Fix 5)
@@ -502,6 +504,7 @@ function PublishPostContent() {
     const [metaTitleManuallyEdited, setMetaTitleManuallyEdited] = useState(false);
     const [metaDescManuallyEdited, setMetaDescManuallyEdited] = useState(false);
     const [syncProducts, setSyncProducts] = useState(true);
+    const [bodyContent, setBodyContent] = useState('');
 
     // 1. Load post for editing if editId present in URL
     useEffect(() => {
@@ -676,6 +679,7 @@ function PublishPostContent() {
             setLastSavedState(BLANK_STATE);
             setDraftFound(null);
             setShowDraftBanner(false);
+            setBodyContent('');
             setToast({ message: "Draft cleared", isError: false });
         }
     };
@@ -777,7 +781,7 @@ function PublishPostContent() {
                 title: current.title,
                 slug: finalSlug,
                 excerpt: current.executiveSummary,
-                body_content: buildMarkdownFromState(current),
+                body_content: bodyContent || buildMarkdownFromState(current),
                 meta_title: metaTitleManuallyEdited ? seoState.metaTitle : current.title,
                 meta_description: metaDescManuallyEdited ? seoState.metaDescription : current.executiveSummary,
                 focus_keyword: seoState.focusKeyword,
@@ -839,6 +843,7 @@ function PublishPostContent() {
         if (tpl && tpl.postType) {
             setPostType(tpl.postType);
         }
+        setBodyContent('');
         setTemplateKey(Date.now()); // Force re-mount of ProductPostTemplate
     };
 
@@ -994,6 +999,26 @@ function PublishPostContent() {
             {/* CANVAS */}
             {postType && (
                 <div className="relative pt-0">
+                    {/* Body Content */}
+                    <div className="max-w-[680px] mx-auto pt-8">
+                        <div className="border-b border-gray-light pb-8 mb-8">
+                            <label className="font-mono text-[10px] uppercase tracking-widest text-neutral-400 block mb-3">
+                                Body Content
+                                <span className="text-neutral-300 ml-2 normal-case tracking-normal">
+                                    — paste full Claude output here (hook, short answer, science, ranked list)
+                                </span>
+                            </label>
+                            <textarea
+                                value={bodyContent}
+                                onChange={(e) => setBodyContent(e.target.value)}
+                                placeholder="Paste the complete blog post content from Claude here. Include the hook, short answer, science section, and all body sections. The FAQ items, protocol steps, and avoid items below are separate structured fields."
+                                className="w-full h-80 border border-gray-light p-4 font-sans text-[14px] text-black leading-relaxed resize-y focus:outline-none focus:border-black placeholder:text-neutral-300"
+                            />
+                            <p className="font-mono text-[9px] uppercase tracking-widest text-neutral-300 mt-2">
+                                {bodyContent.length} characters — target 2,000-4,000 for competitive posts
+                            </p>
+                        </div>
+                    </div>
                     {/* Template Loader Component removed per user request */}
 
 
