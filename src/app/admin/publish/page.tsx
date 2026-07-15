@@ -505,6 +505,7 @@ function PublishPostContent() {
     const [metaDescManuallyEdited, setMetaDescManuallyEdited] = useState(false);
     const [syncProducts, setSyncProducts] = useState(true);
     const [bodyContent, setBodyContent] = useState('');
+    const [readTime, setReadTime] = useState(7);
 
     // 1. Load post for editing if editId present in URL
     useEffect(() => {
@@ -544,6 +545,7 @@ function PublishPostContent() {
                     });
                     setMetaTitleManuallyEdited(p.meta_title !== p.title);
                     setMetaDescManuallyEdited(p.meta_description !== p.excerpt);
+                    setReadTime(p.read_time_minutes || 7);
                     setTemplateKey(Date.now());
                 } else {
                     setToast({ message: "Failed to fetch post from database.", isError: true });
@@ -648,7 +650,12 @@ function PublishPostContent() {
     const handleRestoreDraft = () => {
         if (draftFound && draftFound.draft_data) {
             const { editorState: savedEditor, seoState: savedSeo, postType: savedType, metaTitleManuallyEdited: mTitle, metaDescManuallyEdited: mDesc } = draftFound.draft_data;
-            if (savedEditor) setEditorState(savedEditor);
+            if (savedEditor) {
+                setEditorState(savedEditor);
+                if (savedEditor.readTime) {
+                    setReadTime(parseInt(savedEditor.readTime) || 7);
+                }
+            }
             if (savedSeo) setSeoState(savedSeo);
             if (savedType) setPostType(savedType);
             setMetaTitleManuallyEdited(!!mTitle);
@@ -673,6 +680,7 @@ function PublishPostContent() {
             setPostType(null);
             setMetaTitleManuallyEdited(false);
             setMetaDescManuallyEdited(false);
+            setReadTime(7);
             setTemplateKey(Date.now());
             setLastSavedTime(null);
             lastSavedStateRef.current = BLANK_STATE;
@@ -801,7 +809,7 @@ function PublishPostContent() {
                 science_content: current.scienceContent || '',
                 selected_tool: current.selectedTool || "NONE",
                 tool_position: current.toolPosition || null,
-                read_time_minutes: calculatedReadTime,
+                read_time_minutes: readTime,
                 is_published: true,
                 author_id: user?.id || "",
                 visual_steps: current.steps || [],
@@ -842,6 +850,9 @@ function PublishPostContent() {
         setEditorState(tpl);
         if (tpl && tpl.postType) {
             setPostType(tpl.postType);
+        }
+        if (tpl && tpl.readTime) {
+            setReadTime(parseInt(tpl.readTime) || 7);
         }
         setBodyContent('');
         setTemplateKey(Date.now()); // Force re-mount of ProductPostTemplate
@@ -1009,10 +1020,16 @@ function PublishPostContent() {
                             mode="create"
                             postType={postType}
                             sharedStateRef={editorStateRef}
-                            onChange={(state) => setEditorState((prev: any) => ({ ...prev, ...state }))}
+                            onChange={(state) => {
+                                setEditorState((prev: any) => ({ ...prev, ...state }));
+                                if (state.readTime) {
+                                    setReadTime(parseInt(state.readTime) || 7);
+                                }
+                            }}
                             bodyContent={bodyContent}
                             setBodyContent={setBodyContent}
                             {...editorState}
+                            readTime={`${readTime} MIN READ`}
                         />
                     ) : (
                         <ProductPostTemplate 
@@ -1021,10 +1038,16 @@ function PublishPostContent() {
                             mode="create"
                             postType={postType}
                             sharedStateRef={editorStateRef}
-                            onChange={(state) => setEditorState((prev: any) => ({ ...prev, ...state }))}
+                            onChange={(state) => {
+                                setEditorState((prev: any) => ({ ...prev, ...state }));
+                                if (state.readTime) {
+                                    setReadTime(parseInt(state.readTime) || 7);
+                                }
+                            }}
                             bodyContent={bodyContent}
                             setBodyContent={setBodyContent}
                             {...editorState}
+                            readTime={`${readTime} MIN READ`}
                         />
                     )}
                 </div>
@@ -1090,8 +1113,14 @@ function PublishPostContent() {
                                         <div className="font-mono text-[12px] text-neutral-400 bg-neutral-50 p-3 border border-neutral-200">{postType}</div>
                                     </div>
                                     <div>
-                                        <label className="font-mono text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">Read Time</label>
-                                        <div className="font-mono text-[12px] text-neutral-400 bg-neutral-50 p-3 border border-neutral-200">{calculatedReadTime} MIN READ</div>
+                                        <label className="font-mono text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">Read Time (minutes)</label>
+                                        <input 
+                                            type="number" 
+                                            min={1} 
+                                            value={readTime} 
+                                            onChange={(e) => setReadTime(Math.max(1, parseInt(e.target.value) || 1))} 
+                                            className="w-full border border-neutral-300 p-3 font-mono text-[12px] outline-none focus:border-black bg-white"
+                                        />
                                     </div>
                                 </div>
                             </div>
