@@ -39,7 +39,7 @@ const MarkdownComponents: any = {
                 </div>
             );
         }
-        return <p className="mb-6 font-sans text-[18px] leading-[1.6] text-black/90 break-words" {...props}>{children}</p>;
+        return <p {...props}>{children}</p>;
     }
 };
 

@@ -52,7 +52,7 @@ const MarkdownComponents: any = {
                 </div>
             );
         }
-        return <p className="mb-6 font-sans text-[18px] leading-[1.6] text-black/90 break-words" {...props}>{children}</p>;
+        return <p {...props}>{children}</p>;
     },
     blockquote: ({children, node, ...props}: any) => {
         const text = children?.[0]?.props?.children?.[0] || children?.[0]?.props?.children || "";
