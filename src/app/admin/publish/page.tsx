@@ -8,7 +8,8 @@ import ProductPostTemplate from "@/components/blog/ProductPostTemplate";
 import VisualStepTemplate from "@/components/blog/VisualStepTemplate";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { publishLabPostAction, saveDraftAction, getDraftAction, deleteDraftAction, getLabPostAction, updateLabPostAction } from "@/actions/admin";
-
+import PublishQueueDrawer from '@/components/admin/PublishQueueDrawer';
+import { saveToQueueAction, getQueueAction } from '@/actions/admin';
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
 
 const BLOG_CATEGORIES = ["Styles", "Technique", "Culture", "History", "Ink & Equipment", "Artist Spotlight", "Aftercare", "Trends", "Meaning & Symbolism", "Tattoo Removal", "Pain & Placement", "Body Zone Specific", "Design Subject Direct", "Style Guides", "Design Ideas", "Cost & Pricing", "First Timer", "FAQ & How-To", "Artist & Studio", "Products & Equipment", "Zodiac & Astrology", "Cultural & Themed", "Pop Culture", "Comparison & Versus", "Temporary & Henna"];
@@ -506,6 +507,21 @@ function PublishPostContent() {
     const [syncProducts, setSyncProducts] = useState(true);
     const [bodyContent, setBodyContent] = useState('');
     const [readTime, setReadTime] = useState(7);
+    const [queueOpen, setQueueOpen] = useState(false);
+    const [queueCount, setQueueCount] = useState(0);
+    const [queuePosts, setQueuePosts] = useState<any[]>([]);
+
+    const fetchQueue = async () => {
+      const result = await getQueueAction();
+      if (result.success) {
+        setQueueCount(result.data.length);
+        setQueuePosts(result.data);
+      }
+    };
+
+    useEffect(() => {
+      fetchQueue();
+    }, []);
 
     // 1. Load post for editing if editId present in URL
     useEffect(() => {
@@ -744,6 +760,61 @@ function PublishPostContent() {
             </div>
         );
     }
+    const handleSaveToQueue = async () => {
+        const current = editorStateRef.current;
+        if (!current.title?.trim()) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setToast({ message: "Add a title to queue", isError: true });
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            const postData = {
+                title: current.title,
+                excerpt: current.executiveSummary || "",
+                body_content: bodyContent || buildMarkdownFromState(current),
+                meta_title: metaTitleManuallyEdited ? seoState.metaTitle : current.title,
+                meta_description: metaDescManuallyEdited ? seoState.metaDescription : current.executiveSummary || "",
+                focus_keyword: seoState.focusKeyword,
+                schema_type: seoState.schemaType,
+                category: current.category || "Uncategorized",
+                post_intent: postType,
+                cover_image_url: current.heroImageSrc && !current.heroImageSrc.includes('placeholder') 
+                    ? current.heroImageSrc 
+                    : "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop",
+                cover_image_alt: current.title,
+                related_products: current.products || [],
+                protocol_steps: current.protocolSteps || [],
+                avoid_items: current.avoidItems || [],
+                faq_items: current.faqItems || [],
+                pull_quote: current.pullQuote || '',
+                science_heading: current.scienceHeading || '',
+                science_content: current.scienceContent || '',
+                selected_tool: current.selectedTool || "NONE",
+                tool_position: current.toolPosition || null,
+                read_time_minutes: readTime,
+                is_published: false,
+                author_id: user?.id || "",
+                visual_steps: current.steps || [],
+                post_template_type: postType === "VISUAL STEP GUIDE" ? "VISUAL STEP GUIDE" : "STANDARD",
+                sync_products: syncProducts
+            };
+
+            const result = await saveToQueueAction(postData);
+            if (result.success) {
+                setToast({ message: "ADDED TO QUEUE", isError: false });
+                await fetchQueue();
+                setQueueOpen(true);
+            } else {
+                setToast({ message: result.error || "Failed to queue", isError: true });
+            }
+        } catch (err: any) {
+            setToast({ message: "Error queueing post", isError: true });
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const handleCreatePost = async () => {
         // Capture the ABSOLUTE LATEST state synchronously from the shared reference.
@@ -986,19 +1057,39 @@ function PublishPostContent() {
                                 <span className="font-mono text-[10px] text-white uppercase tracking-widest whitespace-nowrap">Add items to Product Page</span>
                             </label>
                         )}
+                        <button
+                            onClick={() => setQueueOpen(true)}
+                            className="font-mono text-[11px] uppercase px-4 py-2 transition-colors border border-neutral-700 text-neutral-400 hover:text-white hover:border-neutral-500 flex items-center gap-2 bg-neutral-900/30"
+                        >
+                            QUEUE ({queueCount})
+                        </button>
+                        <button 
+                            onClick={handleSaveToQueue}
+                            disabled={!editorState.title || isSaving}
+                            className={`font-mono text-[11px] uppercase px-4 py-2 transition-colors flex items-center gap-2 ${editorState.title ? 'bg-neutral-800 text-white hover:bg-neutral-700' : 'bg-neutral-900 text-neutral-600 cursor-not-allowed'}`}
+                        >
+                            {isSaving && <Loader2 className="w-3 h-3 animate-spin" />}
+                            ADD TO QUEUE
+                        </button>
                         <button 
                             onClick={handleCreatePost}
                             disabled={!editorState.title || !editorState.category || isSaving}
                             className={`font-mono text-[11px] uppercase px-6 py-2 transition-colors flex items-center gap-2 ${editorState.title && editorState.category ? 'bg-brand-red text-white hover:bg-red-700' : 'bg-neutral-800 text-neutral-500 cursor-not-allowed'}`}
                         >
                             {isSaving && <Loader2 className="w-3 h-3 animate-spin" />}
-                            {(!editorState.title || !editorState.category) ? 'FILL REQUIRED FIELDS' : (isEditMode ? 'SAVE CHANGES →' : 'CREATE POST →')}
+                            {(!editorState.title || !editorState.category) ? 'FILL REQUIRED FIELDS' : (isEditMode ? 'SAVE CHANGES →' : 'PUBLISH NOW →')}
                         </button>
                     </div>
                 </div>
             )}
 
-
+            <PublishQueueDrawer 
+                isOpen={queueOpen}
+                onClose={() => setQueueOpen(false)}
+                posts={queuePosts}
+                onRefresh={fetchQueue}
+                onToast={(msg) => setToast({ message: msg, isError: false })}
+            />
 
             {/* TOAST */}
             {toast && (

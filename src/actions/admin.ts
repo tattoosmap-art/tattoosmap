@@ -1040,3 +1040,73 @@ export async function deleteArtistAction(artistId: string) {
         return { success: false, error: err.message };
     }
 }
+
+export async function saveToQueueAction(postData: any) {
+  await verifyAdminSession();
+  
+  if (!postData.title?.trim()) {
+    return { success: false, error: 'Title is required' };
+  }
+  
+  const slug = await ensureUniqueSlug("posts", postData.title);
+  
+  const { data, error } = await supabaseAdmin
+    .from('posts')
+    .insert({
+      ...postData,
+      slug,
+      is_published: false,
+      published_at: null,
+    })
+    .select('id, slug, title')
+    .single();
+    
+  if (error) return { success: false, error: error.message };
+  revalidatePath('/admin/publish');
+  return { success: true, slug: data.slug, id: data.id };
+}
+
+export async function publishFromQueueAction(postId: string) {
+  await verifyAdminSession();
+  
+  const { error } = await supabaseAdmin
+    .from('posts')
+    .update({
+      is_published: true,
+      published_at: new Date().toISOString(),
+    })
+    .eq('id', postId)
+    .eq('is_published', false);
+    
+  if (error) return { success: false, error: error.message };
+  revalidatePath('/blog');
+  revalidatePath('/');
+  return { success: true };
+}
+
+export async function deleteFromQueueAction(postId: string) {
+  await verifyAdminSession();
+  
+  const { error } = await supabaseAdmin
+    .from('posts')
+    .delete()
+    .eq('id', postId)
+    .eq('is_published', false);
+    
+  if (error) return { success: false, error: error.message };
+  revalidatePath('/admin/publish');
+  return { success: true };
+}
+
+export async function getQueueAction() {
+  await verifyAdminSession();
+  
+  const { data, error } = await supabaseAdmin
+    .from('posts')
+    .select('id, title, post_intent, category, created_at, read_time_minutes')
+    .eq('is_published', false)
+    .order('created_at', { ascending: true });
+    
+  if (error) return { success: false, data: [] };
+  return { success: true, data: data || [] };
+}
