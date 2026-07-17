@@ -970,6 +970,16 @@ function PublishPostContent() {
             {/* OVERLAY */}
             {!postType && (
                 <div className="fixed inset-0 bg-white z-[300] flex flex-col items-center justify-center p-6">
+                    {/* Floating Queue Manager Access */}
+                    <div className="absolute top-6 right-6 z-[310]">
+                        <button
+                            onClick={() => setQueueOpen(true)}
+                            className="font-mono text-[11px] uppercase px-4 py-2.5 transition-colors border border-black text-black hover:bg-black hover:text-white flex items-center gap-2 bg-white"
+                        >
+                            QUEUE ({queueCount})
+                        </button>
+                    </div>
+
                     <h1 className="font-display text-[32px] uppercase text-black mb-12 text-center">WHAT TYPE OF POST ARE YOU CREATING?</h1>
                     <div className="flex flex-col md:flex-row gap-6 max-w-[1000px] w-full">
                         <div 
