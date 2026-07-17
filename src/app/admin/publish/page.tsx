@@ -512,10 +512,14 @@ function PublishPostContent() {
     const [queuePosts, setQueuePosts] = useState<any[]>([]);
 
     const fetchQueue = async () => {
-      const result = await getQueueAction();
-      if (result.success) {
-        setQueueCount(result.data.length);
-        setQueuePosts(result.data);
+      try {
+        const result = await getQueueAction();
+        if (result.success) {
+          setQueueCount(result.data.length);
+          setQueuePosts(result.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch queue:", err);
       }
     };
 

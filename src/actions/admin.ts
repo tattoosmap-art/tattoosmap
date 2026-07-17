@@ -1099,14 +1099,19 @@ export async function deleteFromQueueAction(postId: string) {
 }
 
 export async function getQueueAction() {
-  await verifyAdminSession();
-  
-  const { data, error } = await supabaseAdmin
-    .from('posts')
-    .select('id, title, post_intent, category, created_at, read_time_minutes')
-    .eq('is_published', false)
-    .order('created_at', { ascending: true });
+  try {
+    await verifyAdminSession();
     
-  if (error) return { success: false, data: [] };
-  return { success: true, data: data || [] };
+    const { data, error } = await supabaseAdmin
+      .from('posts')
+      .select('id, title, post_intent, category, created_at, read_time_minutes')
+      .eq('is_published', false)
+      .order('created_at', { ascending: true });
+      
+    if (error) return { success: false, data: [] };
+    return { success: true, data: data || [] };
+  } catch (err: any) {
+    console.error("[getQueueAction] Error:", err);
+    return { success: false, data: [], error: err.message };
+  }
 }
