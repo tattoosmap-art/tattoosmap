@@ -8,7 +8,8 @@ import ProductPostTemplate from "@/components/blog/ProductPostTemplate";
 import VisualStepTemplate from "@/components/blog/VisualStepTemplate";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { publishLabPostAction, saveDraftAction, getDraftAction, deleteDraftAction, getLabPostAction, updateLabPostAction } from "@/actions/admin";
-import PublishQueueDrawer from '@/components/admin/PublishQueueDrawer';
+import dynamic from 'next/dynamic';
+const PublishQueueDrawer = dynamic(() => import('@/components/admin/PublishQueueDrawer'), { ssr: false });
 import { saveToQueueAction, getQueueAction } from '@/actions/admin';
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
 
