@@ -1042,31 +1042,36 @@ export async function deleteArtistAction(artistId: string) {
 }
 
 export async function saveToQueueAction(postData: any) {
-  await verifyAdminSession();
-  
-  if (!postData.title?.trim()) {
-    return { success: false, error: 'Title is required' };
-  }
-  
-  const { sync_products, ...dbPayload } = postData;
-  const slug = await ensureUniqueSlug("posts", dbPayload.title);
-  
-  const { data, error } = await supabaseAdmin
-    .from('posts')
-    .insert({
-      ...dbPayload,
-      slug,
-      is_published: false,
-      published_at: null,
-    })
-    .select('id, slug, title')
-    .single();
-    
-  if (error) return { success: false, error: error.message };
   try {
-    revalidatePath('/admin/publish');
-  } catch (e) {}
-  return { success: true, slug: data.slug, id: data.id };
+    await verifyAdminSession();
+    
+    if (!postData.title?.trim()) {
+      return { success: false, error: 'Title is required' };
+    }
+    
+    const { sync_products, ...dbPayload } = postData;
+    const slug = await ensureUniqueSlug("posts", dbPayload.title);
+    
+    const { data, error } = await supabaseAdmin
+      .from('posts')
+      .insert({
+        ...dbPayload,
+        slug,
+        is_published: false,
+        published_at: null,
+      })
+      .select('id, slug, title')
+      .single();
+      
+    if (error) return { success: false, error: error.message };
+    try {
+      revalidatePath('/admin/publish');
+    } catch (e) {}
+    return { success: true, slug: data.slug, id: data.id };
+  } catch (err: any) {
+    console.error("[saveToQueueAction] Error:", err);
+    return { success: false, error: err.message || 'Unknown error in saveToQueueAction' };
+  }
 }
 
 export async function publishFromQueueAction(postId: string) {
