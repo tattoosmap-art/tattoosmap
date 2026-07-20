@@ -9,6 +9,54 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { generateMockupsForDesign } from "@/lib/mockup-generator";
 import { verifyAdminSession } from "@/lib/admin-server";
 
+async function generateDesignContent(designData: {
+  subject: string;
+  style: string | string[];
+  cultural_origin?: string | null;
+  elements?: any;
+  emotion_tags?: string[];
+  speakable_summary?: string | null;
+}): Promise<{
+  meaning?: string;
+  cultural_origin?: string;
+  speakable_summary?: string;
+}> {
+  try {
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+    const model = ai.getGenerativeModel({ model: 'gemini-flash-latest' });
+
+    const styleStr = Array.isArray(designData.style)
+      ? designData.style.join(', ')
+      : designData.style || '';
+
+    const prompt = `You are a tattoo culture expert writing for TattoosMap.
+
+Write content for this tattoo design:
+Subject: ${designData.subject}
+Style: ${styleStr}
+Cultural Origin: ${designData.cultural_origin || 'Not specified'}
+Elements: ${JSON.stringify(designData.elements || {})}
+Emotion Tags: ${JSON.stringify(designData.emotion_tags || [])}
+Speakable Summary: ${designData.speakable_summary || ''}
+
+Return ONLY valid JSON, no markdown, no explanation:
+{
+  "meaning": "2-3 sentences. Never start with This design depicts/represents/features/showcases/embodies. Start with a specific observation about why people choose this subject. Use contractions. Reference specific named cultural concepts. Sound like a knowledgeable human.",
+  "cultural_origin": "1-2 sentences naming the specific tradition, time period, or art movement.",
+  "speakable_summary": "1 sentence describing exactly what the design looks like visually."
+}`;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const clean = text.replace(/```json|```/g, '').trim();
+    return JSON.parse(clean);
+  } catch (e) {
+    console.error('Gemini content generation failed — skipping:', e);
+    return {};
+  }
+}
+
 export type PublishDesignPayload = {
     seo_filename: string;
     thumbnail_filename?: string;
@@ -272,6 +320,27 @@ export async function publishDesignAction(payload: PublishDesignPayload) {
             ip_flag: !!payload.ip_flag,
             status: payload.status || "published"
         };
+
+        // Auto-generate humanised content for empty fields
+        const generatedContent = await generateDesignContent({
+          subject: dbRow.subject || '',
+          style: dbRow.style_tags || [],
+          cultural_origin: dbRow.cultural_origin,
+          elements: dbRow.elements,
+          emotion_tags: dbRow.emotion_tags,
+          speakable_summary: dbRow.speakable_summary,
+        });
+
+        // Only fill empty fields — never overwrite existing content
+        if (!dbRow.meaning && generatedContent.meaning) {
+          dbRow.meaning = generatedContent.meaning;
+        }
+        if (!dbRow.cultural_origin && generatedContent.cultural_origin) {
+          dbRow.cultural_origin = generatedContent.cultural_origin;
+        }
+        if (!dbRow.speakable_summary && generatedContent.speakable_summary) {
+          dbRow.speakable_summary = generatedContent.speakable_summary;
+        }
 
         // 8. DB Upsert execution with atomic atomic slug conflict safety
         const { data, error: dbError } = await supabaseAdmin
