@@ -250,6 +250,7 @@ export const designService = {
                 pain_level_map: row.pain_level_map || { "forearm_outer": "low", "wrist": "medium", "ribs": "high" },
                 style_tags: ensureArray(row.style_tags),
                 emotion_tags: ensureArray(row.emotion_tags),
+                speakable_summary: row.speakable_summary || null,
                 
                 // Point to high-end AI composites for the demonstration Whale design
                 image_fresh_url: row.image_fresh_url || (row.subject?.toLowerCase().includes('whale') ? "/designs/fresh-whale.png" : row.image_url),

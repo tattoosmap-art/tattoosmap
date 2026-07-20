@@ -92,24 +92,13 @@ export default function MeaningExpansion({ design, blogPostContent, blogPostSlug
                         </div>
                     ) : (
                         <div className="flex flex-col gap-8">
-                            <div className="flex flex-col gap-2">
-                                <h3 className="font-mono text-[11px] uppercase tracking-[0.1em] text-black/40 mb-2 font-bold italic">Historical Context</h3>
-                                <p className="font-serif text-[17px] leading-[1.6]">
-                                    {design.meaning}
-                                </p>
-                            </div>
-                            
                             <div className="flex flex-col gap-2 pt-4 border-t border-neutral-50">
                                 <h3 className="font-mono text-[11px] uppercase tracking-[0.1em] text-black/40 mb-2 font-bold italic">Cultural Analysis</h3>
                                 <p className="font-serif text-[17px] leading-[1.6]">
-                                    This design originates from <strong>{design.cultural_origin || "Modern Western Minimalist"}</strong>. It traditionally embodies themes of {design.emotion_tags?.[0] || 'transformation'} and {design.emotion_tags?.[1] || 'resilience'}.
-                                </p>
-                            </div>
-
-                            <div className="flex flex-col gap-2 pt-4 border-t border-neutral-50">
-                                <h3 className="font-mono text-[11px] uppercase tracking-[0.1em] text-black/40 mb-2 font-bold italic">Collector's Choice</h3>
-                                <p className="font-serif text-[17px] leading-[1.6]">
-                                    Resonating with collectors who identify with its themes of {design.emotion_tags?.join(', ') || 'personal growth'}, this piece appeals particularly as a {design.gender_suitability?.toLowerCase() || 'men and women'} design for individuals seeking deep personal narrative.
+                                    {design.cultural_origin 
+                                      ? `Rooted in ${design.cultural_origin}. The visual language comes from a specific tradition — not a general aesthetic, but a set of symbols with documented meaning that collectors and artists have carried forward deliberately.`
+                                      : 'The visual language of this design draws from a specific cultural tradition rather than a general aesthetic. Each element carries documented meaning that has been carried forward deliberately by collectors and artists.'
+                                    }
                                 </p>
                             </div>
 

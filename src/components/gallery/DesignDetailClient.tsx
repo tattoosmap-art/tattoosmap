@@ -72,7 +72,7 @@ function RotatingBanner() {
                             pointerEvents: flipState ? 'auto' : 'none'
                         }}
                     >
-                        𝕿𝖆𝖙𝖙𝖔𝖔𝖘𝖒𝖆𝖕 - 𝓑𝓮 𝓾𝓷𝓲𝓺𝓾𝓮
+                        TattoosMap — Be Unique
                     </div>
                 </div>
             </div>
@@ -100,7 +100,7 @@ function RotatingBanner() {
                             pointerEvents: flipState ? 'auto' : 'none'
                         }}
                     >
-                        𝕿𝖆𝖙𝖙𝖔𝖔𝖘𝖒𝖆𝖕 - 𝓑𝓮 𝓾𝓷𝓲𝓺𝓾𝓮
+                        TattoosMap — Be Unique
                     </div>
                 </div>
             </div>
@@ -412,7 +412,7 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                             </div>
                             <div className="flex flex-col gap-2">
                                 <span className="font-mono text-[10px] uppercase font-bold tracking-[0.2em] text-neutral-400">Core Narrative</span>
-                                <p className="text-[15px] text-black leading-relaxed">{design.speakable_summary || "An artistic visual composition capturing personal transformation through structural linework."}</p>
+                                <p className="text-[15px] text-black leading-relaxed">{design.speakable_summary || ''}</p>
                             </div>
                         </div>
                     </div>
