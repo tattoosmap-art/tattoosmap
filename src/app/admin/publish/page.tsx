@@ -765,6 +765,59 @@ function PublishPostContent() {
             </div>
         );
     }
+    const handleEditQueuedPost = async (postId: string) => {
+        setIsLoadingPost(true);
+        try {
+            const res = await getLabPostAction(postId);
+            if (res.success && res.post) {
+                const p = res.post;
+                setLoadedPostId(p.id);
+                setLoadedPostSlug(p.slug);
+                setPostType(p.post_intent);
+                setIsEditMode(true);
+                setEditorState({
+                    title: p.title || "",
+                    executiveSummary: p.excerpt || "",
+                    scienceHeading: p.science_heading || "Why This Matters — The Science",
+                    scienceContent: p.science_content || "",
+                    pullQuote: p.pull_quote || "",
+                    steps: p.visual_steps || [],
+                    products: p.related_products || [],
+                    protocolSteps: p.protocol_steps || [],
+                    avoidItems: p.avoid_items || [],
+                    faqItems: p.faq_items || [],
+                    heroImageSrc: p.cover_image_url || "",
+                    heroImageAlt: p.cover_image_alt || "",
+                    badge: p.post_intent === "RECOMMEND AND SELL" ? "PRODUCT GUIDE" : "HEALING GUIDE",
+                    category: p.category || "",
+                    selectedTool: p.selected_tool || "NONE",
+                    toolPosition: p.tool_position || "",
+                    toolMarkers: p.tool_markers || []
+                });
+                setSeoState({
+                    focusKeyword: p.focus_keyword || "",
+                    schemaType: p.schema_type || "Article",
+                    metaTitle: p.meta_title || "",
+                    metaDescription: p.meta_description || ""
+                });
+                setMetaTitleManuallyEdited(p.meta_title !== p.title);
+                setMetaDescManuallyEdited(p.meta_description !== p.excerpt);
+                setReadTime(p.read_time_minutes || 7);
+                setBodyContent(p.body_content || "");
+                setTemplateKey(Date.now());
+                setQueueOpen(false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setToast({ message: "POST LOADED — EDIT AND SAVE OR PUBLISH", isError: false });
+            } else {
+                setToast({ message: "Failed to load queued post", isError: true });
+            }
+        } catch (err) {
+            setToast({ message: "Error loading queued post", isError: true });
+        } finally {
+            setIsLoadingPost(false);
+        }
+    };
+
     const handleSaveToQueue = async () => {
         const current = editorStateRef.current;
         if (!current.title?.trim()) {
@@ -1104,6 +1157,7 @@ function PublishPostContent() {
                 posts={queuePosts}
                 onRefresh={fetchQueue}
                 onToast={(msg) => setToast({ message: msg, isError: false })}
+                onEdit={handleEditQueuedPost}
             />
 
             {/* TOAST */}

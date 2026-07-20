@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { publishFromQueueAction, deleteFromQueueAction } from '@/actions/admin';
-import { X, Send, Trash2, Loader2 } from 'lucide-react';
+import { X, Send, Trash2, Loader2, Pencil } from 'lucide-react';
 
 interface QueuePost {
   id: string;
@@ -19,6 +19,7 @@ interface Props {
   posts: QueuePost[];
   onRefresh: () => Promise<void>;
   onToast: (msg: string) => void;
+  onEdit: (postId: string) => void;
 }
 
 export default function PublishQueueDrawer({
@@ -27,6 +28,7 @@ export default function PublishQueueDrawer({
   posts,
   onRefresh,
   onToast,
+  onEdit,
 }: Props) {
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -152,6 +154,13 @@ export default function PublishQueueDrawer({
                       
                       {/* Action buttons (only visible on hover or mobile) */}
                       <div className="flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => { onEdit(post.id); onClose(); }}
+                          className="flex items-center gap-1.5 border border-neutral-300 text-neutral-600 font-mono text-[9px] uppercase tracking-widest px-3 py-1.5 hover:border-black hover:text-black transition-colors bg-white"
+                        >
+                          <Pencil className="w-3 h-3" />
+                          EDIT
+                        </button>
                         <button
                           onClick={() => handlePublish(post.id, post.title)}
                           disabled={publishingId === post.id}
