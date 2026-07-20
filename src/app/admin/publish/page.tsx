@@ -488,6 +488,7 @@ function PublishPostContent() {
     const [isEditMode, setIsEditMode] = useState(false);
     const [loadedPostId, setLoadedPostId] = useState<string | null>(null);
     const [loadedPostSlug, setLoadedPostSlug] = useState<string | null>(null);
+    const [loadedPostIsPublished, setLoadedPostIsPublished] = useState<boolean>(true);
     const [isLoadingPost, setIsLoadingPost] = useState(false);
 
     const [postType, setPostType] = useState<"RECOMMEND AND SELL" | "INFORM AND REFER" | "VISUAL STEP GUIDE" | null>(null);
@@ -538,6 +539,7 @@ function PublishPostContent() {
                     const p = res.post;
                     setLoadedPostId(p.id);
                     setLoadedPostSlug(p.slug);
+                    setLoadedPostIsPublished(!!p.is_published);
                     setPostType(p.post_intent);
                     setEditorState({
                         title: p.title || "",
@@ -773,6 +775,7 @@ function PublishPostContent() {
                 const p = res.post;
                 setLoadedPostId(p.id);
                 setLoadedPostSlug(p.slug);
+                setLoadedPostIsPublished(!!p.is_published);
                 setPostType(p.post_intent);
                 setIsEditMode(true);
                 setEditorState({
@@ -939,7 +942,7 @@ function PublishPostContent() {
                 selected_tool: current.selectedTool || "NONE",
                 tool_position: current.toolPosition || null,
                 read_time_minutes: readTime,
-                is_published: true,
+                is_published: isEditMode ? loadedPostIsPublished : true,
                 author_id: user?.id || "",
                 visual_steps: current.steps || [],
                 post_template_type: postType === "VISUAL STEP GUIDE" ? "VISUAL STEP GUIDE" : "STANDARD",
