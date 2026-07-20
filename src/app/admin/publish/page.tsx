@@ -877,7 +877,7 @@ function PublishPostContent() {
         }
     };
 
-    const handleCreatePost = async () => {
+    const handleCreatePost = async (forcePublish = false) => {
         // Capture the ABSOLUTE LATEST state synchronously from the shared reference.
         // This captures typed keystrokes up to the exact millisecond of the click event.
         const current = editorStateRef.current;
@@ -942,7 +942,7 @@ function PublishPostContent() {
                 selected_tool: current.selectedTool || "NONE",
                 tool_position: current.toolPosition || null,
                 read_time_minutes: readTime,
-                is_published: isEditMode ? loadedPostIsPublished : true,
+                is_published: forcePublish ? true : (isEditMode ? loadedPostIsPublished : true),
                 author_id: user?.id || "",
                 visual_steps: current.steps || [],
                 post_template_type: postType === "VISUAL STEP GUIDE" ? "VISUAL STEP GUIDE" : "STANDARD",
@@ -955,9 +955,12 @@ function PublishPostContent() {
 
             if (res.success) {
                 if (isEditMode) {
+                    if (forcePublish) {
+                        setLoadedPostIsPublished(true);
+                    }
                     setLastSavedTime(new Date());
                     router.refresh(); // Force client-side cache flush
-                    setToast({ message: "Post saved successfully", isError: false });
+                    setToast({ message: forcePublish ? "Post published successfully" : "Post saved successfully", isError: false });
                 } else {
                     if (user && user.id) {
                         await deleteDraftAction(user.id);
@@ -1134,18 +1137,20 @@ function PublishPostContent() {
                         >
                             QUEUE ({queueCount})
                         </button>
+                        {(!isEditMode || !loadedPostIsPublished) && (
+                            <button 
+                                onClick={isEditMode ? () => handleCreatePost(true) : handleSaveToQueue}
+                                disabled={!editorState.title || (isEditMode && !editorState.category) || isSaving}
+                                className={`font-mono text-[11px] uppercase px-4 py-2 transition-colors flex items-center gap-2 ${editorState.title && (!isEditMode || editorState.category) ? 'bg-brand-red text-white hover:bg-red-700' : 'bg-neutral-800 text-neutral-500 cursor-not-allowed'}`}
+                            >
+                                {isSaving && <Loader2 className="w-3 h-3 animate-spin" />}
+                                {isEditMode ? 'PUBLISH NOW' : 'ADD TO QUEUE'}
+                            </button>
+                        )}
                         <button 
-                            onClick={handleSaveToQueue}
-                            disabled={!editorState.title || isSaving}
-                            className={`font-mono text-[11px] uppercase px-4 py-2 transition-colors flex items-center gap-2 ${editorState.title ? 'bg-neutral-800 text-white hover:bg-neutral-700' : 'bg-neutral-900 text-neutral-600 cursor-not-allowed'}`}
-                        >
-                            {isSaving && <Loader2 className="w-3 h-3 animate-spin" />}
-                            ADD TO QUEUE
-                        </button>
-                        <button 
-                            onClick={handleCreatePost}
+                            onClick={() => handleCreatePost(false)}
                             disabled={!editorState.title || !editorState.category || isSaving}
-                            className={`font-mono text-[11px] uppercase px-6 py-2 transition-colors flex items-center gap-2 ${editorState.title && editorState.category ? 'bg-brand-red text-white hover:bg-red-700' : 'bg-neutral-800 text-neutral-500 cursor-not-allowed'}`}
+                            className={`font-mono text-[11px] uppercase px-6 py-2 transition-colors flex items-center gap-2 ${editorState.title && editorState.category ? 'bg-neutral-800 text-white hover:bg-neutral-700' : 'bg-neutral-900 text-neutral-600 cursor-not-allowed'}`}
                         >
                             {isSaving && <Loader2 className="w-3 h-3 animate-spin" />}
                             {(!editorState.title || !editorState.category) ? 'FILL REQUIRED FIELDS' : (isEditMode ? 'SAVE CHANGES →' : 'PUBLISH NOW →')}
