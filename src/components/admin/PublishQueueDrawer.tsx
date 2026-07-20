@@ -65,12 +65,12 @@ export default function PublishQueueDrawer({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 z-[90]"
+        className="fixed inset-0 bg-black/40 z-[410]"
         onClick={onClose}
       />
 
       {/* Drawer */}
-      <div className="fixed right-0 top-0 bottom-0 w-[480px] max-w-[100vw] bg-white z-[100] border-l border-black flex flex-col shadow-2xl">
+      <div className="fixed right-0 top-0 bottom-0 w-[480px] max-w-[100vw] bg-white z-[420] border-l border-black flex flex-col shadow-2xl">
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-light bg-off-white">
