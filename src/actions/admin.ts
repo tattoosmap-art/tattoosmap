@@ -1048,12 +1048,13 @@ export async function saveToQueueAction(postData: any) {
     return { success: false, error: 'Title is required' };
   }
   
-  const slug = await ensureUniqueSlug("posts", postData.title);
+  const { sync_products, ...dbPayload } = postData;
+  const slug = await ensureUniqueSlug("posts", dbPayload.title);
   
   const { data, error } = await supabaseAdmin
     .from('posts')
     .insert({
-      ...postData,
+      ...dbPayload,
       slug,
       is_published: false,
       published_at: null,
@@ -1062,13 +1063,62 @@ export async function saveToQueueAction(postData: any) {
     .single();
     
   if (error) return { success: false, error: error.message };
-  revalidatePath('/admin/publish');
+  try {
+    revalidatePath('/admin/publish');
+  } catch (e) {}
   return { success: true, slug: data.slug, id: data.id };
 }
 
 export async function publishFromQueueAction(postId: string) {
   await verifyAdminSession();
   
+  // 1. Fetch post data for product syncing
+  const { data: post, error: fetchError } = await supabaseAdmin
+    .from('posts')
+    .select('slug, category, related_products')
+    .eq('id', postId)
+    .single();
+
+  if (fetchError || !post) {
+    return { success: false, error: fetchError?.message || 'Post not found in queue' };
+  }
+
+  // 2. Sync products if present
+  if (post.related_products && Array.isArray(post.related_products)) {
+    for (const product of post.related_products) {
+      try {
+        const productSlug = product.name
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .substring(0, 80);
+
+        await supabaseAdmin
+          .from('products')
+          .upsert({
+            name: product.name,
+            slug: productSlug,
+            price: product.price,
+            affiliate_url: product.affiliateUrl || product.url,
+            image_url: product.imageSrc || product.image_url || null,
+            button_label: product.buttonLabel || product.button_label || 'BUY NOW',
+            tag: product.badge || product.tag || null,
+            description: product.description || null,
+            category: post.category || 'Uncategorized',
+            source_post_slug: post.slug,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'slug' });
+      } catch (prodError) {
+        console.error("[publishFromQueueAction] Product upsert failed for:", product.name, prodError);
+      }
+    }
+    try {
+      revalidatePath('/products');
+    } catch (revalErr) {}
+  }
+
+  // 3. Mark the post as published
   const { error } = await supabaseAdmin
     .from('posts')
     .update({
@@ -1079,8 +1129,10 @@ export async function publishFromQueueAction(postId: string) {
     .eq('is_published', false);
     
   if (error) return { success: false, error: error.message };
-  revalidatePath('/blog');
-  revalidatePath('/');
+  try {
+    revalidatePath('/blog');
+    revalidatePath('/');
+  } catch (e) {}
   return { success: true };
 }
 
@@ -1094,7 +1146,9 @@ export async function deleteFromQueueAction(postId: string) {
     .eq('is_published', false);
     
   if (error) return { success: false, error: error.message };
-  revalidatePath('/admin/publish');
+  try {
+    revalidatePath('/admin/publish');
+  } catch (e) {}
   return { success: true };
 }
 
