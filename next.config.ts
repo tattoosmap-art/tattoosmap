@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '10mb',
     },
   },
+  onDemandEntries: {
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 2,
+  },
   images: {
     remotePatterns: [
       {
@@ -35,6 +39,15 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
       {
         source: '/:path*',
         headers: [
