@@ -143,10 +143,10 @@ export default function PublishQueueDrawer({
                           </>
                         )}
                         <span className="font-mono text-[8px] text-neutral-400">
-                          {new Date(post.created_at).toLocaleDateString(
+                          {post.created_at && !isNaN(Date.parse(post.created_at)) ? new Date(post.created_at).toLocaleDateString(
                             'en-US',
                             { month: 'short', day: 'numeric' }
-                          )}
+                          ) : '—'}
                         </span>
                       </div>
                       
