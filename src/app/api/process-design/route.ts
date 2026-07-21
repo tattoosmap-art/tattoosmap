@@ -96,7 +96,14 @@ Analyze the image and return ONLY a valid JSON object. Do NOT wrap it in markdow
 }`;
 
 function createSlug(subject: string) {
-    return subject.toLowerCase().replace(/[^a-z0-z\s-]/g, '').trim().split(/\s+/).slice(0, 5).join('-');
+  return subject
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .split(/\s+/)
+    .join('-')
+    .slice(0, 80)
+    .replace(/-+$/, '');
 }
 
 const FAMILY_CODES: Record<string, string> = {
