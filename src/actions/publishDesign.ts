@@ -321,25 +321,65 @@ export async function publishDesignAction(payload: PublishDesignPayload) {
             status: payload.status || "published"
         };
 
-        // Auto-generate humanised content for empty fields
-        const generatedContent = await generateDesignContent({
-          subject: dbRow.subject || '',
-          style: dbRow.style_tags || [],
-          cultural_origin: dbRow.cultural_origin,
-          elements: dbRow.elements,
-          emotion_tags: dbRow.emotion_tags,
-          speakable_summary: dbRow.speakable_summary,
-        });
+        // Template opening patterns to reject
+        const templateOpenings = [
+          'this design depicts',
+          'this design represents', 
+          'this design features',
+          'this design showcases',
+          'this design embodies',
+          'this design explores',
+          'this design combines',
+          'this design captures',
+          'this design draws',
+          'this classic',
+          'this composition',
+          'this piece',
+          'this tattoo',
+          'this illustration',
+        ];
 
-        // Only fill empty fields — never overwrite existing content
-        if (!dbRow.meaning && generatedContent.meaning) {
-          dbRow.meaning = generatedContent.meaning;
-        }
-        if (!dbRow.cultural_origin && generatedContent.cultural_origin) {
-          dbRow.cultural_origin = generatedContent.cultural_origin;
-        }
-        if (!dbRow.speakable_summary && generatedContent.speakable_summary) {
-          dbRow.speakable_summary = generatedContent.speakable_summary;
+        const meaningHasTemplateOpening = dbRow.meaning 
+          ? templateOpenings.some(pattern => 
+              (dbRow.meaning as string).toLowerCase().startsWith(pattern)
+            )
+          : false;
+
+        // Fill empty OR regenerate template openings
+        if (!dbRow.meaning || meaningHasTemplateOpening) {
+          const generatedContent = await generateDesignContent({
+            subject: dbRow.subject || '',
+            style: dbRow.style_tags || [],
+            cultural_origin: dbRow.cultural_origin,
+            elements: dbRow.elements,
+            emotion_tags: dbRow.emotion_tags,
+            speakable_summary: dbRow.speakable_summary,
+          });
+          if (generatedContent.meaning) {
+            dbRow.meaning = generatedContent.meaning;
+          }
+          if (!dbRow.cultural_origin && generatedContent.cultural_origin) {
+            dbRow.cultural_origin = generatedContent.cultural_origin;
+          }
+          if (!dbRow.speakable_summary && generatedContent.speakable_summary) {
+            dbRow.speakable_summary = generatedContent.speakable_summary;
+          }
+        } else {
+          // Still fill other empty fields even if meaning is good
+          const generatedContent = await generateDesignContent({
+            subject: dbRow.subject || '',
+            style: dbRow.style_tags || [],
+            cultural_origin: dbRow.cultural_origin,
+            elements: dbRow.elements,
+            emotion_tags: dbRow.emotion_tags,
+            speakable_summary: dbRow.speakable_summary,
+          });
+          if (!dbRow.cultural_origin && generatedContent.cultural_origin) {
+            dbRow.cultural_origin = generatedContent.cultural_origin;
+          }
+          if (!dbRow.speakable_summary && generatedContent.speakable_summary) {
+            dbRow.speakable_summary = generatedContent.speakable_summary;
+          }
         }
 
         // 8. DB Upsert execution with atomic atomic slug conflict safety
