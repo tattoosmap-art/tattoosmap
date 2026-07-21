@@ -6,20 +6,20 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "Tattoo Meanings, Care Guides & Inspiration Blog | TattoosMap",
-    description: "Explore the deep meanings, symbolism, placement suggestions, and professional care guides for all tattoo styles on TattoosMap.",
+    description: "Honest guides on tattoo removal, aftercare science, and product rankings. Clinical accuracy. No sponsored opinions. Updated 2026.",
     alternates: {
         canonical: "https://tattoosmap.com/blog",
     },
     openGraph: {
         title: "Tattoo Meanings, Care Guides & Inspiration Blog | TattoosMap",
-        description: "Explore the deep meanings, symbolism, placement suggestions, and professional care guides for all tattoo styles on TattoosMap.",
+        description: "Honest guides on tattoo removal, aftercare science, and product rankings. Clinical accuracy. No sponsored opinions. Updated 2026.",
         url: "https://tattoosmap.com/blog",
         type: "website",
     },
     twitter: {
         card: "summary_large_image",
         title: "Tattoo Meanings, Care Guides & Inspiration Blog | TattoosMap",
-        description: "Explore the deep meanings, symbolism, placement suggestions, and professional care guides for all tattoo styles on TattoosMap.",
+        description: "Honest guides on tattoo removal, aftercare science, and product rankings. Clinical accuracy. No sponsored opinions. Updated 2026.",
     }
 };
 

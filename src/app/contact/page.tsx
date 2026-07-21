@@ -65,7 +65,7 @@ export default function ContactPage() {
                         <p className="font-sans text-[15px] text-gray-mid leading-relaxed mb-4">
                             For faster, real-time questions or design repost requests, direct message us on Instagram.
                         </p>
-                        <a href="https://instagram.com" target="_blank" rel="noreferrer" className="inline-flex items-center font-mono text-[12px] uppercase tracking-widest border border-black px-6 py-3 hover:bg-black hover:text-white transition-all font-bold">
+                        <a href="https://instagram.com/tattoosmap" target="_blank" rel="noreferrer" className="inline-flex items-center font-mono text-[12px] uppercase tracking-widest border border-black px-6 py-3 hover:bg-black hover:text-white transition-all font-bold">
                             Visit Instagram &rarr;
                         </a>
                     </div>
