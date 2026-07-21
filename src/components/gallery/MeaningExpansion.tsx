@@ -95,10 +95,12 @@ export default function MeaningExpansion({ design, blogPostContent, blogPostSlug
                             <div className="flex flex-col gap-2 pt-4 border-t border-neutral-50">
                                 <h3 className="font-mono text-[11px] uppercase tracking-[0.1em] text-black/40 mb-2 font-bold italic">Cultural Analysis</h3>
                                 <p className="font-serif text-[17px] leading-[1.6]">
-                                    {design.cultural_origin 
-                                      ? `Rooted in ${design.cultural_origin}. The visual language comes from a specific tradition — not a general aesthetic, but a set of symbols with documented meaning that collectors and artists have carried forward deliberately.`
-                                      : 'The visual language of this design draws from a specific cultural tradition rather than a general aesthetic. Each element carries documented meaning that has been carried forward deliberately by collectors and artists.'
-                                    }
+                                  {design.cultural_origin
+                                    ? design.cultural_origin
+                                        .replace(/^(This design draws from|Draws from|Rooted in|This design originates from)\s*/i, '')
+                                        .replace(/^./, (c: string) => c.toUpperCase())
+                                    : 'Contemporary Western tattoo tradition.'
+                                  } The visual language comes from a specific tradition — not a general aesthetic, but a set of symbols with documented meaning that collectors and artists have carried forward deliberately.
                                 </p>
                             </div>
 
