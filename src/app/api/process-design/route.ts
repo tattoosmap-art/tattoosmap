@@ -222,6 +222,9 @@ export async function POST(req: NextRequest) {
             const mood = aiData.mood || 'minimalist';
             
             aiData.slug = subjectSlug;
+            // The base filenames are generated here. Note: publishDesignAction in publishDesign.ts
+            // automatically appends the unique slug suffix (e.g. -eh6k) to these filenames
+            // if a database collision occurs, ensuring storage and database slugs always match.
             aiData.seo_filename = `fine-line-${subjectSlug}-${mood}-${code}.webp`;
             aiData.thumbnail_filename = `fine-line-${subjectSlug}-${mood}-${code}-thumb.webp`;
             

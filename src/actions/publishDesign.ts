@@ -156,6 +156,23 @@ export async function publishDesignAction(payload: PublishDesignPayload) {
         // Loop-based slug uniqueness verification
         const uniqueSlug = await ensureUniqueSlug(payload.slug);
 
+        // Ensure filenames are also unique by incorporating the uniqueSlug's random suffix if present
+        let finalSeoFilename = payload.seo_filename;
+        let finalThumbnailFilename = payload.thumbnail_filename;
+
+        if (payload.slug && uniqueSlug !== payload.slug) {
+            const suffixMatch = uniqueSlug.match(/-([a-z0-9]{4,5})$/);
+            if (suffixMatch) {
+                const suffix = suffixMatch[1];
+                if (finalSeoFilename) {
+                    finalSeoFilename = finalSeoFilename.replace(/\.webp$/, `-${suffix}.webp`);
+                }
+                if (finalThumbnailFilename) {
+                    finalThumbnailFilename = finalThumbnailFilename.replace(/\.webp$/, `-${suffix}.webp`);
+                }
+            }
+        }
+
         const supabaseDomain = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://smrnldmbvtflavzswghh.supabase.co";
         const isPublished = (payload.status === undefined || payload.status === "published" || payload.status === "READY" || payload.status === "LIVE");
 
@@ -176,7 +193,7 @@ export async function publishDesignAction(payload: PublishDesignPayload) {
         // 2. Upload Atomic Binary to Supabase Storage
         const { error: uploadError } = await supabaseAdmin.storage
             .from("designs")
-            .upload(payload.seo_filename, fileBuffer, {
+            .upload(finalSeoFilename, fileBuffer, {
                 contentType: "image/webp",
                 cacheControl: "31536000, immutable",
                 upsert: true
@@ -190,7 +207,7 @@ export async function publishDesignAction(payload: PublishDesignPayload) {
                 const masterBuffer = Buffer.from(payload.masterBase64, 'base64');
                 const { error: masterError } = await supabaseAdmin.storage
                     .from("masters")
-                    .upload(payload.seo_filename, masterBuffer, {
+                    .upload(finalSeoFilename, masterBuffer, {
                         contentType: "image/webp",
                         upsert: true
                     });
@@ -202,7 +219,7 @@ export async function publishDesignAction(payload: PublishDesignPayload) {
         }
 
         // 4. Generate and Upload Thumbnail
-        if (payload.thumbnail_filename) {
+        if (finalThumbnailFilename) {
             try {
                 const thumbBuffer = await sharp(fileBuffer)
                     .resize({ width: 400, height: 400, fit: 'inside', withoutEnlargement: true })
@@ -213,7 +230,7 @@ export async function publishDesignAction(payload: PublishDesignPayload) {
                 
                 const { error: thumbUploadError } = await supabaseAdmin.storage
                     .from("designs")
-                    .upload(`thumbs/${payload.thumbnail_filename}`, thumbBuffer, {
+                    .upload(`thumbs/${finalThumbnailFilename}`, thumbBuffer, {
                         contentType: "image/webp",
                         cacheControl: "31536000, immutable",
                         upsert: true
@@ -275,10 +292,10 @@ export async function publishDesignAction(payload: PublishDesignPayload) {
         const dbRow = {
             slug: uniqueSlug,
             title: payload.subject || "Untitled Tattoo Design",
-            image_url: `${supabaseDomain}/storage/v1/object/public/designs/${payload.seo_filename}`,
+            image_url: `${supabaseDomain}/storage/v1/object/public/designs/${finalSeoFilename}`,
             blurhash: blurHashString,
-            seo_filename: payload.seo_filename,
-            thumbnail_filename: payload.thumbnail_filename || null,
+            seo_filename: finalSeoFilename,
+            thumbnail_filename: finalThumbnailFilename || null,
             alt_text: payload.alt_text || `A fine line tattoo design mapping ${payload.subject}`,
             
             // Taxonomy
