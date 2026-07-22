@@ -65,7 +65,7 @@ export async function generateMockupsForDesign(
   const cy = targetY + Math.round((targetH - rh) / 2);
 
   // ─── Phase 3: Ink Alpha Mask Extraction ────────────────────────────────
-  const inkMask = await sharp(resized).grayscale().negate().ensureAlpha().toBuffer();
+  const inkMask = await sharp(resized).grayscale().negate().toBuffer();
 
   // ─── Phase 4: Skin Texture & Specular Extraction ───────────────────────
   const bodyCrop = await sharp(bodyBuffer)
@@ -112,7 +112,7 @@ export async function generateMockupsForDesign(
     const n = Math.sin(x * 0.31 + y * 0.17) * Math.cos(x * 0.13 - y * 0.29) * 0.5 + 0.5;
     noiseData[i] = Math.round(n * 30 + 112);
   }
-  const noiseBuffer = await sharp(noiseData, { raw: { width: rw, height: rh, channels: 1 } }).ensureAlpha().png().toBuffer();
+  const noiseBuffer = await sharp(noiseData, { raw: { width: rw, height: rh, channels: 1 } }).png().toBuffer();
 
   // ═══════════════════════════════════════════════════════════════════════
   // STATE 1: FRESH INK

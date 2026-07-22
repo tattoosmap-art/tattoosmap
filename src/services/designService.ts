@@ -286,7 +286,7 @@ export const designService = {
 
             // CLIENT-SIDE: Public API call (perfectly inherits active port config)
             const baseUrl = window.location.origin;
-            const res = await fetch(`${baseUrl}/api/similar-designs?targetId=${designId}&limit=${limit}&offset=${offset}&mode=${mode}`);
+            const res = await fetch(`${baseUrl}/api/similar-designs?targetId=${designId}&limit=${limit}&offset=${offset}&mode=${mode}&_t=${Date.now()}`);
             if (res.ok) {
                 const data = await res.json();
                 return data as Design[];
