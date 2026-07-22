@@ -72,7 +72,7 @@ export async function getSimilarDesignsInMemory(
     let candidates: Design[] = [];
     let query = supabase
       .from('designs')
-      .select('id, slug, title, image_url, alt_text, style, body_part, style_tags, emotion_tags, public_category, uploaded_at, tags, is_published, deleted_at, image_blurhash')
+      .select('id, slug, title, image_url, alt_text, style, body_part, style_tags, emotion_tags, public_category, uploaded_at, is_published, deleted_at, blurhash')
       .eq('is_published', true)
       .is('deleted_at', null);
 
@@ -84,7 +84,7 @@ export async function getSimilarDesignsInMemory(
     const { data: dbCandidates } = await query;
 
     if (dbCandidates && dbCandidates.length > 0) {
-      candidates = dbCandidates as Design[];
+      candidates = dbCandidates as unknown as Design[];
     } else {
       // Last-resort fallback to mock data only if database is completely empty
       candidates = MOCK_DESIGNS.filter(d => d.id !== target?.id && d.is_published);
@@ -134,7 +134,9 @@ export async function getSimilarDesignsInMemory(
     const sorted = scored
       .sort((a, b) => {
         if (b._score !== a._score) return b._score - a._score;
-        return new Date(b.uploaded_at).getTime() - new Date(a.uploaded_at).getTime();
+        const timeB = b.uploaded_at ? new Date(b.uploaded_at).getTime() : 0;
+        const timeA = a.uploaded_at ? new Date(a.uploaded_at).getTime() : 0;
+        return timeB - timeA;
       })
       .map(({ _score, ...d }) => {
         return {
@@ -144,6 +146,7 @@ export async function getSimilarDesignsInMemory(
           tags: ensureArray(d.tags || (d as any).elements),
           style_tags: ensureArray(d.style_tags),
           emotion_tags: ensureArray(d.emotion_tags),
+          image_blurhash: (d as any).blurhash || d.image_blurhash || null,
           // Fields that exist in the codebase but not yet in the database
           image_width: d.image_width ?? 800,
           image_height: d.image_height ?? 1000,
