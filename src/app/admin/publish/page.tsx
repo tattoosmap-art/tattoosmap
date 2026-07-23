@@ -569,6 +569,7 @@ function PublishPostContent() {
                     setMetaTitleManuallyEdited(p.meta_title !== p.title);
                     setMetaDescManuallyEdited(p.meta_description !== p.excerpt);
                     setReadTime(p.read_time_minutes || 7);
+                    setBodyContent(p.body_content || '');
                     setTemplateKey(Date.now());
                 } else {
                     setToast({ message: "Failed to fetch post from database.", isError: true });
