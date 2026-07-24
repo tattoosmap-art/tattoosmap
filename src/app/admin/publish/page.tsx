@@ -858,6 +858,7 @@ function PublishPostContent() {
                 read_time_minutes: readTime,
                 is_published: false,
                 author_id: user?.id || "",
+                tool_markers: current.toolMarkers || [],
                 visual_steps: current.steps || [],
                 post_template_type: postType === "VISUAL STEP GUIDE" ? "VISUAL STEP GUIDE" : "STANDARD",
                 sync_products: syncProducts
@@ -945,6 +946,7 @@ function PublishPostContent() {
                 read_time_minutes: readTime,
                 is_published: forcePublish ? true : (isEditMode ? loadedPostIsPublished : true),
                 author_id: user?.id || "",
+                tool_markers: current.toolMarkers || [],
                 visual_steps: current.steps || [],
                 post_template_type: postType === "VISUAL STEP GUIDE" ? "VISUAL STEP GUIDE" : "STANDARD",
                 sync_products: syncProducts
