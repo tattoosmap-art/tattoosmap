@@ -27,6 +27,7 @@ export const revalidate = 60; // Cache blog index page for 1 minute
 
 export default async function BlogIndex({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
     let posts: Post[] = [];
+    let commentCountMap: Record<string, number> = {};
     const supabase = await createClient();
     const resolvedSearchParams = await searchParams;
     const currentPage = resolvedSearchParams.page ? parseInt(resolvedSearchParams.page, 10) : 1;
@@ -76,6 +77,21 @@ export default async function BlogIndex({ searchParams }: { searchParams: Promis
         }
 
         posts = livePosts;
+
+        if (livePosts.length > 0) {
+            const postIds = livePosts.map(p => p.id);
+            const { data: commentCounts } = await supabase
+                .from('blog_comments')
+                .select('post_id')
+                .in('post_id', postIds)
+                .eq('is_approved', true);
+            
+            if (commentCounts) {
+                commentCounts.forEach((c: any) => {
+                    commentCountMap[c.post_id] = (commentCountMap[c.post_id] || 0) + 1;
+                });
+            }
+        }
 
     } catch (err) {
         console.error("[BLOG] Fatal dynamic fetch error:", err);
@@ -130,7 +146,7 @@ export default async function BlogIndex({ searchParams }: { searchParams: Promis
                                     {featuredPost.author?.avatar_url && (
                                         <div className="relative w-10 h-10 overflow-hidden bg-off-white">
                                             <Image
-                                                src={featuredPost.author.avatar_url}
+                                                src="/brand-logo.png"
                                                 alt={featuredPost.author.name}
                                                 fill
                                                 className="object-cover"
@@ -141,7 +157,7 @@ export default async function BlogIndex({ searchParams }: { searchParams: Promis
                                     <div className="flex flex-col">
                                         <span className="text-[13px] text-black font-medium font-sans">{featuredPost.author?.name}</span>
                                         <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-gray-mid">
-                                            {new Date(featuredPost.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} · 12 Comments
+                                            {new Date(featuredPost.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} · {commentCountMap[featuredPost.id] || 0} Comments
                                         </span>
                                     </div>
                                 </div>
@@ -216,7 +232,7 @@ export default async function BlogIndex({ searchParams }: { searchParams: Promis
                                 {post.author?.avatar_url && (
                                     <div className="relative w-8 h-8 rounded-full overflow-hidden bg-off-white flex-shrink-0">
                                         <Image
-                                            src={post.author.avatar_url}
+                                            src="/brand-logo.png"
                                             alt={post.author.name}
                                             fill
                                             className="object-cover"
@@ -229,7 +245,7 @@ export default async function BlogIndex({ searchParams }: { searchParams: Promis
                                         {post.author?.name}
                                     </span>
                                     <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-gray-mid mt-0.5">
-                                        {new Date(post.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} · 4 Comments
+                                        {new Date(post.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} · {commentCountMap[post.id] || 0} Comments
                                     </span>
                                 </div>
                             </div>
