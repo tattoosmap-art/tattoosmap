@@ -254,7 +254,7 @@ export default function ProductPostTemplate({
   faqHeading: initialFaqHeading = "Frequently Asked Questions",
   shortAnswerHeading: initialShortAnswerHeading = "The Short Answer",
   sharedStateRef,
-  shortAnswer,
+  shortAnswer: initialShortAnswer = "",
   bodyContent = "",
   setBodyContent
 }: ProductPostTemplateProps) {
@@ -263,6 +263,7 @@ export default function ProductPostTemplate({
   // EDITOR STATE
   const [title, setTitle] = useState(initialTitle);
   const [executiveSummary, setExecutiveSummary] = useState(initialExecutiveSummary);
+  const [shortAnswer, setShortAnswer] = useState(initialShortAnswer);
   const [scienceHeading, setScienceHeading] = useState(initialScienceHeading);
   const [scienceContent, setScienceContent] = useState(initialScienceContent);
   const [pullQuote, setPullQuote] = useState(initialPullQuote);
@@ -366,7 +367,7 @@ export default function ProductPostTemplate({
   useEffect(() => {
     if (sharedStateRef && sharedStateRef.current) {
       Object.assign(sharedStateRef.current, {
-        title, executiveSummary, scienceHeading, scienceContent, pullQuote, products, honorableMentions, protocolSteps,
+        title, executiveSummary, shortAnswer, scienceHeading, scienceContent, pullQuote, products, honorableMentions, protocolSteps,
         avoidItems, infoSections, prosCons, faqItems, heroImageSrc, heroImageAlt, badge, readTime, ctaHeading, ctaBody,
         ctaButtonText, ctaButtonHref, clinicCtaHeading, clinicCtaBody, clinicCtaButtonText, clinicCtaButtonHref,
         investContent, postType, category, tags, selectedTool, updatedDate, toolMarkers,
@@ -374,7 +375,7 @@ export default function ProductPostTemplate({
       });
     }
   }, [
-    title, executiveSummary, scienceHeading, scienceContent, pullQuote, products, honorableMentions, protocolSteps,
+    title, executiveSummary, shortAnswer, scienceHeading, scienceContent, pullQuote, products, honorableMentions, protocolSteps,
     avoidItems, infoSections, prosCons, faqItems, heroImageSrc, heroImageAlt, badge, readTime, ctaHeading, ctaBody,
     ctaButtonText, ctaButtonHref, clinicCtaHeading, clinicCtaBody, clinicCtaButtonText, clinicCtaButtonHref,
     investContent, postType, category, tags, selectedTool, updatedDate, toolMarkers,
@@ -393,7 +394,7 @@ export default function ProductPostTemplate({
     if (onChange) {
       const handler = setTimeout(() => {
         onChange({
-          title, executiveSummary, scienceHeading, scienceContent, pullQuote, products, honorableMentions, protocolSteps,
+          title, executiveSummary, shortAnswer, scienceHeading, scienceContent, pullQuote, products, honorableMentions, protocolSteps,
           avoidItems, infoSections, prosCons, faqItems, heroImageSrc, heroImageAlt, badge, readTime, ctaHeading, ctaBody,
           ctaButtonText, ctaButtonHref, clinicCtaHeading, clinicCtaBody, clinicCtaButtonText, clinicCtaButtonHref,
           investContent, postType, category, tags, selectedTool, updatedDate, toolMarkers,
@@ -403,7 +404,7 @@ export default function ProductPostTemplate({
       return () => clearTimeout(handler);
     }
   }, [
-    title, executiveSummary, scienceHeading, scienceContent, pullQuote, products, honorableMentions, protocolSteps,
+    title, executiveSummary, shortAnswer, scienceHeading, scienceContent, pullQuote, products, honorableMentions, protocolSteps,
     avoidItems, infoSections, prosCons, faqItems, heroImageSrc, heroImageAlt, badge, readTime, ctaHeading, ctaBody,
     ctaButtonText, ctaButtonHref, clinicCtaHeading, clinicCtaBody, clinicCtaButtonText, clinicCtaButtonHref,
     investContent, postType, category, tags, onChange, selectedTool, updatedDate, toolMarkers,
@@ -742,7 +743,7 @@ export default function ProductPostTemplate({
       setToast({ message: `ADDED SCIENCE SECTION`, type: 'success' });
     }
     if (type === 'Short Answer' || type === 'Short Answer Section') {
-      setExecutiveSummary("Click to write your executive summary — 2 sentences that hook the reader...");
+      setShortAnswer("Click to write your short answer...");
       setToast({ message: `ADDED SHORT ANSWER`, type: 'success' });
     }
     setToast({ message: `ADDED ${type.toUpperCase()}`, type: 'success' });
@@ -941,25 +942,18 @@ export default function ProductPostTemplate({
 
           <div className="prose prose-neutral max-w-none">
             {/* 5. SHORT ANSWER */}
-            {executiveSummary && (
+            {shortAnswer && (
               <div className="relative group border border-transparent hover:border-neutral-100 p-4 -mx-4 transition-colors">
-                <SectionToolbar isAdmin={isAdmin} onRemove={() => { if(window.confirm("Remove entire short answer section?")) handleTextChange(setExecutiveSummary, null); }} />
+                <SectionToolbar isAdmin={isAdmin} onRemove={() => { if(window.confirm("Remove entire short answer section?")) handleTextChange(setShortAnswer, null); }} />
                 
                 {shortAnswerHeading && (
-                  <>
-                    <h2 id="auto-short-answer" className="font-display text-[28px] uppercase tracking-tight text-black mb-4 mt-12 text-center">
-                      <Editable isAdmin={isAdmin} onSave={(v) => handleTextChange(setShortAnswerHeading, v)}>{shortAnswerHeading}</Editable>
-                    </h2>
-                    {shortAnswer && (
-                      <p className="font-sans text-[17px] leading-relaxed text-black/80 border-l-2 border-brand-red pl-6 py-2 mb-8">
-                        {shortAnswer}
-                      </p>
-                    )}
-                  </>
+                  <h2 id="auto-short-answer" className="font-display text-[28px] uppercase tracking-tight text-black mb-4 mt-12 text-center">
+                    <Editable isAdmin={isAdmin} onSave={(v) => handleTextChange(setShortAnswerHeading, v)}>{shortAnswerHeading}</Editable>
+                  </h2>
                 )}
                 
                 <p className="font-sans text-[17px] leading-[1.5] text-black/90 mb-12">
-                  <Editable isAdmin={isAdmin} onSave={(v) => handleTextChange(setExecutiveSummary, v)} placeholder="Click to write your executive summary — 2 sentences that hook the reader...">{executiveSummary}</Editable>
+                  <Editable isAdmin={isAdmin} onInputText={(v) => updateSharedRef('shortAnswer', v)} onSave={(v) => handleTextChange(setShortAnswer, v)} placeholder="Click to write your short answer...">{shortAnswer}</Editable>
                 </p>
               </div>
             )}
