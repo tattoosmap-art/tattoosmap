@@ -848,6 +848,7 @@ function PublishPostContent() {
             const postData = {
                 title: current.title,
                 excerpt: current.executiveSummary || "",
+                short_answer: current.shortAnswer || shortAnswer || "",
                 body_content: bodyContent || buildMarkdownFromState(current),
                 meta_title: metaTitleManuallyEdited ? seoState.metaTitle : current.title,
                 meta_description: metaDescManuallyEdited ? seoState.metaDescription : current.executiveSummary || "",
@@ -936,6 +937,7 @@ function PublishPostContent() {
                 title: current.title,
                 slug: finalSlug,
                 excerpt: current.executiveSummary,
+                short_answer: current.shortAnswer || shortAnswer || "",
                 body_content: bodyContent || buildMarkdownFromState(current),
                 meta_title: metaTitleManuallyEdited ? seoState.metaTitle : current.title,
                 meta_description: metaDescManuallyEdited ? seoState.metaDescription : current.executiveSummary,

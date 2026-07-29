@@ -52,6 +52,7 @@ export interface LabPostPayload {
     author_id?: string;
     visual_steps?: any[] | string[];
     post_template_type?: string;
+    short_answer?: string;
     sync_products?: boolean;
     published_at?: string;
 }
@@ -696,6 +697,7 @@ export async function publishLabPostAction(postData: LabPostPayload) {
             .from("posts")
             .insert({
                 ...dbPayload,
+                short_answer: postData.short_answer || dbPayload.short_answer || '',
                 body_content: postData.body_content || '',
                 protocol_steps: dbPayload.protocol_steps || [],
                 avoid_items: dbPayload.avoid_items || [],
@@ -1056,6 +1058,7 @@ export async function saveToQueueAction(postData: any) {
       .from('posts')
       .insert({
         ...dbPayload,
+        short_answer: postData.short_answer || dbPayload.short_answer || '',
         slug,
         is_published: false,
         published_at: null,

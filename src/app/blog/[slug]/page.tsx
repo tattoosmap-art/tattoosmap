@@ -395,7 +395,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     const saRegex = /:::shortanswer\n([\s\S]*?)\n:::/;
     const saMatch = displayBodyContent.match(saRegex);
     const extractedShortAnswerFromMarkdown = saMatch ? saMatch[1].trim() : (post.excerpt || "");
-    const extractedShortAnswer = (post as any).short_answer || extractedShortAnswerFromMarkdown || "";
+    const extractedShortAnswer = (post as any).short_answer || extractedShortAnswerFromMarkdown || '';
 
     const faqItemsToPass = post.post_template_type === "VISUAL STEP GUIDE" ? post.faq_items : [];
     const bodyContentToPass = post.post_template_type === "VISUAL STEP GUIDE" ? displayBodyContent : "";
