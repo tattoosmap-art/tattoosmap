@@ -585,7 +585,7 @@ export default function VisualStepTemplate({
           ))}
 
           {/* QUICK ANSWER / EXECUTIVE SUMMARY */}
-          {shortAnswer && (
+          {(shortAnswer || isAdmin) && (
             <div id="quick-answer" className="mb-16 relative group text-center">
               <SectionToolbar 
                 isAdmin={isAdmin} 

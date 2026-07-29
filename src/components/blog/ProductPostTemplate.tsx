@@ -942,7 +942,7 @@ export default function ProductPostTemplate({
 
           <div className="prose prose-neutral max-w-none">
             {/* 5. SHORT ANSWER */}
-            {shortAnswer && (
+            {(shortAnswer || isAdmin) && (
               <div className="relative group border border-transparent hover:border-neutral-100 p-4 -mx-4 transition-colors">
                 <SectionToolbar isAdmin={isAdmin} onRemove={() => { if(window.confirm("Remove entire short answer section?")) handleTextChange(setShortAnswer, null); }} />
                 
