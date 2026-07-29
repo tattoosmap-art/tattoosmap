@@ -517,9 +517,11 @@ function PublishPostContent() {
     const fetchQueue = async () => {
       try {
         const result = await getQueueAction();
-        if (result.success) {
+        if (result.success && result.data) {
           setQueueCount(result.data.length);
           setQueuePosts(result.data);
+        } else if (result.error?.toLowerCase().includes("unauthorized") || result.error?.toLowerCase().includes("admin")) {
+          setToast({ message: "ADMIN SESSION EXPIRED — PLEASE LOG IN AT /ADMIN/LOGIN", isError: true });
         }
       } catch (err) {
         console.error("Failed to fetch queue:", err);
@@ -1051,7 +1053,10 @@ function PublishPostContent() {
                     {/* Floating Queue Manager Access */}
                     <div className="absolute top-6 right-6 z-[310]">
                         <button
-                            onClick={() => setQueueOpen(true)}
+                            onClick={() => {
+                                fetchQueue();
+                                setQueueOpen(true);
+                            }}
                             className="font-mono text-[11px] uppercase px-4 py-2.5 transition-colors border border-black text-black hover:bg-black hover:text-white flex items-center gap-2 bg-white"
                         >
                             QUEUE ({queueCount})
