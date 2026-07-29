@@ -384,6 +384,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     };
 
     // EXTRACT SPECIAL BLOCKS FROM MARKDOWN FOR VISUAL GUIDES
+    const isRemovalPost = (post.category || "").toLowerCase().includes("removal") ||
+                          (post.slug || "").toLowerCase().includes("removal") ||
+                          (post.title || "").toLowerCase().includes("removal");
+
     const investRegex = /:::invest\n([\s\S]*?)\n:::/;
     const investMatch = displayBodyContent.match(investRegex);
     const extractedInvest = investMatch ? investMatch[1].trim() : "";
@@ -592,15 +596,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                             )}
 
                             {/* INVEST BLOCK */}
-                            <div className="border border-brand-red p-6 my-8" style={{background: 'rgba(226,75,74,0.04)'}}>
-                              <span className="font-mono text-[9px] uppercase text-brand-red tracking-widest block mb-3">FROM TATTOOSMAP</span>
-                              <p className="font-sans text-[15px] leading-relaxed text-black">
-                                Already have your design? Each design in our library includes the recommended aftercare protocol for its specific style and placement.{' '}
-                                <a href="/gallery" className="underline decoration-brand-red underline-offset-4 hover:text-brand-red transition-colors font-medium">
-                                  Browse verified designs →
-                                </a>
-                              </p>
-                            </div>
+                            {!isRemovalPost && (
+                              <div className="border border-brand-red p-6 my-8" style={{background: 'rgba(226,75,74,0.04)'}}>
+                                <span className="font-mono text-[9px] uppercase text-brand-red tracking-widest block mb-3">FROM TATTOOSMAP</span>
+                                <p className="font-sans text-[15px] leading-relaxed text-black">
+                                  Already have your design? Each design in our library includes the recommended aftercare protocol for its specific style and placement.{' '}
+                                  <a href="/gallery" className="underline decoration-brand-red underline-offset-4 hover:text-brand-red transition-colors font-medium">
+                                    Browse verified designs →
+                                  </a>
+                                </p>
+                              </div>
+                            )}
 
                             {/* PROTOCOL STEPS */}
                             {post.protocol_steps && post.protocol_steps.length > 0 && (
@@ -715,15 +721,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                             )}
 
                             {/* INVEST BLOCK */}
-                            <div className="border border-brand-red p-6 my-8" style={{background: 'rgba(226,75,74,0.04)'}}>
-                              <span className="font-mono text-[9px] uppercase text-brand-red tracking-widest block mb-3">FROM TATTOOSMAP</span>
-                              <p className="font-sans text-[15px] leading-relaxed text-black">
-                                Already have your design? Each design in our library includes the recommended aftercare protocol for its specific style and placement.{' '}
-                                <a href="/gallery" className="underline decoration-brand-red underline-offset-4 hover:text-brand-red transition-colors font-medium">
-                                  Browse verified designs →
-                                </a>
-                              </p>
-                            </div>
+                            {!isRemovalPost && (
+                              <div className="border border-brand-red p-6 my-8" style={{background: 'rgba(226,75,74,0.04)'}}>
+                                <span className="font-mono text-[9px] uppercase text-brand-red tracking-widest block mb-3">FROM TATTOOSMAP</span>
+                                <p className="font-sans text-[15px] leading-relaxed text-black">
+                                  Already have your design? Each design in our library includes the recommended aftercare protocol for its specific style and placement.{' '}
+                                  <a href="/gallery" className="underline decoration-brand-red underline-offset-4 hover:text-brand-red transition-colors font-medium">
+                                    Browse verified designs →
+                                  </a>
+                                </p>
+                              </div>
+                            )}
                             {renderToolMarkers('invest')}
 
                             {/* LEGACY TOOL FALLBACK */}

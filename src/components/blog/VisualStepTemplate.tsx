@@ -673,7 +673,7 @@ export default function VisualStepTemplate({
           )}
 
           {/* INVEST BLOCK */}
-          {investContent && (
+          {investContent && !((badge || "").toLowerCase().includes("removal") || (title || "").toLowerCase().includes("removal")) && (
             <div className="relative group border border-brand-red p-6 my-8" style={{background: 'rgba(226,75,74,0.04)'}}>
               <SectionToolbar isAdmin={isAdmin} onRemove={() => { setInvestContent(""); setToast("Invest Section removed"); }} />
               <span className="font-mono text-[9px] uppercase text-brand-red tracking-widest block mb-3">FROM TATTOOSMAP</span>

@@ -1035,7 +1035,7 @@ export default function ProductPostTemplate({
             <AddSectionButton isAdmin={isAdmin} onAdd={handleAddSection} anchor="pull-quote" />
 
             {/* INVEST BLOCK - Fully Toggleable Atomic Section */}
-            {investContent && (
+            {investContent && !((category || "").toLowerCase().includes("removal") || (title || "").toLowerCase().includes("removal")) && (
               <div className="relative group border border-brand-red p-6 my-8" style={{background: 'rgba(226,75,74,0.04)'}}>
                 <SectionToolbar isAdmin={isAdmin} onRemove={() => { if(window.confirm("Remove invest block?")) handleTextChange(setInvestContent, null); }} />
                 <span className="font-mono text-[9px] uppercase text-brand-red tracking-widest block mb-3">FROM TATTOOSMAP</span>
