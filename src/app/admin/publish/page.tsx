@@ -508,6 +508,7 @@ function PublishPostContent() {
     const [metaDescManuallyEdited, setMetaDescManuallyEdited] = useState(false);
     const [syncProducts, setSyncProducts] = useState(true);
     const [bodyContent, setBodyContent] = useState('');
+    const [shortAnswer, setShortAnswer] = useState('');
     const [readTime, setReadTime] = useState(7);
     const [queueOpen, setQueueOpen] = useState(false);
     const [queueCount, setQueueCount] = useState(0);
@@ -575,6 +576,7 @@ function PublishPostContent() {
                     setMetaDescManuallyEdited(p.meta_description !== p.excerpt);
                     setReadTime(p.read_time_minutes || 7);
                     setBodyContent(p.body_content || '');
+                    setShortAnswer((p as any).short_answer || extractedShortAnswer || '');
                     setTemplateKey(Date.now());
                 } else {
                     setToast({ message: "Failed to fetch post from database.", isError: true });
@@ -818,6 +820,7 @@ function PublishPostContent() {
                 setMetaDescManuallyEdited(p.meta_description !== p.excerpt);
                 setReadTime(p.read_time_minutes || 7);
                 setBodyContent(p.body_content || "");
+                setShortAnswer((p as any).short_answer || extractedShortAnswer || "");
                 setTemplateKey(Date.now());
                 setQueueOpen(false);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1210,6 +1213,7 @@ function PublishPostContent() {
                             bodyContent={bodyContent}
                             setBodyContent={setBodyContent}
                             {...editorState}
+                            shortAnswer={shortAnswer || editorState.shortAnswer}
                             readTime={`${readTime} MIN READ`}
                         />
                     ) : (
@@ -1228,6 +1232,7 @@ function PublishPostContent() {
                             bodyContent={bodyContent}
                             setBodyContent={setBodyContent}
                             {...editorState}
+                            shortAnswer={shortAnswer || editorState.shortAnswer}
                             readTime={`${readTime} MIN READ`}
                         />
                     )}
