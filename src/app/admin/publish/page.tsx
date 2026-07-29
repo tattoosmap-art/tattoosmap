@@ -537,6 +537,10 @@ function PublishPostContent() {
             getLabPostAction(editId).then((res) => {
                 if (res.success && res.post) {
                     const p = res.post;
+                    const saRegex = /:::shortanswer\n([\s\S]*?)\n:::/;
+                    const saMatch = (p.body_content || "").match(saRegex);
+                    const extractedShortAnswer = (p as any).short_answer || (saMatch ? saMatch[1].trim() : "");
+
                     setLoadedPostId(p.id);
                     setLoadedPostSlug(p.slug);
                     setLoadedPostIsPublished(!!p.is_published);
@@ -544,6 +548,7 @@ function PublishPostContent() {
                     setEditorState({
                         title: p.title || "",
                         executiveSummary: p.excerpt || "",
+                        shortAnswer: extractedShortAnswer || "",
                         scienceHeading: p.science_heading || "Why This Matters — The Science",
                         scienceContent: p.science_content || "",
                         pullQuote: p.pull_quote || "",
@@ -774,6 +779,10 @@ function PublishPostContent() {
             const res = await getLabPostAction(postId);
             if (res.success && res.post) {
                 const p = res.post;
+                const saRegex = /:::shortanswer\n([\s\S]*?)\n:::/;
+                const saMatch = (p.body_content || "").match(saRegex);
+                const extractedShortAnswer = (p as any).short_answer || (saMatch ? saMatch[1].trim() : "");
+
                 setLoadedPostId(p.id);
                 setLoadedPostSlug(p.slug);
                 setLoadedPostIsPublished(!!p.is_published);
@@ -782,6 +791,7 @@ function PublishPostContent() {
                 setEditorState({
                     title: p.title || "",
                     executiveSummary: p.excerpt || "",
+                    shortAnswer: extractedShortAnswer || "",
                     scienceHeading: p.science_heading || "Why This Matters — The Science",
                     scienceContent: p.science_content || "",
                     pullQuote: p.pull_quote || "",
