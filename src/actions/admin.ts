@@ -604,7 +604,8 @@ export async function updateLabPostAction(id: string, postData: LabPostPayload) 
     try {
         await verifyAdminSession();
 
-        const { sync_products, ...dbPayload } = postData;
+        const { sync_products, short_answer, ...dbPayload } = postData;
+        const shortText = short_answer || postData.short_answer || '';
 
         if (!dbPayload.title || dbPayload.title.trim() === "") {
             throw new Error("Validation Error: Title is required.");
@@ -613,10 +614,16 @@ export async function updateLabPostAction(id: string, postData: LabPostPayload) 
             throw new Error("Validation Error: Slug is required.");
         }
 
+        let finalBody = dbPayload.body_content || '';
+        if (shortText && !finalBody.includes(':::shortanswer')) {
+            finalBody = `:::shortanswer\n${shortText}\n:::\n\n` + finalBody;
+        }
+
         const { data, error } = await supabaseAdmin
             .from("posts")
             .update({
-                ...dbPayload
+                ...dbPayload,
+                body_content: finalBody
             })
             .eq("id", id)
             .select()
@@ -675,7 +682,8 @@ export async function publishLabPostAction(postData: LabPostPayload) {
     try {
         await verifyAdminSession();
 
-        const { sync_products, ...dbPayload } = postData;
+        const { sync_products, short_answer, ...dbPayload } = postData;
+        const shortText = short_answer || postData.short_answer || '';
 
         // Input validation and null/empty checks
         if (!dbPayload.title || dbPayload.title.trim() === "") {
@@ -693,12 +701,16 @@ export async function publishLabPostAction(postData: LabPostPayload) {
             dbPayload.author_id = "a1";
         }
 
+        let finalBody = postData.body_content || '';
+        if (shortText && !finalBody.includes(':::shortanswer')) {
+            finalBody = `:::shortanswer\n${shortText}\n:::\n\n` + finalBody;
+        }
+
         const { data, error } = await supabaseAdmin
             .from("posts")
             .insert({
                 ...dbPayload,
-                short_answer: postData.short_answer || dbPayload.short_answer || '',
-                body_content: postData.body_content || '',
+                body_content: finalBody,
                 protocol_steps: dbPayload.protocol_steps || [],
                 avoid_items: dbPayload.avoid_items || [],
                 faq_items: dbPayload.faq_items || [],
@@ -1051,14 +1063,20 @@ export async function saveToQueueAction(postData: any) {
       return { success: false, error: 'Title is required' };
     }
     
-    const { sync_products, ...dbPayload } = postData;
+    const { sync_products, short_answer, ...dbPayload } = postData;
+    const shortText = short_answer || postData.short_answer || '';
     const slug = await ensureUniqueSlug("posts", dbPayload.title);
     
+    let finalBody = postData.body_content || '';
+    if (shortText && !finalBody.includes(':::shortanswer')) {
+      finalBody = `:::shortanswer\n${shortText}\n:::\n\n` + finalBody;
+    }
+
     const { data, error } = await supabaseAdmin
       .from('posts')
       .insert({
         ...dbPayload,
-        short_answer: postData.short_answer || dbPayload.short_answer || '',
+        body_content: finalBody,
         slug,
         is_published: false,
         published_at: null,
