@@ -76,27 +76,8 @@ const buildMarkdownFromState = (state: any) => {
             .map((tm: any) => `:::tool[${tm.toolId}]:::\n\n`)
             .join("");
     };
-    
-    // Top anchor
-    md += state.executiveSummary ? `${state.executiveSummary}\n\n` : '';
-    md += getToolMarkersForAnchor("top");
-    
-    // Short answer anchor
-    md += state.shortAnswer ? `:::shortanswer\n${state.shortAnswer}\n:::\n\n` : '';
-    
-    // Science anchor
-    md += state.scienceContent ? `## ${state.scienceHeading || "Why This Matters — The Science"}\n\n${state.scienceContent}\n\n` : '';
-    md += getToolMarkersForAnchor("science");
-    
-    // Pull quote anchor
-    md += state.pullQuote ? `:::invest\n💡 ${state.pullQuote}\n:::\n\n` : '';
-    md += getToolMarkersForAnchor("pull-quote");
-    
-    // Invest anchor
-    md += state.investContent ? `:::invest\n${state.investContent}\n:::\n\n` : '';
-    md += getToolMarkersForAnchor("invest");
 
-    // Info sections
+    // 1. Hook/body content comes first
     if (state.infoSections && state.infoSections.length > 0) {
         state.infoSections.forEach((sec: any) => {
             md += `## ${sec.heading}\n\n${sec.content}\n\n`;
@@ -104,20 +85,25 @@ const buildMarkdownFromState = (state: any) => {
         });
     }
 
-    // Products anchor
+    // 2. Science section
+    md += state.scienceContent
+        ? `## ${state.scienceHeading || "Why This Matters"}\n\n${state.scienceContent}\n\n`
+        : "";
+    md += getToolMarkersForAnchor("science");
+
+    // 3. Pull quote
+    md += state.pullQuote ? `:::invest\n${state.pullQuote}\n:::\n\n` : "";
+    md += getToolMarkersForAnchor("pull-quote");
+
+    // 4. Tool markers for other sections
     md += getToolMarkersForAnchor("products");
-
-    // Protocol anchor
     md += getToolMarkersForAnchor("protocol");
-
-    // Avoid anchor
     md += getToolMarkersForAnchor("avoid");
-
-    // FAQ anchor
     md += getToolMarkersForAnchor("faq");
 
-    // Inject custom headings configuration footer for dynamic extraction on front-end
-    if (state.rankedListHeading || state.protocolHeading || state.avoidHeading || state.faqHeading || state.shortAnswerHeading) {
+    // 5. Config footer
+    if (state.rankedListHeading || state.protocolHeading || 
+        state.avoidHeading || state.faqHeading || state.shortAnswerHeading) {
         const config = {
             headings: {
                 rankedList: state.rankedListHeading,
@@ -129,7 +115,7 @@ const buildMarkdownFromState = (state: any) => {
         };
         md += `\n\n:::config\n${JSON.stringify(config)}\n:::`;
     }
-    
+
     return md;
 };
 
