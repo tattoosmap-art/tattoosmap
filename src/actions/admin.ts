@@ -614,16 +614,20 @@ export async function updateLabPostAction(id: string, postData: LabPostPayload) 
             throw new Error("Validation Error: Slug is required.");
         }
 
-        let finalBody = dbPayload.body_content || '';
-        if (shortText && !finalBody.includes(':::shortanswer')) {
-            finalBody = `:::shortanswer\n${shortText}\n:::\n\n` + finalBody;
+        let cleanedBody = dbPayload.body_content || '';
+        if (cleanedBody) {
+            cleanedBody = cleanedBody
+                .replace(/:::shortanswer\n[\s\S]*?\n:::/g, '')
+                .replace(/:::shortanswer[\s\S]*?:::/g, '')
+                .trim();
         }
 
         const { data, error } = await supabaseAdmin
             .from("posts")
             .update({
                 ...dbPayload,
-                body_content: finalBody
+                body_content: cleanedBody,
+                short_answer: shortText
             })
             .eq("id", id)
             .select()
@@ -701,16 +705,20 @@ export async function publishLabPostAction(postData: LabPostPayload) {
             dbPayload.author_id = "a1";
         }
 
-        let finalBody = postData.body_content || '';
-        if (shortText && !finalBody.includes(':::shortanswer')) {
-            finalBody = `:::shortanswer\n${shortText}\n:::\n\n` + finalBody;
+        let cleanedBody = postData.body_content || '';
+        if (cleanedBody) {
+            cleanedBody = cleanedBody
+                .replace(/:::shortanswer\n[\s\S]*?\n:::/g, '')
+                .replace(/:::shortanswer[\s\S]*?:::/g, '')
+                .trim();
         }
 
         const { data, error } = await supabaseAdmin
             .from("posts")
             .insert({
                 ...dbPayload,
-                body_content: finalBody,
+                body_content: cleanedBody,
+                short_answer: shortText,
                 protocol_steps: dbPayload.protocol_steps || [],
                 avoid_items: dbPayload.avoid_items || [],
                 faq_items: dbPayload.faq_items || [],
@@ -1067,16 +1075,20 @@ export async function saveToQueueAction(postData: any) {
     const shortText = short_answer || postData.short_answer || '';
     const slug = await ensureUniqueSlug("posts", dbPayload.title);
     
-    let finalBody = postData.body_content || '';
-    if (shortText && !finalBody.includes(':::shortanswer')) {
-      finalBody = `:::shortanswer\n${shortText}\n:::\n\n` + finalBody;
+    let cleanedBody = postData.body_content || '';
+    if (cleanedBody) {
+      cleanedBody = cleanedBody
+        .replace(/:::shortanswer\n[\s\S]*?\n:::/g, '')
+        .replace(/:::shortanswer[\s\S]*?:::/g, '')
+        .trim();
     }
 
     const { data, error } = await supabaseAdmin
       .from('posts')
       .insert({
         ...dbPayload,
-        body_content: finalBody,
+        body_content: cleanedBody,
+        short_answer: shortText,
         slug,
         is_published: false,
         published_at: null,
@@ -1101,12 +1113,26 @@ export async function publishFromQueueAction(postId: string) {
   // 1. Fetch post data for product syncing
   const { data: post, error: fetchError } = await supabaseAdmin
     .from('posts')
-    .select('slug, category, related_products')
+    .select('slug, category, related_products, body_content, short_answer')
     .eq('id', postId)
     .single();
 
   if (fetchError || !post) {
     return { success: false, error: fetchError?.message || 'Post not found in queue' };
+  }
+
+  let cleanedBody = post.body_content || '';
+  let cleanedShortAnswer = post.short_answer || '';
+  const saRegex = /:::shortanswer\n([\s\S]*?)\n:::/;
+  const saMatch = cleanedBody.match(saRegex);
+  if (saMatch) {
+    if (!cleanedShortAnswer) {
+      cleanedShortAnswer = saMatch[1].trim();
+    }
+    cleanedBody = cleanedBody
+      .replace(/:::shortanswer\n[\s\S]*?\n:::/g, '')
+      .replace(/:::shortanswer[\s\S]*?:::/g, '')
+      .trim();
   }
 
   // 2. Sync products if present
@@ -1150,6 +1176,8 @@ export async function publishFromQueueAction(postId: string) {
     .update({
       is_published: true,
       published_at: new Date().toISOString(),
+      body_content: cleanedBody,
+      short_answer: cleanedShortAnswer,
     })
     .eq('id', postId)
     .eq('is_published', false);
