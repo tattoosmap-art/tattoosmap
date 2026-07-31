@@ -15,12 +15,20 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const { data: design } = await supabaseAnon
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  
+  let query = supabaseAnon
     .from('designs')
     .select('subject, style, placement_recommendations, meaning, alt_text, image_url, meta_title, meta_description, slug')
-    .eq('slug', id)
-    .eq('is_published', true)
-    .single();
+    .eq('is_published', true);
+    
+  if (isUuid) {
+    query = query.eq('id', id);
+  } else {
+    query = query.eq('slug', id);
+  }
+
+  const { data: design } = await query.single();
 
   if (!design) {
     notFound();

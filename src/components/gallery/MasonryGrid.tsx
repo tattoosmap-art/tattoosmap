@@ -41,7 +41,7 @@ export default function MasonryGrid({ designs, onRemove }: MasonryGridProps) {
                         className="break-inside-avoid-column mb-6 group relative border border-gray-light rounded-none overflow-hidden bg-off-white will-change-transform transform-gpu animate-fade-in-up transition-all duration-300 ease-out"
                         style={{ animationDelay: `${(index % 4) * 0.1}s` }}
                     >
-                        <Link href={`/gallery/${design.id}`} className="block" scroll={false}>
+                        <Link href={`/gallery/${design.slug || design.id}`} className="block" scroll={false}>
                             <Image
                                 src={design.image_url}
                                 alt={design.alt_text}

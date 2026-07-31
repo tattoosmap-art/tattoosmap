@@ -143,11 +143,11 @@ export default function SimilarDesignsBar({
                             className="min-w-[80vw] w-[80vw] md:min-w-[280px] md:w-[280px] flex-shrink-0 snap-start group relative border border-gray-light rounded-none overflow-hidden bg-white active:scale-[0.98] transition-transform duration-200"
                         >
                             <Link 
-                                href={`/gallery/${sim.id}`} 
+                                href={`/gallery/${sim.slug || sim.id}`} 
                                 className="block"
                                 scroll={false}
                                 prefetch={false}
-                                onMouseEnter={() => router.prefetch(`/gallery/${sim.id}`)}
+                                onMouseEnter={() => router.prefetch(`/gallery/${sim.slug || sim.id}`)}
                             >
                                 <div className="w-full aspect-[4/5] relative bg-white animate-pulse">
                                     <Image
