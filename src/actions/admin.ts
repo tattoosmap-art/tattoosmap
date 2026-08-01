@@ -622,12 +622,28 @@ export async function updateLabPostAction(id: string, postData: LabPostPayload) 
                 .trim();
         }
 
+        const { data: existingPost } = await supabaseAdmin
+            .from("posts")
+            .select("is_published, published_at")
+            .eq("id", id)
+            .single();
+
+        let publishedAt: string | undefined = dbPayload.published_at || existingPost?.published_at || undefined;
+        if (dbPayload.is_published) {
+            if (!publishedAt) {
+                publishedAt = new Date().toISOString();
+            }
+        } else {
+            publishedAt = undefined;
+        }
+
         const { data, error } = await supabaseAdmin
             .from("posts")
             .update({
                 ...dbPayload,
                 body_content: cleanedBody,
-                short_answer: shortText
+                short_answer: shortText,
+                published_at: publishedAt
             })
             .eq("id", id)
             .select()
@@ -713,12 +729,22 @@ export async function publishLabPostAction(postData: LabPostPayload) {
                 .trim();
         }
 
+        let publishedAt: string | undefined = dbPayload.published_at;
+        if (dbPayload.is_published) {
+            if (!publishedAt) {
+                publishedAt = new Date().toISOString();
+            }
+        } else {
+            publishedAt = undefined;
+        }
+
         const { data, error } = await supabaseAdmin
             .from("posts")
             .insert({
                 ...dbPayload,
                 body_content: cleanedBody,
                 short_answer: shortText,
+                published_at: publishedAt,
                 protocol_steps: dbPayload.protocol_steps || [],
                 avoid_items: dbPayload.avoid_items || [],
                 faq_items: dbPayload.faq_items || [],
