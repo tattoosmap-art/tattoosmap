@@ -10,7 +10,7 @@ const supabase = createClient(
 );
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 async function getMeaningPageData(slug: string) {
@@ -29,7 +29,8 @@ async function getMeaningPageData(slug: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const subject = params.slug
+  const { slug } = await params;
+  const subject = slug
     .split('-')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ');
@@ -38,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${subject} — Meaning, Symbolism & Designs | TattoosMap`,
     description: `Discover the meaning and symbolism behind ${subject.toLowerCase()}. Browse curated designs with cultural context, placement guides, and aging predictions.`,
     alternates: {
-      canonical: `https://tattoosmap.com/meaning/${params.slug}`,
+      canonical: `https://tattoosmap.com/meaning/${slug}`,
     },
     openGraph: {
       title: `${subject} — Meaning & Designs | TattoosMap`,
@@ -48,13 +49,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function MeaningPage({ params }: Props) {
-  const designs = await getMeaningPageData(params.slug);
+  const { slug } = await params;
+  const designs = await getMeaningPageData(slug);
   
   if (designs.length === 0) {
     notFound();
   }
 
-  const subject = params.slug
+  const subject = slug
     .split('-')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ');
