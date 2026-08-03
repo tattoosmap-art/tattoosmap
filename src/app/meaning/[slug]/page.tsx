@@ -1,37 +1,41 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAnon } from '@/lib/supabase-anon';
 import Link from 'next/link';
 import Image from 'next/image';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
 async function getMeaningPageData(slug: string) {
-  // Convert slug to subject search term
-  const searchTerm = slug.replace(/-/g, ' ');
+  const searchTerm = slug.replace(/-/g, ' ').replace(' tattoo', '').trim();
+  const fullTerm = slug.replace(/-/g, ' ');
   
-  // Get designs matching this subject
-  const { data: designs } = await supabase
+  const { data: designs1 } = await supabaseAnon
     .from('designs')
     .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags')
     .eq('is_published', true)
     .ilike('subject', `%${searchTerm}%`)
     .limit(24);
 
-  return designs || [];
+  if (designs1 && designs1.length > 0) return designs1;
+
+  const { data: designs2 } = await supabaseAnon
+    .from('designs')
+    .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags')
+    .eq('is_published', true)
+    .ilike('subject', `%${fullTerm}%`)
+    .limit(24);
+
+  return designs2 || [];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const subject = slug
     .split('-')
+    .filter(w => w !== 'design')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ');
 
@@ -58,6 +62,7 @@ export default async function MeaningPage({ params }: Props) {
 
   const subject = slug
     .split('-')
+    .filter(w => w !== 'design')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ');
 
