@@ -19,7 +19,7 @@ export async function generateMetadata({
   
   let query = supabaseAnon
     .from('designs')
-    .select('subject, style, placement_recommendations, meaning, alt_text, image_url, meta_title, meta_description, slug')
+    .select('subject, style, placement_recommendations, meaning, alt_text, image_url, meta_title, meta_description, slug, speakable_summary')
     .eq('is_published', true);
     
   if (isUuid) {
@@ -31,17 +31,31 @@ export async function generateMetadata({
   const { data: design } = await query.single();
 
   if (!design) {
-    notFound();
+    return {
+      title: 'Design Not Found | TattoosMap',
+    };
   }
 
   const title = design.meta_title ||
-    `${design.subject} Tattoo Design — Meaning & Symbolism | TattoosMap`;
+    `${design.subject} — Meaning & Symbolism | TattoosMap`;
+
+  let formattedStyle = '';
+  if (design.style) {
+    try {
+      const parsed = typeof design.style === 'string' && design.style.startsWith('[') ? JSON.parse(design.style) : design.style;
+      formattedStyle = Array.isArray(parsed) ? parsed.join(', ') : String(parsed);
+    } catch {
+      formattedStyle = String(design.style);
+    }
+  }
 
   const description = design.meta_description ||
-    `Explore this ${design.style?.toLowerCase() || ''} ${design.subject?.toLowerCase()} tattoo design. Discover its meaning, best placements, and technical specifications on TattoosMap.`;
+    design.speakable_summary ||
+    (design.meaning ? `${design.meaning.substring(0, 155).trim()}...` : '') ||
+    `Explore this ${formattedStyle ? formattedStyle.toLowerCase() + ' ' : ''}${design.subject?.toLowerCase() || ''} design with pain maps, aging predictions, and cultural meaning on TattoosMap.`;
 
   const imageUrl = design.image_url || 'https://tattoosmap.com/brand-logo.png';
-  const canonicalUrl = `https://tattoosmap.com/gallery/${design.slug}`;
+  const canonicalUrl = `https://tattoosmap.com/gallery/${design.slug || id}`;
 
   return {
     title,

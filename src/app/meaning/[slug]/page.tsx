@@ -32,22 +32,31 @@ async function getMeaningPageData(slug: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const subject = slug
+  const resolvedParams = await params;
+  const subject = resolvedParams.slug
     .split('-')
     .filter(w => w !== 'design')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ');
 
+  const designs = await getMeaningPageData(resolvedParams.slug);
+  const designCount = designs.length;
+  const primaryMeaning = designs[0]?.meaning || '';
+  const meaningSnippet = primaryMeaning.length > 80 
+    ? primaryMeaning.substring(0, 80).trim() + '...' 
+    : primaryMeaning;
+
   return {
     title: `${subject} — Meaning, Symbolism & Designs | TattoosMap`,
-    description: `Discover the meaning and symbolism behind ${subject.toLowerCase()}. Browse curated designs with cultural context, placement guides, and aging predictions.`,
+    description: meaningSnippet 
+      ? `${subject}: ${meaningSnippet} Explore ${designCount} curated designs with pain maps and aging predictions.`
+      : `What does a ${subject.toLowerCase()} mean? Explore ${designCount} curated designs with cultural context, placement guides, pain maps, and aging predictions.`,
     alternates: {
-      canonical: `https://tattoosmap.com/meaning/${slug}`,
+      canonical: `https://tattoosmap.com/meaning/${resolvedParams.slug}`,
     },
     openGraph: {
       title: `${subject} — Meaning & Designs | TattoosMap`,
-      description: `The meaning behind ${subject.toLowerCase()} — cultural origins, symbolism, and curated designs.`,
+      description: `The symbolism behind ${subject.toLowerCase()} — cultural origins and ${designCount} curated designs with pain maps and aging predictions.`,
     },
   };
 }
@@ -93,7 +102,7 @@ export default async function MeaningPage({ params }: Props) {
       {meaning && (
         <div className="mb-12 max-w-3xl">
           <h2 className="font-display text-[20px] uppercase tracking-tight text-black mb-4">
-            What {subject} Mean
+            What {subject}s Mean
           </h2>
           <p className="font-serif text-[18px] leading-[1.7] text-black mb-4">
             {meaning}
@@ -148,7 +157,7 @@ export default async function MeaningPage({ params }: Props) {
               What does a {subject.toLowerCase()} symbolize?
             </h3>
             <p className="font-serif text-[16px] leading-[1.6] text-neutral-700">
-              {meaning || `${subject} tattoos carry deep symbolic meaning rooted in cultural tradition. Each design on TattoosMap includes a detailed meaning guide, cultural origin, and placement recommendations.`}
+              {meaning || `${subject} tattoos carry rich symbolic meaning rooted in cultural tradition. Browse the designs below — each one includes a detailed meaning guide and cultural origin.`}
             </p>
           </div>
           <div>
@@ -156,15 +165,31 @@ export default async function MeaningPage({ params }: Props) {
               Where is the best placement for a {subject.toLowerCase()}?
             </h3>
             <p className="font-serif text-[16px] leading-[1.6] text-neutral-700">
-              Placement depends on the size and style of your specific design. Each design on TattoosMap includes a pain map and placement recommendations based on the design's visual weight and detail level.
+              Placement depends on the design size and orientation. Vertical designs suit the spine, forearm, or calf. Symmetrical designs suit the chest, back, or thigh. Smaller designs work on the wrist, ankle, or behind the ear. Each design below includes a specific pain map and placement guide with anatomical detail.
             </p>
           </div>
           <div>
             <h3 className="font-mono text-[11px] uppercase tracking-widest text-black mb-2">
-              How long does a {subject.toLowerCase()} last?
+              How long does a {subject.toLowerCase()} tattoo last?
             </h3>
             <p className="font-serif text-[16px] leading-[1.6] text-neutral-700">
-              Longevity depends on placement, sun exposure, and ink colours used. Each design on TattoosMap includes a longevity prediction showing how the specific design ages over 5 years.
+              Fine line designs soften gradually over 5 to 10 years as delicate details blend into smooth gradients. Bold blackwork holds its structure for 15 to 20 years with proper care. Apply SPF 50 daily to tattooed skin exposed to sunlight — UV exposure is the primary cause of tattoo fading regardless of style or ink quality.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-mono text-[11px] uppercase tracking-widest text-black mb-2">
+              Is a {subject.toLowerCase()} a good first tattoo?
+            </h3>
+            <p className="font-serif text-[16px] leading-[1.6] text-neutral-700">
+              It depends on the specific design and placement. Simpler versions in low-pain placements like the upper arm or thigh make excellent first tattoos. More complex designs with fine detail work better once you understand how your skin heals. Each design below shows the minimum recommended size and technique complexity so you can judge what suits your experience level.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-mono text-[11px] uppercase tracking-widest text-black mb-2">
+              How much does a {subject.toLowerCase()} tattoo cost?
+            </h3>
+            <p className="font-serif text-[16px] leading-[1.6] text-neutral-700">
+              Cost depends on size, complexity, and your artist's hourly rate. Simple designs under 10cm typically run $100 to $300. Larger, more detailed pieces range from $300 to $800 or more. Fine line work often costs more per hour than bold traditional styles because it requires greater technical precision and takes longer per square centimetre of coverage.
             </p>
           </div>
         </div>
