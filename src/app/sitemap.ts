@@ -110,13 +110,38 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     const KEYWORDS = [
-        "dragon-tattoo", "lotus-tattoo", "snake-tattoo", "rose-tattoo",
-        "butterfly-tattoo", "skull-tattoo", "koi-fish-tattoo", "wolf-tattoo",
-        "lion-tattoo", "tiger-tattoo", "phoenix-tattoo", "anchor-tattoo",
-        "compass-tattoo", "owl-tattoo", "bear-tattoo", "eagle-tattoo",
-        "medusa-tattoo", "moon-tattoo", "sun-tattoo", "arrow-tattoo",
-        "feather-tattoo", "tree-tattoo", "clock-tattoo", "heart-tattoo",
-        "cross-tattoo", "semicolon-tattoo", "infinity-tattoo", "mandala-tattoo"
+      "medusa-tattoo", "semicolon-tattoo", "butterfly-tattoo",
+      "lotus-tattoo", "neo-traditional-tattoo", "gaara-tattoo",
+      "icarus-tattoo", "memento-mori-tattoo", "snake-tattoo",
+      "star-tattoo", "dragon-tattoo", "lion-tattoo",
+      "skull-tattoo", "spider-tattoo", "sunflower-tattoo",
+      "hand-tattoos", "forearm-tattoos", "sternum-tattoo",
+      "neck-tattoos", "chest-tattoos", "spine-tattoos",
+      "arm-tattoos", "sleeve-tattoos", "thigh-tattoos",
+      "koi-fish-tattoo", "watercolor-tattoo", "eagle-tattoo",
+      "sacred-heart-tattoo", "berserk-tattoo", "compass-tattoo",
+      "owl-tattoo", "scorpion-tattoo", "patchwork-tattoos",
+      "moth-tattoo", "444-tattoo", "angel-tattoo",
+      "oni-mask-tattoo", "virgin-mary-tattoo", "ouroboros-tattoo",
+      "raven-tattoo", "finger-tattoos", "shoulder-tattoos",
+      "back-tattoos", "leg-tattoos", "cross-tattoo",
+      "bear-tattoo", "crow-tattoo", "daisy-tattoo",
+      "elephant-tattoo", "feather-tattoo", "lightning-tattoo",
+      "rose-tattoo", "santa-muerte-tattoo", "sea-turtle-tattoo",
+      "sword-tattoo", "yakuza-tattoos", "viking-tattoos",
+      "hummingbird-tattoo", "dragonfly-tattoo", "shark-tattoo",
+      "barbed-wire-tattoo", "jesus-tattoo", "phoenix-tattoo",
+      "wolf-tattoo", "tiger-tattoo", "mandala-tattoo",
+      "geometric-tattoo", "blackwork-tattoo", "fine-line-tattoo",
+      "traditional-tattoo", "japanese-tattoo", "tribal-tattoo",
+      "realism-tattoo", "anchor-tattoo", "moon-tattoo",
+      "sun-tattoo", "heart-tattoo", "infinity-tattoo",
+      "tree-tattoo", "arrow-tattoo", "clock-tattoo",
+      "peony-tattoo", "cherry-blossom-tattoo", "fox-tattoo",
+      "cat-tattoo", "octopus-tattoo", "samurai-tattoo",
+      "wrist-tattoos", "ankle-tattoos", "hip-tattoos",
+      "behind-ear-tattoos", "calf-tattoos", "half-sleeve-tattoo",
+      "sister-tattoos", "couple-tattoos", "mother-son-tattoos"
     ];
 
     const meaningRoutes = KEYWORDS.map(keyword => ({

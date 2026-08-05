@@ -31,6 +31,84 @@ async function getMeaningPageData(slug: string) {
   return designs2 || [];
 }
 
+const CUSTOM_TITLES: Record<string, { title: string; h1: string; answer: string }> = {
+  'medusa-tattoo': {
+    title: 'Medusa Tattoo Meaning — What She Really Represents',
+    h1: 'Medusa Tattoo — Meaning, Symbolism & Designs',
+    answer: 'The Medusa tattoo represents survival, protection, and reclaiming power after trauma. In contemporary culture it has become a widely recognised symbol among survivors of assault — transforming a figure of ancient punishment into a modern emblem of resilience and personal strength.'
+  },
+  'semicolon-tattoo': {
+    title: 'Semicolon Tattoo — The Meaning Behind the Mark',
+    h1: 'Semicolon Tattoo — Meaning & Designs',
+    answer: 'The semicolon tattoo represents the choice to continue — a punctuation mark used when an author could have ended a sentence but chose not to. Adopted by the mental health community, it marks survival of depression, anxiety, addiction, and suicidal ideation. A small mark that carries an enormous weight.'
+  },
+  'butterfly-tattoo': {
+    title: 'Butterfly Tattoo Meaning — More Than You Think',
+    h1: 'Butterfly Tattoo — Meaning, Symbolism & Designs',
+    answer: 'The butterfly tattoo represents transformation, rebirth, and the passage through difficulty into a new version of yourself. Across cultures it marks metamorphosis — the Japanese see it as the soul, the Aztecs as the spirit of fallen warriors, and contemporary wearers as a marker of personal reinvention after hardship.'
+  },
+  'lotus-tattoo': {
+    title: 'Lotus Tattoo Meaning — The Full Cultural Story',
+    h1: 'Lotus Flower Tattoo — Meaning & Designs',
+    answer: 'The lotus tattoo represents purity, spiritual awakening, and beauty emerging from darkness — the flower grows from muddy water yet blooms clean above the surface. In Buddhism it marks enlightenment and the journey from suffering to clarity. In Hinduism it symbolises divine beauty and the unfolding of the soul.'
+  },
+  'snake-tattoo': {
+    title: 'Snake Tattoo Meaning — Why Every Culture Uses It',
+    h1: 'Snake Tattoo — Meaning, Symbolism & Designs',
+    answer: 'The snake tattoo is one of the most universally used symbols in human history — appearing across every major culture with meanings that span duality itself. In ancient Greece it represented healing and medicine. In Japan it symbolised protection and good fortune. In Western tradition it carries danger and temptation. The same image, radically different meanings.'
+  },
+  'dragon-tattoo': {
+    title: 'Dragon Tattoo Meaning — East vs West Explained',
+    h1: 'Dragon Tattoo — Meaning, Symbolism & Designs',
+    answer: 'The dragon tattoo means something fundamentally different depending on its origin. Eastern dragons represent wisdom, protection, and divine power — benevolent forces that bring rain and prosperity. Western dragons represent danger, greed, and chaos — forces to be conquered. Which dragon you choose tells the story you want to carry.'
+  },
+  'skull-tattoo': {
+    title: 'Skull Tattoo Meaning — Not What Most People Think',
+    h1: 'Skull Tattoo — Meaning, Symbolism & Designs',
+    answer: 'The skull tattoo rarely means what outsiders assume. Most wearers do not choose it for shock value — they choose it as a memento mori, a reminder that life is finite and therefore worth living fully. Across cultures the skull marks mortality, transformation, and the refusal to live in fear of death.'
+  },
+  'watercolor-tattoo': {
+    title: 'Watercolor Tattoo — Do They Age Well? Full Guide',
+    h1: 'Watercolor Tattoo — Designs & Style Guide',
+    answer: 'Watercolor tattoos age faster than traditional styles because they rely on soft gradients and minimal outlines — the elements that give them their distinctive look are also what cause them to blur and fade first. Done well with deliberate linework as a foundation, they can hold for a decade. Done without structure, they soften significantly within three to five years.'
+  },
+  'memento-mori-tattoo': {
+    title: 'Memento Mori Tattoo — What It Actually Means',
+    h1: 'Memento Mori Tattoo — Meaning & Designs',
+    answer: 'Memento mori is Latin for "remember you will die." The tattoo is not a morbid statement — it is a philosophical one rooted in Stoic tradition, used as a daily reminder that mortality gives life its urgency and meaning. The skull, the hourglass, the wilting flower — all say the same thing: time is finite, use it deliberately.'
+  },
+  'hand-tattoos': {
+    title: 'Hand Tattoos — Pain Level, Designs & What to Know',
+    h1: 'Hand Tattoos — Designs, Pain Map & Placement Guide',
+    answer: 'Hand tattoos are among the most visible placements and among the most demanding to heal. The skin over knuckles and fingers fades faster than almost anywhere else on the body — thin skin over bone, constant movement, and frequent washing all accelerate ink breakdown. What you gain in visibility, you give back in longevity and maintenance.'
+  },
+  'forearm-tattoos': {
+    title: 'Forearm Tattoos — Inner vs Outer Arm Explained',
+    h1: 'Forearm Tattoos — Designs & Placement Guide',
+    answer: 'The forearm offers two distinct canvases with different pain profiles and visibility. The outer forearm has thicker skin over muscle — lower pain, better ink retention, always visible. The inner forearm has thinner skin over veins — higher sensitivity, excellent for fine detail, visible only when you choose to show it. Most artists recommend starting outer.'
+  },
+  'sternum-tattoo': {
+    title: 'Sternum Tattoo — How Much Does It Hurt, Really?',
+    h1: 'Sternum Tattoo — Designs & Pain Guide',
+    answer: 'The sternum is genuinely one of the most painful tattoo placements — thin skin directly over bone with no muscle buffer, combined with vibration that resonates through the chest cavity. Most people rate it 7 to 8 out of 10. The pain is intense but manageable in shorter sessions. The placement rewards the commitment with some of the most striking tattoos possible.'
+  },
+  'spine-tattoos': {
+    title: 'Spine Tattoos — Pain, Placement & Design Guide',
+    h1: 'Spine Tattoos — Designs & Placement Guide',
+    answer: 'The spine tattoos run along one of the most sensitive columns in the body — the vertebrae sit close to the surface with minimal tissue buffer, and the needle vibration conducts directly through bone. Most describe it as 7 to 9 out of 10. The visual payoff is significant: vertical designs here have a natural flow that no other placement replicates.'
+  },
+  'neck-tattoos': {
+    title: 'Neck Tattoos — What to Know Before You Commit',
+    h1: 'Neck Tattoos — Designs, Pain Map & Ideas',
+    answer: 'Neck tattoos are considered a commitment tattoo — visible in almost every professional setting and difficult to conceal. The back of the neck is the most popular placement and the least painful. The sides of the neck are significantly more sensitive. The throat is the highest pain placement on the neck and the most visible. Understand the permanence before proceeding.'
+  },
+  'virgin-mary-tattoo': {
+    title: 'Virgin Mary Tattoo — Meaning & Symbolism',
+    h1: 'Virgin Mary Tattoo — Meaning, Designs & Symbolism',
+    answer: 'The Virgin Mary tattoo represents protection, maternal love, grace, and divine intercession. Rooted in Catholic and Latin American tradition, she appears as a guardian figure — the Mater Dolorosa who understands suffering, the Our Lady of Guadalupe who protects, and the Immaculate Conception who represents purity and hope.'
+  },
+};
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
   const subject = resolvedParams.slug
@@ -46,8 +124,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? primaryMeaning.substring(0, 80).trim() + '...' 
     : primaryMeaning;
 
+  const custom = CUSTOM_TITLES[resolvedParams.slug];
+  const title = custom?.title 
+    ? `${custom.title} | TattoosMap`
+    : `${subject} — Meaning, Symbolism & Designs | TattoosMap`;
+
   return {
-    title: `${subject} — Meaning, Symbolism & Designs | TattoosMap`,
+    title,
     description: meaningSnippet 
       ? `${subject}: ${meaningSnippet} Explore ${designCount} curated designs with pain maps and aging predictions.`
       : `What does a ${subject.toLowerCase()} mean? Explore ${designCount} curated designs with cultural context, placement guides, pain maps, and aging predictions.`,
@@ -55,7 +138,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical: `https://tattoosmap.com/meaning/${resolvedParams.slug}`,
     },
     openGraph: {
-      title: `${subject} — Meaning & Designs | TattoosMap`,
+      title,
       description: `The symbolism behind ${subject.toLowerCase()} — cultural origins and ${designCount} curated designs with pain maps and aging predictions.`,
     },
   };
@@ -80,6 +163,10 @@ export default async function MeaningPage({ params }: Props) {
   const meaning = primaryDesign?.meaning || '';
   const culturalOrigin = primaryDesign?.cultural_origin || '';
 
+  const custom = CUSTOM_TITLES[slug];
+  const displayH1 = custom?.h1 || `${subject} — Meaning, Symbolism & Designs`;
+  const directAnswer = custom?.answer || '';
+
   return (
     <main className="max-w-6xl mx-auto px-4 py-12">
       
@@ -91,8 +178,15 @@ export default async function MeaningPage({ params }: Props) {
           <span>{subject}</span>
         </p>
         <h1 className="font-display text-[32px] md:text-[48px] uppercase tracking-tight text-black mb-4">
-          {subject}
+          {displayH1}
         </h1>
+
+        {directAnswer && (
+          <p className="font-serif text-[18px] leading-[1.7] text-neutral-700 max-w-3xl mb-8 mt-4">
+            {directAnswer}
+          </p>
+        )}
+
         <p className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
           {designs.length} designs — Meaning & Symbolism
         </p>
