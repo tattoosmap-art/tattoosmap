@@ -23,6 +23,25 @@ SYSTEM DIRECTIVE & LOGIC GUARDRAILS:
    - Single needle precision + vast negative space = Fine Line.
    - Fine dots or peppered shading = Stippled / Whip-shaded Blackwork.
 6. SEO TITLE & SLUG GENERATION ("subject"): The "subject" MUST end with the explicit user intent modifier "Tattoo Design" (e.g., "Samurai Warrior Tattoo Design").
+   If the design is clearly in one of these specific 
+   tattoo styles, include the style name in the subject:
+   - American Traditional style → include "Traditional" 
+     in subject (e.g. "Traditional Swallow Tattoo Design")
+   - Neo-Traditional style → include "Neo-Traditional"
+     (e.g. "Neo-Traditional Rose Tattoo Design")  
+   - Japanese style → include "Japanese"
+     (e.g. "Japanese Dragon Tattoo Design")
+   - Blackwork style → include "Blackwork"
+     (e.g. "Blackwork Geometric Tattoo Design")
+   - Fine Line style → include "Fine Line"
+     (e.g. "Fine Line Butterfly Tattoo Design")
+   - Watercolor style → include "Watercolor"
+     (e.g. "Watercolor Lotus Tattoo Design")
+   - Realism style → include "Realism"
+     (e.g. "Realism Portrait Tattoo Design")
+
+   If the style is unclear or mixed keep the subject
+   without a style prefix.
 7. CATEGORIZATION GUARDRAILS ("public_category"): Do NOT use "pop-culture-characters" for generic historical figures, mythological creatures, or generic archetypes (e.g., Samurai, Knights, Dragons). Reserve "pop-culture-characters" strictly for licensed intellectual property (e.g., Batman, anime characters). If the design represents a historic, celestial, or mythological theme, classify it as "celestial-mystical" or "nature-botanical" accordingly.
 
 CRITICAL: Do NOT truncate the output. You MUST complete the entire JSON object through to the final closing brace, including all keys. Incomplete responses are unacceptable.
