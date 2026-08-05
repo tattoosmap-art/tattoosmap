@@ -111,6 +111,17 @@ export default function SEOStudio() {
 
             try {
                 const res = await fetch('/api/process-design', { method: 'POST', body: formData });
+                if (!res.ok) {
+                    const errText = await res.text();
+                    let errMsg = `Status ${res.status}`;
+                    try {
+                        const errJson = JSON.parse(errText);
+                        errMsg = errJson.error || errMsg;
+                    } catch {
+                        errMsg = errText.substring(0, 100);
+                    }
+                    throw new Error(errMsg);
+                }
                 const data = await res.json();
                 
                 setQueue(q => q.map(i => i.id === item.id ? {
@@ -133,6 +144,17 @@ export default function SEOStudio() {
 
         try {
             const res = await fetch('/api/shade-design', { method: 'POST', body: formData });
+            if (!res.ok) {
+                const errText = await res.text();
+                let errMsg = `Status ${res.status}`;
+                try {
+                    const errJson = JSON.parse(errText);
+                    errMsg = errJson.error || errMsg;
+                } catch {
+                    errMsg = errText.substring(0, 100);
+                }
+                throw new Error(errMsg);
+            }
             const data = await res.json();
             
             if (data.error) throw new Error(data.error);
@@ -157,6 +179,17 @@ export default function SEOStudio() {
 
         try {
             const res = await fetch('/api/process-design', { method: 'POST', body: formData });
+            if (!res.ok) {
+                const errText = await res.text();
+                let errMsg = `Status ${res.status}`;
+                try {
+                    const errJson = JSON.parse(errText);
+                    errMsg = errJson.error || errMsg;
+                } catch {
+                    errMsg = errText.substring(0, 100);
+                }
+                throw new Error(errMsg);
+            }
             const data = await res.json();
             
             if (data.error) throw new Error(data.error);
@@ -191,6 +224,17 @@ export default function SEOStudio() {
 
         try {
             const res = await fetch('/api/process-design', { method: 'POST', body: formData });
+            if (!res.ok) {
+                const errText = await res.text();
+                let errMsg = `Status ${res.status}`;
+                try {
+                    const errJson = JSON.parse(errText);
+                    errMsg = errJson.error || errMsg;
+                } catch {
+                    errMsg = errText.substring(0, 100);
+                }
+                throw new Error(errMsg);
+            }
             const data = await res.json();
             
             if (data.error) throw new Error(data.error);
