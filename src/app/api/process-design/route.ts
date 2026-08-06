@@ -22,26 +22,52 @@ SYSTEM DIRECTIVE & LOGIC GUARDRAILS:
    - Strictly black ink + stippling/dotwork = Blackwork / Illustrative.
    - Single needle precision + vast negative space = Fine Line.
    - Fine dots or peppered shading = Stippled / Whip-shaded Blackwork.
-6. SEO TITLE & SLUG GENERATION ("subject"): The "subject" MUST end with the explicit user intent modifier "Tattoo Design" (e.g., "Samurai Warrior Tattoo Design").
-   If the design is clearly in one of these specific 
-   tattoo styles, include the style name in the subject:
-   - American Traditional style → include "Traditional" 
-     in subject (e.g. "Traditional Swallow Tattoo Design")
-   - Neo-Traditional style → include "Neo-Traditional"
-     (e.g. "Neo-Traditional Rose Tattoo Design")  
-   - Japanese style → include "Japanese"
-     (e.g. "Japanese Dragon Tattoo Design")
-   - Blackwork style → include "Blackwork"
-     (e.g. "Blackwork Geometric Tattoo Design")
-   - Fine Line style → include "Fine Line"
-     (e.g. "Fine Line Butterfly Tattoo Design")
-   - Watercolor style → include "Watercolor"
-     (e.g. "Watercolor Lotus Tattoo Design")
-   - Realism style → include "Realism"
-     (e.g. "Realism Portrait Tattoo Design")
+ 6. SEO TITLE & SLUG GENERATION ("subject"): 
+    The "subject" MUST be a unique, highly descriptive 
+    title that captures the SPECIFIC visual elements of 
+    THIS design — not a generic category name.
 
-   If the style is unclear or mixed keep the subject
-   without a style prefix.
+    RULES:
+    → Describe the specific elements visible in the design
+       NOT just the main subject category
+    → Include style name if clearly identifiable
+       (Traditional, Neo-Traditional, Japanese, Fine Line,
+       Blackwork, Watercolor, Realism, Geometric)
+    → Must end with "Tattoo Design"
+    → Must be 4-8 words before "Tattoo Design"
+    → Must be unique enough that no other design
+       would have the same title
+
+    BAD EXAMPLES (too generic — never use these):
+    ✗ "Snake Tattoo Design"
+    ✗ "Dragon Tattoo Design"  
+    ✗ "Rose Tattoo Design"
+    ✗ "Skull Tattoo Design"
+    ✗ "Butterfly Tattoo Design"
+
+    GOOD EXAMPLES (specific and unique):
+    ✓ "Coiled Cobra with Floral Crown Tattoo Design"
+    ✓ "Japanese Dragon Ascending Through Storm Clouds Tattoo Design"
+    ✓ "Blackwork Geometric Rose with Thorns Tattoo Design"
+    ✓ "Fine Line Skull Surrounded by Moths Tattoo Design"
+    ✓ "Traditional Swallow Holding Golden Key Tattoo Design"
+    ✓ "Medusa Portrait with Snake Hair Fine Line Tattoo Design"
+    ✓ "Watercolor Butterfly Emerging from Cocoon Tattoo Design"
+    ✓ "Neo-Traditional Wolf Howling at Crescent Moon Tattoo Design"
+
+    The title should be specific enough that someone
+    reading it could visualise exactly what the design
+    looks like without seeing it.
+
+    If the style is clearly identifiable include it:
+    - American Traditional → "Traditional [description]"
+    - Neo-Traditional → "Neo-Traditional [description]"
+    - Japanese/Irezumi → "Japanese [description]"
+    - Blackwork → "Blackwork [description]"
+    - Fine Line → "Fine Line [description]"
+    - Watercolor → "Watercolor [description]"
+    - Realism → "Realism [description]"
+    - Geometric → "Geometric [description]"
 7. CATEGORIZATION GUARDRAILS ("public_category"): Do NOT use "pop-culture-characters" for generic historical figures, mythological creatures, or generic archetypes (e.g., Samurai, Knights, Dragons). Reserve "pop-culture-characters" strictly for licensed intellectual property (e.g., Batman, anime characters). If the design represents a historic, celestial, or mythological theme, classify it as "celestial-mystical" or "nature-botanical" accordingly.
 
 CRITICAL: Do NOT truncate the output. You MUST complete the entire JSON object through to the final closing brace, including all keys. Incomplete responses are unacceptable.
