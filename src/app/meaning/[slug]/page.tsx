@@ -9,26 +9,58 @@ interface Props {
 }
 
 async function getMeaningPageData(slug: string) {
-  const searchTerm = slug.replace(/-/g, ' ').replace(' tattoo', '').trim();
+  const searchTerm = slug.replace(/-/g, ' ').replace(' tattoo', '').replace(' tattoos', '').trim();
   const fullTerm = slug.replace(/-/g, ' ');
-  
+
+  // Strategy 1: Search by subject containing the core term
   const { data: designs1 } = await supabaseAnon
     .from('designs')
-    .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags')
+    .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags, style_tags')
     .eq('is_published', true)
     .ilike('subject', `%${searchTerm}%`)
     .limit(24);
 
-  if (designs1 && designs1.length > 0) return designs1;
+  if (designs1 && designs1.length >= 5) return designs1;
 
+  // Strategy 2: Search by style_tags array containing the term
   const { data: designs2 } = await supabaseAnon
     .from('designs')
-    .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags')
+    .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags, style_tags')
+    .eq('is_published', true)
+    .contains('style_tags', [searchTerm])
+    .limit(24);
+
+  if (designs2 && designs2.length >= 5) return designs2;
+
+  // Strategy 3: Search style_tags with full term
+  const { data: designs3 } = await supabaseAnon
+    .from('designs')
+    .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags, style_tags')
+    .eq('is_published', true)
+    .contains('style_tags', [fullTerm])
+    .limit(24);
+
+  if (designs3 && designs3.length >= 5) return designs3;
+
+  // Strategy 4: Combine results from subject AND style search
+  const subjectSlugs = new Set((designs1 || []).map((d: any) => d.slug));
+  const combined = [
+    ...(designs1 || []),
+    ...(designs2 || []).filter((d: any) => !subjectSlugs.has(d.slug)),
+    ...(designs3 || []).filter((d: any) => !subjectSlugs.has(d.slug)),
+  ];
+
+  if (combined.length > 0) return combined.slice(0, 24);
+
+  // Strategy 5: Fallback — search full slug term in subject
+  const { data: designs5 } = await supabaseAnon
+    .from('designs')
+    .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags, style_tags')
     .eq('is_published', true)
     .ilike('subject', `%${fullTerm}%`)
     .limit(24);
 
-  return designs2 || [];
+  return designs5 || [];
 }
 
 const CUSTOM_TITLES: Record<string, { title: string; h1: string; answer: string }> = {
