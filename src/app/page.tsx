@@ -483,7 +483,7 @@ export default async function LandingPage() {
               <li><Link href="/gallery" className="hover:text-white transition-colors">Gallery</Link></li>
               <li><Link href="/gallery" className="hover:text-white transition-colors">Meaning Search</Link></li>
               <li><Link href="/try-on" className="hover:text-white transition-colors">Try-On Studio</Link></li>
-              <li><Link href="/design-lab" className="hover:text-white transition-colors">Design Lab</Link></li>
+              <li><Link href="/ai-tattoo-generator" className="hover:text-white transition-colors">AI Tattoo Generator</Link></li>
             </ul>
           </div>
           <div>

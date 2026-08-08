@@ -9,12 +9,12 @@ export const metadata: Metadata = {
   title: "AI Tattoo Generator & Virtual Try-On Studio | TattoosMap",
   description: "Design custom tattoos instantly with the TattoosMap AI Tattoo Generator. Choose from Fine Line, Blackwork, or Traditional styles, and try them on your skin virtually.",
   alternates: {
-    canonical: "https://tattoosmap.com/design-lab",
+    canonical: "https://tattoosmap.com/ai-tattoo-generator",
   },
   openGraph: {
     title: "AI Tattoo Generator & Virtual Try-On Studio | TattoosMap",
     description: "Design custom tattoos instantly with the TattoosMap AI Tattoo Generator. Choose from Fine Line, Blackwork, or Traditional styles, and try them on your skin virtually.",
-    url: "https://tattoosmap.com/design-lab",
+    url: "https://tattoosmap.com/ai-tattoo-generator",
   }
 };
 
@@ -42,7 +42,7 @@ export default async function DesignLabPage() {
             "@context": "https://schema.org",
             "@type": "WebApplication",
             "name": "TattoosMap AI Tattoo Generator",
-            "url": "https://tattoosmap.com/design-lab",
+            "url": "https://tattoosmap.com/ai-tattoo-generator",
             "description": "Generate unique custom tattoo designs in various styles and try them on your skin virtually.",
             "applicationCategory": "DesignApplication",
             "operatingSystem": "All",

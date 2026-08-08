@@ -68,6 +68,20 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/design-lab',
+        destination: '/ai-tattoo-generator',
+        permanent: true,
+      },
+      {
+        source: '/ai-taattoo-generator',
+        destination: '/ai-tattoo-generator',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
