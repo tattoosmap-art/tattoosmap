@@ -224,23 +224,6 @@ export default async function MeaningPage({ params }: Props) {
         </p>
       </div>
 
-      {/* Meaning Section */}
-      {meaning && (
-        <div className="mb-12 max-w-3xl">
-          <h2 className="font-display text-[20px] uppercase tracking-tight text-black mb-4">
-            What {subject}s Mean
-          </h2>
-          <p className="font-serif text-[18px] leading-[1.7] text-black mb-4">
-            {meaning}
-          </p>
-          {culturalOrigin && (
-            <p className="font-serif text-[16px] leading-[1.7] text-neutral-600">
-              {culturalOrigin}
-            </p>
-          )}
-        </div>
-      )}
-
       {/* Design Grid */}
       <div className="mb-12">
         <h2 className="font-display text-[20px] uppercase tracking-tight text-black mb-6">
@@ -271,6 +254,23 @@ export default async function MeaningPage({ params }: Props) {
           ))}
         </div>
       </div>
+
+      {/* Meaning Section */}
+      {meaning && (
+        <div className="mb-12 max-w-3xl">
+          <h2 className="font-display text-[20px] uppercase tracking-tight text-black mb-4">
+            What {subject}s Mean
+          </h2>
+          <p className="font-serif text-[18px] leading-[1.7] text-black mb-4">
+            {meaning}
+          </p>
+          {culturalOrigin && (
+            <p className="font-serif text-[16px] leading-[1.7] text-neutral-600">
+              {culturalOrigin}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* FAQ Section */}
       <div className="mb-12 max-w-3xl">
