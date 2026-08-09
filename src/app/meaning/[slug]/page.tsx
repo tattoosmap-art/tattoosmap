@@ -9,10 +9,13 @@ interface Props {
 }
 
 async function getMeaningPageData(slug: string) {
-  const searchTerm = slug.replace(/-/g, ' ').replace(' tattoo', '').replace(' tattoos', '').trim();
+  // Keep hyphenated version for style_tags search
+  const hyphenatedTerm = slug.replace(/-tattoo$/, '').replace(/-tattoos$/, '');
+  // Space version for subject search
+  const searchTerm = hyphenatedTerm.replace(/-/g, ' ').trim();
   const fullTerm = slug.replace(/-/g, ' ');
 
-  // Strategy 1: Search by subject containing the core term
+  // Strategy 1: Search by subject containing space-separated term
   const { data: designs1 } = await supabaseAnon
     .from('designs')
     .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags, style_tags')
@@ -20,39 +23,41 @@ async function getMeaningPageData(slug: string) {
     .ilike('subject', `%${searchTerm}%`)
     .limit(24);
 
-  if (designs1 && designs1.length >= 5) return designs1;
+  if (designs1 && designs1.length >= 3) return designs1;
 
-  // Strategy 2: Search by style_tags array containing the term
+  // Strategy 2: Search style_tags with HYPHENATED term (key fix)
   const { data: designs2 } = await supabaseAnon
     .from('designs')
     .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags, style_tags')
     .eq('is_published', true)
-    .contains('style_tags', [searchTerm])
+    .contains('style_tags', [hyphenatedTerm])
     .limit(24);
 
-  if (designs2 && designs2.length >= 5) return designs2;
+  if (designs2 && designs2.length >= 3) return designs2;
 
-  // Strategy 3: Search style_tags with full term
+  // Strategy 3: Search style_tags with full hyphenated slug minus tattoo
   const { data: designs3 } = await supabaseAnon
     .from('designs')
     .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags, style_tags')
     .eq('is_published', true)
-    .contains('style_tags', [fullTerm])
+    .contains('style_tags', [slug.replace(/-tattoo$/, '').replace(/-tattoos$/, '')])
     .limit(24);
 
-  if (designs3 && designs3.length >= 5) return designs3;
+  if (designs3 && designs3.length >= 3) return designs3;
 
-  // Strategy 4: Combine results from subject AND style search
-  const subjectSlugs = new Set((designs1 || []).map((d: any) => d.slug));
-  const combined = [
-    ...(designs1 || []),
-    ...(designs2 || []).filter((d: any) => !subjectSlugs.has(d.slug)),
-    ...(designs3 || []).filter((d: any) => !subjectSlugs.has(d.slug)),
-  ];
+  // Strategy 4: Combine all results
+  const seen = new Set();
+  const combined = [];
+  for (const d of [...(designs1 || []), ...(designs2 || []), ...(designs3 || [])]) {
+    if (!seen.has(d.slug)) {
+      seen.add(d.slug);
+      combined.push(d);
+    }
+  }
 
   if (combined.length > 0) return combined.slice(0, 24);
 
-  // Strategy 5: Fallback — search full slug term in subject
+  // Strategy 5: Full slug term in subject
   const { data: designs5 } = await supabaseAnon
     .from('designs')
     .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags, style_tags')
