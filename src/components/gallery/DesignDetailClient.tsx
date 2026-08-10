@@ -492,59 +492,66 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                     <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-0 border border-neutral-200 bg-white overflow-hidden">
                         
                         {(() => {
-                            // Dynamic body part backdrop mapping
-                            const getDynamicBackdrop = (placements: string[]): string => {
+                            // Dynamic body part backdrop mapping with exact placement coordinates
+                            type PlacementConfig = {
+                                image: string;
+                                rotation: string;
+                                width: string;
+                                top: string;
+                                left: string;
+                            };
+
+                            const PLACEMENT_MAP: Record<string, PlacementConfig> = {
+                                forearm: { image: '/stock-bodies/forearm.jpg', rotation: '45deg', width: '35%', top: '55%', left: '45%' }, // Rotated 45deg to point to upper-right elbow
+                                wrist: { image: '/stock-bodies/wrist.jpg', rotation: '90deg', width: '35%', top: '50%', left: '60%' }, // Rotated 90deg to point to right elbow
+                                thigh: { image: '/stock-bodies/thigh.jpg', rotation: '0deg', width: '30%', top: '50%', left: '50%' },
+                                chest: { image: '/stock-bodies/chest.jpg', rotation: '0deg', width: '30%', top: '50%', left: '50%' }, // Defaulting to sternum center
+                                back: { image: '/stock-bodies/back.jpg', rotation: '0deg', width: '50%', top: '50%', left: '50%' }, // Defaulting to full back
+                                ribs: { image: '/stock-bodies/ribs.jpg', rotation: '0deg', width: '35%', top: '55%', left: '55%' },
+                                upper_arm: { image: '/stock-bodies/upper-arm.jpg', rotation: '0deg', width: '35%', top: '50%', left: '40%' },
+                                calf: { image: '/stock-bodies/calf.jpg', rotation: '0deg', width: '30%', top: '50%', left: '45%' },
+                                neck: { image: '/stock-bodies/neck.jpg', rotation: '0deg', width: '25%', top: '50%', left: '60%' },
+                                fallback: { image: '/stock-bodies/forearm.jpg', rotation: '45deg', width: '35%', top: '55%', left: '45%' },
+                            };
+
+                            const getPlacementConfig = (placements: string[]): PlacementConfig => {
                                 const p = (placements?.[0] || '').toLowerCase();
-                                if (p.includes('forearm')) return '/stock-bodies/forearm.jpg';
-                                if (p.includes('upper arm') || p.includes('bicep') || p.includes('tricep')) return '/stock-bodies/upper-arm.jpg';
-                                if (p.includes('chest') || p.includes('sternum')) return '/stock-bodies/chest.jpg';
-                                if (p.includes('back')) return '/stock-bodies/back.jpg';
-                                if (p.includes('thigh')) return '/stock-bodies/thigh.jpg';
-                                if (p.includes('calf')) return '/stock-bodies/calf.jpg';
-                                if (p.includes('rib')) return '/stock-bodies/ribs.jpg';
-                                if (p.includes('wrist')) return '/stock-bodies/wrist.jpg';
-                                if (p.includes('neck')) return '/stock-bodies/neck.jpg';
-                                return '/stock-bodies/forearm.jpg'; // fallback
+                                if (p.includes('forearm')) return PLACEMENT_MAP.forearm;
+                                if (p.includes('upper arm') || p.includes('bicep') || p.includes('tricep')) return PLACEMENT_MAP.upper_arm;
+                                if (p.includes('chest') || p.includes('sternum')) return PLACEMENT_MAP.chest;
+                                if (p.includes('back')) return PLACEMENT_MAP.back;
+                                if (p.includes('thigh')) return PLACEMENT_MAP.thigh;
+                                if (p.includes('calf')) return PLACEMENT_MAP.calf;
+                                if (p.includes('rib')) return PLACEMENT_MAP.ribs;
+                                if (p.includes('wrist')) return PLACEMENT_MAP.wrist;
+                                if (p.includes('neck')) return PLACEMENT_MAP.neck;
+                                return PLACEMENT_MAP.fallback;
                             };
 
-                            const getPlacementTransform = (placements: string[]): string => {
-                                const part = (placements?.[0] || '').toLowerCase();
-                                if (part.includes('forearm'))    return 'rotate(-30deg)';
-                                if (part.includes('upper arm') || part.includes('bicep') || part.includes('tricep')) return 'rotate(-20deg)';
-                                if (part.includes('calf'))       return 'rotate(-15deg)';
-                                if (part.includes('thigh'))      return 'rotate(-10deg)';
-                                if (part.includes('rib'))        return 'rotate(-5deg) scaleX(0.92)';
-                                if (part.includes('wrist'))      return 'rotate(-25deg)';
-                                if (part.includes('neck'))       return 'rotate(5deg)';
-                                return 'rotate(0deg)';
-                            };
-
-                            const getPlacementSize = (placements: string[]): string => {
-                                const part = (placements?.[0] || '').toLowerCase();
-                                if (part.includes('forearm') || part.includes('wrist')) return 'max-w-[45%] max-h-[75%]';
-                                if (part.includes('calf') || part.includes('upper arm')) return 'max-w-[50%] max-h-[75%]';
-                                if (part.includes('chest') || part.includes('sternum') || part.includes('back')) return 'max-w-[70%] max-h-[70%]';
-                                if (part.includes('thigh')) return 'max-w-[60%] max-h-[70%]';
-                                return 'max-w-[55%] max-h-[70%]';
-                            };
-
-                            const skinBackdrop = getDynamicBackdrop(placementRecs);
-                            const placementTransform = getPlacementTransform(placementRecs);
-                            const placementSize = getPlacementSize(placementRecs);
+                            const config = getPlacementConfig(placementRecs);
 
                             return (
                                 <>
                                     {/* Day One: Fresh Application On Skin */}
                                     <div className="relative overflow-hidden group h-[380px] sm:h-[350px] md:h-[500px] bg-neutral-100 isolation-auto">
                                         <Image
-                                            src={skinBackdrop}
+                                            src={config.image}
                                             alt="Anatomical skin placement context"
                                             fill
                                             className="object-cover contrast-[1.05]"
                                             sizes="50vw"
                                         />
-                                        <div className="absolute inset-0 flex items-center justify-center p-8 mix-blend-multiply">
-                                            <div className={`relative w-full h-full mx-auto ${placementSize}`} style={{ transform: placementTransform }}>
+                                        <div className="absolute inset-0 mix-blend-multiply">
+                                            <div 
+                                                className="absolute transition-all duration-500" 
+                                                style={{ 
+                                                    width: config.width,
+                                                    height: config.width, // Square bounding box for object-contain
+                                                    top: config.top, 
+                                                    left: config.left, 
+                                                    transform: `translate(-50%, -50%) rotate(${config.rotation})` 
+                                                }}
+                                            >
                                                 <Image
                                                     src={design.image_url}
                                                     alt={design.alt_text || design.subject || "Fresh tattoo overlay rendering"}
@@ -577,14 +584,23 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                     {/* 5 Years +: Healed & Settled On Skin */}
                                     <div className="relative overflow-hidden group border-t sm:border-t-0 sm:border-l border-neutral-200 h-[380px] sm:h-[350px] md:h-[500px] bg-neutral-100 isolation-auto">
                                         <Image
-                                            src={skinBackdrop}
+                                            src={config.image}
                                             alt="Anatomical skin aging context"
                                             fill
                                             className="object-cover grayscale-[15%] brightness-90 contrast-[0.95]"
                                             sizes="50vw"
                                         />
-                                        <div className="absolute inset-0 flex items-center justify-center p-8 mix-blend-multiply">
-                                            <div className={`relative w-full h-full mx-auto ${placementSize}`} style={{ transform: placementTransform }}>
+                                        <div className="absolute inset-0 mix-blend-multiply">
+                                            <div 
+                                                className="absolute transition-all duration-500" 
+                                                style={{ 
+                                                    width: config.width,
+                                                    height: config.width, 
+                                                    top: config.top, 
+                                                    left: config.left, 
+                                                    transform: `translate(-50%, -50%) rotate(${config.rotation})` 
+                                                }}
+                                            >
                                                 <Image
                                                     src={design.image_url}
                                                     alt={design.alt_text || design.subject || "Healed tattoo simulation overlay"}
