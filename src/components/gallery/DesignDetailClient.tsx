@@ -492,13 +492,50 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                     <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-0 border border-neutral-200 bg-white overflow-hidden">
                         
                         {(() => {
-                            // Force browser CSS blends with flat skin texture to prevent body photo overflow issues
+                            // Determine if we have high-fidelity AI generated composite assets or if we fallback to browser CSS blends
+                            // Force false to use our new dynamic body simulator fallback
                             const hasFreshComposite = false;
                             const hasHealedComposite = false;
                             
-                            // Use flat skin texture — more reliable than body part photos
-                            // Body part photos cause overflow and wrong placement issues
-                            const skinBackdrop = "/stock-skin.png";
+                            // Dynamic body part backdrop mapping
+                            const getDynamicBackdrop = (placements: string[]): string => {
+                                const p = (placements?.[0] || '').toLowerCase();
+                                if (p.includes('forearm')) return '/stock-bodies/forearm.jpg';
+                                if (p.includes('upper arm') || p.includes('bicep') || p.includes('tricep')) return '/stock-bodies/upper-arm.jpg';
+                                if (p.includes('chest') || p.includes('sternum')) return '/stock-bodies/chest.jpg';
+                                if (p.includes('back')) return '/stock-bodies/back.jpg';
+                                if (p.includes('thigh')) return '/stock-bodies/thigh.jpg';
+                                if (p.includes('calf')) return '/stock-bodies/calf.jpg';
+                                if (p.includes('rib')) return '/stock-bodies/ribs.jpg';
+                                if (p.includes('wrist')) return '/stock-bodies/wrist.jpg';
+                                if (p.includes('neck')) return '/stock-bodies/neck.jpg';
+                                return '/stock-bodies/forearm.jpg'; // fallback
+                            };
+
+                            const getPlacementTransform = (placements: string[]): string => {
+                                const part = (placements?.[0] || '').toLowerCase();
+                                if (part.includes('forearm'))    return 'rotate(-30deg)';
+                                if (part.includes('upper arm') || part.includes('bicep') || part.includes('tricep')) return 'rotate(-20deg)';
+                                if (part.includes('calf'))       return 'rotate(-15deg)';
+                                if (part.includes('thigh'))      return 'rotate(-10deg)';
+                                if (part.includes('rib'))        return 'rotate(-5deg) scaleX(0.92)';
+                                if (part.includes('wrist'))      return 'rotate(-25deg)';
+                                if (part.includes('neck'))       return 'rotate(5deg)';
+                                return 'rotate(0deg)';
+                            };
+
+                            const getPlacementSize = (placements: string[]): string => {
+                                const part = (placements?.[0] || '').toLowerCase();
+                                if (part.includes('forearm') || part.includes('wrist')) return 'max-w-[45%] max-h-[75%]';
+                                if (part.includes('calf') || part.includes('upper arm')) return 'max-w-[50%] max-h-[75%]';
+                                if (part.includes('chest') || part.includes('sternum') || part.includes('back')) return 'max-w-[70%] max-h-[70%]';
+                                if (part.includes('thigh')) return 'max-w-[60%] max-h-[70%]';
+                                return 'max-w-[55%] max-h-[70%]';
+                            };
+
+                            const skinBackdrop = getDynamicBackdrop(placementRecs);
+                            const placementTransform = getPlacementTransform(placementRecs);
+                            const placementSize = getPlacementSize(placementRecs);
 
                             return (
                                 <>
@@ -525,7 +562,7 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                                     sizes="50vw"
                                                 />
                                                 <div className="absolute inset-0 flex items-center justify-center p-8 mix-blend-multiply">
-                                                    <div className="relative w-full h-full max-w-[70%] max-h-[70%] mx-auto">
+                                                    <div className={`relative w-full h-full mx-auto ${placementSize}`} style={{ transform: placementTransform }}>
                                                         <Image
                                                             src={design.image_url}
                                                             alt={design.alt_text || design.subject || "Fresh tattoo overlay rendering"}
@@ -579,7 +616,7 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                                     sizes="50vw"
                                                 />
                                                 <div className="absolute inset-0 flex items-center justify-center p-8 mix-blend-multiply">
-                                                    <div className="relative w-full h-full max-w-[70%] max-h-[70%] mx-auto">
+                                                    <div className={`relative w-full h-full mx-auto ${placementSize}`} style={{ transform: placementTransform }}>
                                                         <Image
                                                             src={design.image_url}
                                                             alt={design.alt_text || design.subject || "Healed tattoo simulation overlay"}
