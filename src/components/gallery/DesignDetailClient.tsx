@@ -584,9 +584,8 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                                             src={design.image_url}
                                                             alt={design.alt_text || design.subject || "Healed tattoo simulation overlay"}
                                                             fill
-                                                            className="object-contain transition-all duration-1000 mix-blend-multiply blur-[0.8px] brightness-75 contrast-125 group-hover:blur-none group-hover:opacity-90"
+                                                            className="object-contain transition-all duration-1000 mix-blend-multiply blur-[0.8px] brightness-[1.25] contrast-[0.7] group-hover:blur-none group-hover:brightness-[0.9] group-hover:contrast-[1.5]"
                                                             sizes="40vw"
-                                                            style={{ opacity: 0.6 }}
                                                         />
                                                     </div>
                                                 </div>
