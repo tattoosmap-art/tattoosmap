@@ -502,16 +502,16 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                             };
 
                             const PLACEMENT_MAP: Record<string, PlacementConfig> = {
-                                forearm: { image: '/stock-bodies/forearm.jpg', rotation: '45deg', sizeClass: 'max-w-[28%] max-h-[55%]', top: '42%', left: '55%' }, // Adjusted to perfectly fit within the red forearm section
-                                wrist: { image: '/stock-bodies/wrist.jpg', rotation: '90deg', sizeClass: 'max-w-[18%] max-h-[35%]', top: '50%', left: '50%' }, // Smaller, constrained to the wrist bounds
-                                thigh: { image: '/stock-bodies/thigh.jpg', rotation: '0deg', sizeClass: 'max-w-[35%] max-h-[60%]', top: '50%', left: '50%' },
-                                chest: { image: '/stock-bodies/chest.jpg', rotation: '0deg', sizeClass: 'max-w-[30%] max-h-[45%]', top: '45%', left: '50%' },
-                                back: { image: '/stock-bodies/back.jpg', rotation: '0deg', sizeClass: 'max-w-[35%] max-h-[55%]', top: '45%', left: '50%' }, // Conservative bounds to fit medium back placement
-                                ribs: { image: '/stock-bodies/ribs.jpg', rotation: '0deg', sizeClass: 'max-w-[28%] max-h-[55%]', top: '50%', left: '50%' },
-                                upper_arm: { image: '/stock-bodies/upper-arm.jpg', rotation: '0deg', sizeClass: 'max-w-[28%] max-h-[55%]', top: '45%', left: '50%' },
-                                calf: { image: '/stock-bodies/calf.jpg', rotation: '0deg', sizeClass: 'max-w-[28%] max-h-[55%]', top: '50%', left: '50%' },
-                                neck: { image: '/stock-bodies/neck.jpg', rotation: '0deg', sizeClass: 'max-w-[20%] max-h-[30%]', top: '50%', left: '50%' },
-                                fallback: { image: '/stock-bodies/forearm.jpg', rotation: '45deg', sizeClass: 'max-w-[28%] max-h-[55%]', top: '42%', left: '55%' },
+                                forearm: { image: '/stock-bodies/forearm.jpg', rotation: '45deg', sizeClass: 'max-w-[32%] max-h-[60%]', top: '42%', left: '55%' },
+                                wrist: { image: '/stock-bodies/wrist.jpg', rotation: '90deg', sizeClass: 'max-w-[22%] max-h-[40%]', top: '50%', left: '50%' },
+                                thigh: { image: '/stock-bodies/thigh.jpg', rotation: '0deg', sizeClass: 'max-w-[40%] max-h-[65%]', top: '50%', left: '50%' },
+                                chest: { image: '/stock-bodies/chest.jpg', rotation: '0deg', sizeClass: 'max-w-[35%] max-h-[50%]', top: '45%', left: '50%' },
+                                back: { image: '/stock-bodies/back.jpg', rotation: '0deg', sizeClass: 'max-w-[40%] max-h-[60%]', top: '45%', left: '50%' },
+                                ribs: { image: '/stock-bodies/ribs.jpg', rotation: '0deg', sizeClass: 'max-w-[32%] max-h-[60%]', top: '50%', left: '50%' },
+                                upper_arm: { image: '/stock-bodies/upper-arm.jpg', rotation: '0deg', sizeClass: 'max-w-[32%] max-h-[60%]', top: '45%', left: '50%' },
+                                calf: { image: '/stock-bodies/calf.jpg', rotation: '0deg', sizeClass: 'max-w-[32%] max-h-[60%]', top: '50%', left: '50%' },
+                                neck: { image: '/stock-bodies/neck.jpg', rotation: '0deg', sizeClass: 'max-w-[22%] max-h-[35%]', top: '50%', left: '50%' },
+                                fallback: { image: '/stock-bodies/forearm.jpg', rotation: '45deg', sizeClass: 'max-w-[32%] max-h-[60%]', top: '42%', left: '55%' },
                             };
 
                             const getPlacementConfig = (placements: string[]): PlacementConfig => {
@@ -556,10 +556,7 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                                     fill
                                                     className="object-contain transition-all duration-700 mix-blend-multiply contrast-[1.3] brightness-[1.0]"
                                                     sizes="40vw"
-                                                    style={{
-                                                        filter: "drop-shadow(0 0 0.5px rgba(185, 28, 28, 0.3))", // Micro swelling
-                                                        opacity: 0.95
-                                                    }}
+                                                    style={{ opacity: 0.95 }}
                                                 />
                                             </div>
                                         </div>
@@ -601,7 +598,7 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                                     src={design.image_url}
                                                     alt={design.alt_text || design.subject || "Healed tattoo simulation overlay"}
                                                     fill
-                                                    className="object-contain transition-all duration-1000 mix-blend-multiply blur-[0.8px] brightness-[1.60] contrast-[0.30] group-hover:blur-none group-hover:brightness-[1.0] group-hover:contrast-[1.3]"
+                                                    className="object-contain transition-all duration-1000 mix-blend-multiply blur-[0.8px] opacity-45 group-hover:blur-none group-hover:opacity-100"
                                                     sizes="40vw"
                                                 />
                                             </div>
