@@ -530,11 +530,11 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                                             src={design.image_url}
                                                             alt={design.alt_text || design.subject || "Fresh tattoo overlay rendering"}
                                                             fill
-                                                            className="object-contain transition-all duration-700 mix-blend-multiply contrast-150 brightness-90"
+                                                            className="object-contain transition-all duration-700 mix-blend-multiply contrast-[1.3] brightness-[1.0]"
                                                             sizes="40vw"
                                                             style={{
                                                                 filter: "drop-shadow(0 0 0.5px rgba(185, 28, 28, 0.3))", // Micro swelling
-                                                                opacity: 0.9
+                                                                opacity: 0.95
                                                             }}
                                                         />
                                                     </div>
@@ -584,7 +584,7 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                                             src={design.image_url}
                                                             alt={design.alt_text || design.subject || "Healed tattoo simulation overlay"}
                                                             fill
-                                                            className="object-contain transition-all duration-1000 mix-blend-multiply blur-[0.8px] brightness-[1.25] contrast-[0.7] group-hover:blur-none group-hover:brightness-[0.9] group-hover:contrast-[1.5]"
+                                                            className="object-contain transition-all duration-1000 mix-blend-multiply blur-[0.8px] brightness-[1.60] contrast-[0.30] group-hover:blur-none group-hover:brightness-[1.0] group-hover:contrast-[1.3]"
                                                             sizes="40vw"
                                                         />
                                                     </div>
