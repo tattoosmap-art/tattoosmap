@@ -496,7 +496,28 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                             const hasFreshComposite = design.image_fresh_url && design.image_fresh_url !== design.image_url;
                             const hasHealedComposite = design.image_healed_url && design.image_healed_url !== design.image_url;
                             
-                            const skinBackdrop = "/stock-skin.png";
+                            const getDynamicBackdrop = (placements: string[]): string => {
+                              const part = (placements?.[0] || '').toLowerCase();
+                              if (part.includes('chest') || part.includes('sternum') || part.includes('pec')) 
+                                return '/stock-bodies/chest.jpg';
+                              if (part.includes('back') || part.includes('spine') || part.includes('shoulder blade')) 
+                                return '/stock-bodies/back.jpg';
+                              if (part.includes('thigh') || part.includes('hip')) 
+                                return '/stock-bodies/thigh.jpg';
+                              if (part.includes('calf') || part.includes('ankle') || part.includes('leg')) 
+                                return '/stock-bodies/calf.jpg';
+                              if (part.includes('wrist') || part.includes('hand') || part.includes('finger')) 
+                                return '/stock-bodies/wrist.jpg';
+                              if (part.includes('neck') || part.includes('behind ear')) 
+                                return '/stock-bodies/neck.jpg';
+                              if (part.includes('rib') || part.includes('side')) 
+                                return '/stock-bodies/ribs.jpg';
+                              if (part.includes('upper arm') || part.includes('bicep') || part.includes('shoulder')) 
+                                return '/stock-bodies/upper-arm.jpg';
+                              return '/stock-skin.png'; // default forearm
+                            };
+
+                            const skinBackdrop = getDynamicBackdrop(design.placement_recommendations || []);
 
                             return (
                                 <>
