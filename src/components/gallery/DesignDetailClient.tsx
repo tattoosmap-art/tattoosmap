@@ -492,11 +492,6 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                     <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-0 border border-neutral-200 bg-white overflow-hidden">
                         
                         {(() => {
-                            // Determine if we have high-fidelity AI generated composite assets or if we fallback to browser CSS blends
-                            // Force false to use our new dynamic body simulator fallback
-                            const hasFreshComposite = false;
-                            const hasHealedComposite = false;
-                            
                             // Dynamic body part backdrop mapping
                             const getDynamicBackdrop = (placements: string[]): string => {
                                 const p = (placements?.[0] || '').toLowerCase();
@@ -541,43 +536,28 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                 <>
                                     {/* Day One: Fresh Application On Skin */}
                                     <div className="relative overflow-hidden group h-[380px] sm:h-[350px] md:h-[500px] bg-neutral-100 isolation-auto">
-                                        {hasFreshComposite ? (
-                                            // PRE-RENDERED HYPER-REALISTIC COMPOSITE (FULL-BLEED API OUTPUT)
-                                            <Image
-                                                src={design.image_fresh_url!}
-                                                alt="High-fidelity fresh tattoo application composite"
-                                                fill
-                                                className="object-cover transition-all duration-700"
-                                                sizes="50vw"
-                                                priority
-                                            />
-                                        ) : (
-                                            // BROWSER CSS FALLBACK ENGINE (FOR RAW DESIGNS)
-                                            <>
+                                        <Image
+                                            src={skinBackdrop}
+                                            alt="Anatomical skin placement context"
+                                            fill
+                                            className="object-cover contrast-[1.05]"
+                                            sizes="50vw"
+                                        />
+                                        <div className="absolute inset-0 flex items-center justify-center p-8 mix-blend-multiply">
+                                            <div className={`relative w-full h-full mx-auto ${placementSize}`} style={{ transform: placementTransform }}>
                                                 <Image
-                                                    src={skinBackdrop}
-                                                    alt="Anatomical skin placement context"
+                                                    src={design.image_url}
+                                                    alt={design.alt_text || design.subject || "Fresh tattoo overlay rendering"}
                                                     fill
-                                                    className="object-cover contrast-[1.05]"
-                                                    sizes="50vw"
+                                                    className="object-contain transition-all duration-700 mix-blend-multiply contrast-[1.3] brightness-[1.0]"
+                                                    sizes="40vw"
+                                                    style={{
+                                                        filter: "drop-shadow(0 0 0.5px rgba(185, 28, 28, 0.3))", // Micro swelling
+                                                        opacity: 0.95
+                                                    }}
                                                 />
-                                                <div className="absolute inset-0 flex items-center justify-center p-8 mix-blend-multiply">
-                                                    <div className={`relative w-full h-full mx-auto ${placementSize}`} style={{ transform: placementTransform }}>
-                                                        <Image
-                                                            src={design.image_url}
-                                                            alt={design.alt_text || design.subject || "Fresh tattoo overlay rendering"}
-                                                            fill
-                                                            className="object-contain transition-all duration-700 mix-blend-multiply contrast-[1.3] brightness-[1.0]"
-                                                            sizes="40vw"
-                                                            style={{
-                                                                filter: "drop-shadow(0 0 0.5px rgba(185, 28, 28, 0.3))", // Micro swelling
-                                                                opacity: 0.95
-                                                            }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </>
-                                        )}
+                                            </div>
+                                        </div>
 
                                         {/* Labels */}
                                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3 md:p-6 pt-10 md:pt-16 z-20 pointer-events-none">
@@ -596,39 +576,25 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
 
                                     {/* 5 Years +: Healed & Settled On Skin */}
                                     <div className="relative overflow-hidden group border-t sm:border-t-0 sm:border-l border-neutral-200 h-[380px] sm:h-[350px] md:h-[500px] bg-neutral-100 isolation-auto">
-                                        {hasHealedComposite ? (
-                                            // PRE-RENDERED HYPER-REALISTIC AGED COMPOSITE (FULL-BLEED API OUTPUT)
-                                            <Image
-                                                src={design.image_healed_url!}
-                                                alt="High-fidelity 5-year healed tattoo simulation composite"
-                                                fill
-                                                className="object-cover transition-all duration-1000 group-hover:scale-105"
-                                                sizes="50vw"
-                                            />
-                                        ) : (
-                                            // BROWSER CSS FALLBACK ENGINE (FOR RAW DESIGNS)
-                                            <>
+                                        <Image
+                                            src={skinBackdrop}
+                                            alt="Anatomical skin aging context"
+                                            fill
+                                            className="object-cover grayscale-[15%] brightness-90 contrast-[0.95]"
+                                            sizes="50vw"
+                                        />
+                                        <div className="absolute inset-0 flex items-center justify-center p-8 mix-blend-multiply">
+                                            <div className={`relative w-full h-full mx-auto ${placementSize}`} style={{ transform: placementTransform }}>
                                                 <Image
-                                                    src={skinBackdrop}
-                                                    alt="Anatomical skin aging context"
+                                                    src={design.image_url}
+                                                    alt={design.alt_text || design.subject || "Healed tattoo simulation overlay"}
                                                     fill
-                                                    className="object-cover grayscale-[15%] brightness-90 contrast-[0.95]"
-                                                    sizes="50vw"
+                                                    className="object-contain transition-all duration-1000 mix-blend-multiply blur-[0.8px] brightness-[1.60] contrast-[0.30] group-hover:blur-none group-hover:brightness-[1.0] group-hover:contrast-[1.3]"
+                                                    sizes="40vw"
                                                 />
-                                                <div className="absolute inset-0 flex items-center justify-center p-8 mix-blend-multiply">
-                                                    <div className={`relative w-full h-full mx-auto ${placementSize}`} style={{ transform: placementTransform }}>
-                                                        <Image
-                                                            src={design.image_url}
-                                                            alt={design.alt_text || design.subject || "Healed tattoo simulation overlay"}
-                                                            fill
-                                                            className="object-contain transition-all duration-1000 mix-blend-multiply blur-[0.8px] brightness-[1.60] contrast-[0.30] group-hover:blur-none group-hover:brightness-[1.0] group-hover:contrast-[1.3]"
-                                                            sizes="40vw"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="absolute inset-0 bg-amber-950/5 opacity-10 mix-blend-overlay pointer-events-none z-20" />
-                                            </>
-                                        )}
+                                            </div>
+                                        </div>
+                                        <div className="absolute inset-0 bg-amber-950/5 opacity-10 mix-blend-overlay pointer-events-none z-20" />
 
                                         {/* Labels */}
                                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3 md:p-6 pt-10 md:pt-16 z-20 pointer-events-none">
