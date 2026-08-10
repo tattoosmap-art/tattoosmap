@@ -496,22 +496,22 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                             type PlacementConfig = {
                                 image: string;
                                 rotation: string;
-                                width: string;
+                                sizeClass: string;
                                 top: string;
                                 left: string;
                             };
 
                             const PLACEMENT_MAP: Record<string, PlacementConfig> = {
-                                forearm: { image: '/stock-bodies/forearm.jpg', rotation: '45deg', width: '35%', top: '55%', left: '45%' }, // Rotated 45deg to point to upper-right elbow
-                                wrist: { image: '/stock-bodies/wrist.jpg', rotation: '90deg', width: '35%', top: '50%', left: '60%' }, // Rotated 90deg to point to right elbow
-                                thigh: { image: '/stock-bodies/thigh.jpg', rotation: '0deg', width: '30%', top: '50%', left: '50%' },
-                                chest: { image: '/stock-bodies/chest.jpg', rotation: '0deg', width: '30%', top: '50%', left: '50%' }, // Defaulting to sternum center
-                                back: { image: '/stock-bodies/back.jpg', rotation: '0deg', width: '50%', top: '50%', left: '50%' }, // Defaulting to full back
-                                ribs: { image: '/stock-bodies/ribs.jpg', rotation: '0deg', width: '35%', top: '55%', left: '55%' },
-                                upper_arm: { image: '/stock-bodies/upper-arm.jpg', rotation: '0deg', width: '35%', top: '50%', left: '40%' },
-                                calf: { image: '/stock-bodies/calf.jpg', rotation: '0deg', width: '30%', top: '50%', left: '45%' },
-                                neck: { image: '/stock-bodies/neck.jpg', rotation: '0deg', width: '25%', top: '50%', left: '60%' },
-                                fallback: { image: '/stock-bodies/forearm.jpg', rotation: '45deg', width: '35%', top: '55%', left: '45%' },
+                                forearm: { image: '/stock-bodies/forearm.jpg', rotation: '45deg', sizeClass: 'max-w-[45%] max-h-[75%]', top: '42%', left: '55%' }, // Centered on the upper-right fleshy part of the arm
+                                wrist: { image: '/stock-bodies/wrist.jpg', rotation: '90deg', sizeClass: 'max-w-[45%] max-h-[75%]', top: '50%', left: '50%' },
+                                thigh: { image: '/stock-bodies/thigh.jpg', rotation: '0deg', sizeClass: 'max-w-[60%] max-h-[70%]', top: '50%', left: '50%' },
+                                chest: { image: '/stock-bodies/chest.jpg', rotation: '0deg', sizeClass: 'max-w-[70%] max-h-[70%]', top: '45%', left: '50%' },
+                                back: { image: '/stock-bodies/back.jpg', rotation: '0deg', sizeClass: 'max-w-[70%] max-h-[70%]', top: '45%', left: '50%' },
+                                ribs: { image: '/stock-bodies/ribs.jpg', rotation: '0deg', sizeClass: 'max-w-[55%] max-h-[70%]', top: '50%', left: '50%' },
+                                upper_arm: { image: '/stock-bodies/upper-arm.jpg', rotation: '0deg', sizeClass: 'max-w-[50%] max-h-[75%]', top: '45%', left: '50%' },
+                                calf: { image: '/stock-bodies/calf.jpg', rotation: '0deg', sizeClass: 'max-w-[50%] max-h-[75%]', top: '50%', left: '50%' },
+                                neck: { image: '/stock-bodies/neck.jpg', rotation: '0deg', sizeClass: 'max-w-[45%] max-h-[45%]', top: '50%', left: '50%' },
+                                fallback: { image: '/stock-bodies/forearm.jpg', rotation: '45deg', sizeClass: 'max-w-[45%] max-h-[75%]', top: '42%', left: '55%' },
                             };
 
                             const getPlacementConfig = (placements: string[]): PlacementConfig => {
@@ -543,10 +543,8 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                         />
                                         <div className="absolute inset-0 mix-blend-multiply">
                                             <div 
-                                                className="absolute transition-all duration-500" 
+                                                className={`absolute transition-all duration-500 w-full h-full ${config.sizeClass}`} 
                                                 style={{ 
-                                                    width: config.width,
-                                                    height: config.width, // Square bounding box for object-contain
                                                     top: config.top, 
                                                     left: config.left, 
                                                     transform: `translate(-50%, -50%) rotate(${config.rotation})` 
@@ -592,10 +590,8 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                         />
                                         <div className="absolute inset-0 mix-blend-multiply">
                                             <div 
-                                                className="absolute transition-all duration-500" 
+                                                className={`absolute transition-all duration-500 w-full h-full ${config.sizeClass}`} 
                                                 style={{ 
-                                                    width: config.width,
-                                                    height: config.width, 
                                                     top: config.top, 
                                                     left: config.left, 
                                                     transform: `translate(-50%, -50%) rotate(${config.rotation})` 
