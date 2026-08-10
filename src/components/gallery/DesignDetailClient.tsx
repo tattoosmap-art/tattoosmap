@@ -496,9 +496,30 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                             const hasFreshComposite = false;
                             const hasHealedComposite = false;
                             
-                            // Use flat skin texture — more reliable than body part photos
-                            // Body part photos cause overflow and wrong placement issues
-                            const skinBackdrop = "/stock-skin.png";
+                            const getDynamicBackdrop = (placements: string[]): string => {
+                              const part = (placements?.[0] || '').toLowerCase();
+                              if (part.includes('chest') || part.includes('sternum') || part.includes('pec')) 
+                                return '/stock-bodies/chest.jpg';
+                              if (part.includes('back') || part.includes('spine') || part.includes('shoulder blade')) 
+                                return '/stock-bodies/back.jpg';
+                              if (part.includes('thigh') || part.includes('hip')) 
+                                return '/stock-bodies/thigh.jpg';
+                              if (part.includes('calf') || part.includes('ankle') || part.includes('leg') || part.includes('shin')) 
+                                return '/stock-bodies/calf.jpg';
+                              if (part.includes('wrist') || part.includes('hand') || part.includes('finger')) 
+                                return '/stock-bodies/wrist.jpg';
+                              if (part.includes('neck') || part.includes('behind ear') || part.includes('ear')) 
+                                return '/stock-bodies/neck.jpg';
+                              if (part.includes('rib') || part.includes('side')) 
+                                return '/stock-bodies/ribs.jpg';
+                              if (part.includes('forearm')) 
+                                return '/stock-bodies/forearm.jpg';
+                              if (part.includes('upper arm') || part.includes('bicep') || part.includes('shoulder') || part.includes('tricep') || part.includes('arm')) 
+                                return '/stock-bodies/upper-arm.jpg';
+                              return '/stock-bodies/forearm.jpg'; // default forearm photo
+                            };
+
+                            const skinBackdrop = getDynamicBackdrop(design.placement_recommendations || []);
 
                             return (
                                 <>
