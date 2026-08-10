@@ -496,28 +496,9 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                             const hasFreshComposite = design.image_fresh_url && design.image_fresh_url !== design.image_url;
                             const hasHealedComposite = design.image_healed_url && design.image_healed_url !== design.image_url;
                             
-                            const getDynamicBackdrop = (placements: string[]): string => {
-                              const part = (placements?.[0] || '').toLowerCase();
-                              if (part.includes('chest') || part.includes('sternum') || part.includes('pec')) 
-                                return '/stock-bodies/chest.jpg';
-                              if (part.includes('back') || part.includes('spine') || part.includes('shoulder blade')) 
-                                return '/stock-bodies/back.jpg';
-                              if (part.includes('thigh') || part.includes('hip')) 
-                                return '/stock-bodies/thigh.jpg';
-                              if (part.includes('calf') || part.includes('ankle') || part.includes('leg')) 
-                                return '/stock-bodies/calf.jpg';
-                              if (part.includes('wrist') || part.includes('hand') || part.includes('finger')) 
-                                return '/stock-bodies/wrist.jpg';
-                              if (part.includes('neck') || part.includes('behind ear')) 
-                                return '/stock-bodies/neck.jpg';
-                              if (part.includes('rib') || part.includes('side')) 
-                                return '/stock-bodies/ribs.jpg';
-                              if (part.includes('upper arm') || part.includes('bicep') || part.includes('shoulder')) 
-                                return '/stock-bodies/upper-arm.jpg';
-                              return '/stock-skin.png'; // default forearm
-                            };
-
-                            const skinBackdrop = getDynamicBackdrop(design.placement_recommendations || []);
+                            // Use flat skin texture — more reliable than body part photos
+                            // Body part photos cause overflow and wrong placement issues
+                            const skinBackdrop = "/stock-skin.png";
 
                             return (
                                 <>
@@ -543,18 +524,20 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                                     className="object-cover contrast-[1.05] z-0"
                                                     sizes="50vw"
                                                 />
-                                                <div className="absolute inset-6 sm:inset-12 md:inset-24 z-10">
-                                                    <Image
-                                                        src={design.image_url}
-                                                        alt="Fresh tattoo overlay rendering"
-                                                        fill
-                                                        className="object-contain transition-all duration-700 mix-blend-multiply contrast-150 brightness-90"
-                                                        sizes="40vw"
-                                                        style={{
-                                                            filter: "drop-shadow(0 0 0.5px rgba(185, 28, 28, 0.3))", // Micro swelling
-                                                            opacity: 0.9
-                                                        }}
-                                                    />
+                                                <div className="absolute inset-0 flex items-center justify-center p-8 z-10">
+                                                    <div className="relative w-full h-full max-w-[70%] max-h-[70%] mx-auto">
+                                                        <Image
+                                                            src={design.image_url}
+                                                            alt={design.alt_text || design.subject || "Fresh tattoo overlay rendering"}
+                                                            fill
+                                                            className="object-contain transition-all duration-700 mix-blend-multiply contrast-150 brightness-90"
+                                                            sizes="40vw"
+                                                            style={{
+                                                                filter: "drop-shadow(0 0 0.5px rgba(185, 28, 28, 0.3))", // Micro swelling
+                                                                opacity: 0.9
+                                                            }}
+                                                        />
+                                                    </div>
                                                 </div>
                                             </>
                                         )}
@@ -595,15 +578,17 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                                     className="object-cover grayscale-[15%] brightness-90 contrast-[0.95] z-0"
                                                     sizes="50vw"
                                                 />
-                                                <div className="absolute inset-6 sm:inset-12 md:inset-24 z-10">
-                                                    <Image
-                                                        src={design.image_url}
-                                                        alt="Healed tattoo simulation overlay"
-                                                        fill
-                                                        className="object-contain transition-all duration-1000 mix-blend-multiply blur-[0.8px] brightness-75 contrast-125 group-hover:blur-none group-hover:opacity-90"
-                                                        sizes="40vw"
-                                                        style={{ opacity: 0.6 }}
-                                                    />
+                                                <div className="absolute inset-0 flex items-center justify-center p-8 z-10">
+                                                    <div className="relative w-full h-full max-w-[70%] max-h-[70%] mx-auto">
+                                                        <Image
+                                                            src={design.image_url}
+                                                            alt={design.alt_text || design.subject || "Healed tattoo simulation overlay"}
+                                                            fill
+                                                            className="object-contain transition-all duration-1000 mix-blend-multiply blur-[0.8px] brightness-75 contrast-125 group-hover:blur-none group-hover:opacity-90"
+                                                            sizes="40vw"
+                                                            style={{ opacity: 0.6 }}
+                                                        />
+                                                    </div>
                                                 </div>
                                                 <div className="absolute inset-0 bg-amber-950/5 opacity-10 mix-blend-overlay pointer-events-none z-20" />
                                             </>
