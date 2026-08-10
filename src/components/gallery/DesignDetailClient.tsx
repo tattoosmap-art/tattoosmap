@@ -502,16 +502,16 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                             };
 
                             const PLACEMENT_MAP: Record<string, PlacementConfig> = {
-                                forearm: { image: '/stock-bodies/forearm.jpg', rotation: '45deg', sizeClass: 'max-w-[45%] max-h-[75%]', top: '42%', left: '55%' }, // Centered on the upper-right fleshy part of the arm
-                                wrist: { image: '/stock-bodies/wrist.jpg', rotation: '90deg', sizeClass: 'max-w-[45%] max-h-[75%]', top: '50%', left: '50%' },
-                                thigh: { image: '/stock-bodies/thigh.jpg', rotation: '0deg', sizeClass: 'max-w-[60%] max-h-[70%]', top: '50%', left: '50%' },
-                                chest: { image: '/stock-bodies/chest.jpg', rotation: '0deg', sizeClass: 'max-w-[70%] max-h-[70%]', top: '45%', left: '50%' },
-                                back: { image: '/stock-bodies/back.jpg', rotation: '0deg', sizeClass: 'max-w-[70%] max-h-[70%]', top: '45%', left: '50%' },
-                                ribs: { image: '/stock-bodies/ribs.jpg', rotation: '0deg', sizeClass: 'max-w-[55%] max-h-[70%]', top: '50%', left: '50%' },
-                                upper_arm: { image: '/stock-bodies/upper-arm.jpg', rotation: '0deg', sizeClass: 'max-w-[50%] max-h-[75%]', top: '45%', left: '50%' },
-                                calf: { image: '/stock-bodies/calf.jpg', rotation: '0deg', sizeClass: 'max-w-[50%] max-h-[75%]', top: '50%', left: '50%' },
-                                neck: { image: '/stock-bodies/neck.jpg', rotation: '0deg', sizeClass: 'max-w-[45%] max-h-[45%]', top: '50%', left: '50%' },
-                                fallback: { image: '/stock-bodies/forearm.jpg', rotation: '45deg', sizeClass: 'max-w-[45%] max-h-[75%]', top: '42%', left: '55%' },
+                                forearm: { image: '/stock-bodies/forearm.jpg', rotation: '45deg', sizeClass: 'max-w-[28%] max-h-[55%]', top: '42%', left: '55%' }, // Adjusted to perfectly fit within the red forearm section
+                                wrist: { image: '/stock-bodies/wrist.jpg', rotation: '90deg', sizeClass: 'max-w-[18%] max-h-[35%]', top: '50%', left: '50%' }, // Smaller, constrained to the wrist bounds
+                                thigh: { image: '/stock-bodies/thigh.jpg', rotation: '0deg', sizeClass: 'max-w-[35%] max-h-[60%]', top: '50%', left: '50%' },
+                                chest: { image: '/stock-bodies/chest.jpg', rotation: '0deg', sizeClass: 'max-w-[30%] max-h-[45%]', top: '45%', left: '50%' },
+                                back: { image: '/stock-bodies/back.jpg', rotation: '0deg', sizeClass: 'max-w-[35%] max-h-[55%]', top: '45%', left: '50%' }, // Conservative bounds to fit medium back placement
+                                ribs: { image: '/stock-bodies/ribs.jpg', rotation: '0deg', sizeClass: 'max-w-[28%] max-h-[55%]', top: '50%', left: '50%' },
+                                upper_arm: { image: '/stock-bodies/upper-arm.jpg', rotation: '0deg', sizeClass: 'max-w-[28%] max-h-[55%]', top: '45%', left: '50%' },
+                                calf: { image: '/stock-bodies/calf.jpg', rotation: '0deg', sizeClass: 'max-w-[28%] max-h-[55%]', top: '50%', left: '50%' },
+                                neck: { image: '/stock-bodies/neck.jpg', rotation: '0deg', sizeClass: 'max-w-[20%] max-h-[30%]', top: '50%', left: '50%' },
+                                fallback: { image: '/stock-bodies/forearm.jpg', rotation: '45deg', sizeClass: 'max-w-[28%] max-h-[55%]', top: '42%', left: '55%' },
                             };
 
                             const getPlacementConfig = (placements: string[]): PlacementConfig => {
