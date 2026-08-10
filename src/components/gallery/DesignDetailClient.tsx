@@ -521,10 +521,10 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                                     src={skinBackdrop}
                                                     alt="Anatomical skin placement context"
                                                     fill
-                                                    className="object-cover contrast-[1.05] z-0"
+                                                    className="object-cover contrast-[1.05]"
                                                     sizes="50vw"
                                                 />
-                                                <div className="absolute inset-0 flex items-center justify-center p-8 z-10">
+                                                <div className="absolute inset-0 flex items-center justify-center p-8 mix-blend-multiply">
                                                     <div className="relative w-full h-full max-w-[70%] max-h-[70%] mx-auto">
                                                         <Image
                                                             src={design.image_url}
@@ -575,10 +575,10 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                                     src={skinBackdrop}
                                                     alt="Anatomical skin aging context"
                                                     fill
-                                                    className="object-cover grayscale-[15%] brightness-90 contrast-[0.95] z-0"
+                                                    className="object-cover grayscale-[15%] brightness-90 contrast-[0.95]"
                                                     sizes="50vw"
                                                 />
-                                                <div className="absolute inset-0 flex items-center justify-center p-8 z-10">
+                                                <div className="absolute inset-0 flex items-center justify-center p-8 mix-blend-multiply">
                                                     <div className="relative w-full h-full max-w-[70%] max-h-[70%] mx-auto">
                                                         <Image
                                                             src={design.image_url}
