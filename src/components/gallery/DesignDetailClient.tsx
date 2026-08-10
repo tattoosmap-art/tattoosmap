@@ -492,9 +492,9 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                     <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-0 border border-neutral-200 bg-white overflow-hidden">
                         
                         {(() => {
-                            // Determine if we have high-fidelity AI generated composite assets or if we fallback to browser CSS blends
-                            const hasFreshComposite = design.image_fresh_url && design.image_fresh_url !== design.image_url;
-                            const hasHealedComposite = design.image_healed_url && design.image_healed_url !== design.image_url;
+                            // Force browser CSS blends with flat skin texture to prevent body photo overflow issues
+                            const hasFreshComposite = false;
+                            const hasHealedComposite = false;
                             
                             // Use flat skin texture — more reliable than body part photos
                             // Body part photos cause overflow and wrong placement issues
