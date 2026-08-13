@@ -50,13 +50,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaId = process.env.NEXT_PUBLIC_GA_ID || "G-FEXM2LQZDB";
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning className={`${dmSans.variable} ${playfairDisplay.variable} ${dmMono.variable} antialiased bg-white text-black font-sans selection:bg-brand-red selection:text-white flex flex-col min-h-screen outline-custom`}>
-        {process.env.NEXT_PUBLIC_GA_ID && (
+        {gaId && (
           <>
             <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
               strategy="afterInteractive"
             />
             <Script id="google-analytics" strategy="afterInteractive">
@@ -64,7 +66,7 @@ export default function RootLayout({
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
-                gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
+                gtag('config', '${gaId}');
               `}
             </Script>
           </>
