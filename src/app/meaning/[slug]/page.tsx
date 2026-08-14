@@ -144,6 +144,11 @@ const CUSTOM_TITLES: Record<string, { title: string; h1: string; answer: string 
     h1: 'Virgin Mary Tattoo — Meaning, Designs & Symbolism',
     answer: 'The Virgin Mary tattoo represents protection, maternal love, grace, and divine intercession. Rooted in Catholic and Latin American tradition, she appears as a guardian figure — the Mater Dolorosa who understands suffering, the Our Lady of Guadalupe who protects, and the Immaculate Conception who represents purity and hope.'
   },
+  'icarus-tattoo': {
+    title: 'Icarus Tattoo Meaning — The Tragic Flight of Ambition',
+    h1: 'Icarus Tattoo — Meaning, Symbolism & Designs',
+    answer: 'The Icarus tattoo represents the delicate balance between high ambition and personal limitation. Rooted in the ancient Greek myth of the boy who flew too close to the sun on wings of feathers and wax, it serves as a powerful Stoic reminder of the cost of hubris, the search for absolute freedom, and the tragic beauty of pushing human limits.'
+  },
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -278,53 +283,67 @@ export default async function MeaningPage({ params }: Props) {
       )}
 
       {/* FAQ Section */}
-      <div className="mb-12 max-w-3xl">
-        <h2 className="font-display text-[20px] uppercase tracking-tight text-black mb-6">
-          Frequently Asked Questions
-        </h2>
-        <div className="space-y-6">
-          <div>
-            <h3 className="font-mono text-[11px] uppercase tracking-widest text-black mb-2">
-              What does a {subject.toLowerCase()} symbolize?
-            </h3>
-            <p className="font-serif text-[16px] leading-[1.6] text-neutral-700">
-              {meaning || `${subject} tattoos carry rich symbolic meaning rooted in cultural tradition. Browse the designs below — each one includes a detailed meaning guide and cultural origin.`}
-            </p>
+      {(() => {
+        const baseTerm = subject.replace(/\s*tattoos?\s*$/i, '').trim();
+        const lowerBase = baseTerm.toLowerCase();
+        const isPlural = slug.endsWith('tattoos') || slug.endsWith('wings');
+        const startsWithVowel = /^[aeiou]/i.test(baseTerm);
+        const article = startsWithVowel ? 'an' : 'a';
+        
+        const subjectPhrase = isPlural 
+          ? `${lowerBase} tattoos` 
+          : `${article} ${baseTerm} tattoo`;
+
+        return (
+          <div className="mb-12 max-w-3xl">
+            <h2 className="font-display text-[20px] uppercase tracking-tight text-black mb-6">
+              Frequently Asked Questions
+            </h2>
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-mono text-[11px] uppercase tracking-widest text-black mb-2">
+                  What {isPlural ? 'do' : 'does'} {subjectPhrase} symbolize?
+                </h3>
+                <p className="font-serif text-[16px] leading-[1.6] text-neutral-700">
+                  {meaning || `${subject} tattoos carry rich symbolic meaning rooted in cultural tradition. Browse the designs below — each one includes a detailed meaning guide and cultural origin.`}
+                </p>
+              </div>
+              <div>
+                <h3 className="font-mono text-[11px] uppercase tracking-widest text-black mb-2">
+                  Where is the best placement for {subjectPhrase}?
+                </h3>
+                <p className="font-serif text-[16px] leading-[1.6] text-neutral-700">
+                  Placement depends on the design size and orientation. Vertical designs suit the spine, forearm, or calf. Symmetrical designs suit the chest, back, or thigh. Smaller designs work on the wrist, ankle, or behind the ear. Each design below includes a specific pain map and placement guide with anatomical detail.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-mono text-[11px] uppercase tracking-widest text-black mb-2">
+                  How long {isPlural ? 'do' : 'does'} {subjectPhrase} last?
+                </h3>
+                <p className="font-serif text-[16px] leading-[1.6] text-neutral-700">
+                  Fine line designs soften gradually over 5 to 10 years as delicate details blend into smooth gradients. Bold blackwork holds its structure for 15 to 20 years with proper care. Apply SPF 50 daily to tattooed skin exposed to sunlight — UV exposure is the primary cause of tattoo fading regardless of style or ink quality.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-mono text-[11px] uppercase tracking-widest text-black mb-2">
+                  {isPlural ? 'Are' : 'Is'} {subjectPhrase} {isPlural ? 'good first tattoos' : 'a good first tattoo'}?
+                </h3>
+                <p className="font-serif text-[16px] leading-[1.6] text-neutral-700">
+                  It depends on the specific design and placement. Simpler versions in low-pain placements like the upper arm or thigh make excellent first tattoos. More complex designs with fine detail work better once you understand how your skin heals. Each design below shows the minimum recommended size and technique complexity so you can judge what suits your experience level.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-mono text-[11px] uppercase tracking-widest text-black mb-2">
+                  How much {isPlural ? 'do' : 'does'} {subjectPhrase} cost?
+                </h3>
+                <p className="font-serif text-[16px] leading-[1.6] text-neutral-700">
+                  Cost depends on size, complexity, and your artist's hourly rate. Simple designs under 10cm typically run $100 to $300. Larger, more detailed pieces range from $300 to $800 or more. Fine line work often costs more per hour than bold traditional styles because it requires greater technical precision and takes longer per square centimetre of coverage.
+                </p>
+              </div>
+            </div>
           </div>
-          <div>
-            <h3 className="font-mono text-[11px] uppercase tracking-widest text-black mb-2">
-              Where is the best placement for a {subject.toLowerCase()}?
-            </h3>
-            <p className="font-serif text-[16px] leading-[1.6] text-neutral-700">
-              Placement depends on the design size and orientation. Vertical designs suit the spine, forearm, or calf. Symmetrical designs suit the chest, back, or thigh. Smaller designs work on the wrist, ankle, or behind the ear. Each design below includes a specific pain map and placement guide with anatomical detail.
-            </p>
-          </div>
-          <div>
-            <h3 className="font-mono text-[11px] uppercase tracking-widest text-black mb-2">
-              How long does a {subject.toLowerCase()} tattoo last?
-            </h3>
-            <p className="font-serif text-[16px] leading-[1.6] text-neutral-700">
-              Fine line designs soften gradually over 5 to 10 years as delicate details blend into smooth gradients. Bold blackwork holds its structure for 15 to 20 years with proper care. Apply SPF 50 daily to tattooed skin exposed to sunlight — UV exposure is the primary cause of tattoo fading regardless of style or ink quality.
-            </p>
-          </div>
-          <div>
-            <h3 className="font-mono text-[11px] uppercase tracking-widest text-black mb-2">
-              Is a {subject.toLowerCase()} a good first tattoo?
-            </h3>
-            <p className="font-serif text-[16px] leading-[1.6] text-neutral-700">
-              It depends on the specific design and placement. Simpler versions in low-pain placements like the upper arm or thigh make excellent first tattoos. More complex designs with fine detail work better once you understand how your skin heals. Each design below shows the minimum recommended size and technique complexity so you can judge what suits your experience level.
-            </p>
-          </div>
-          <div>
-            <h3 className="font-mono text-[11px] uppercase tracking-widest text-black mb-2">
-              How much does a {subject.toLowerCase()} tattoo cost?
-            </h3>
-            <p className="font-serif text-[16px] leading-[1.6] text-neutral-700">
-              Cost depends on size, complexity, and your artist's hourly rate. Simple designs under 10cm typically run $100 to $300. Larger, more detailed pieces range from $300 to $800 or more. Fine line work often costs more per hour than bold traditional styles because it requires greater technical precision and takes longer per square centimetre of coverage.
-            </p>
-          </div>
-        </div>
-      </div>
+        );
+      })()}
 
       {/* CTA */}
       <div className="border border-black p-8 text-center">
