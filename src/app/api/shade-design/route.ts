@@ -35,41 +35,59 @@ export async function POST(req: NextRequest) {
 
         const base64Input = paddedBuffer.toString('base64');
  
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image',
-            contents: [
-                {
-                    role: "user",
-                    parts: [
-                        { text: STIPPLE_PROMPT },
-                        { inlineData: { data: base64Input, mimeType: 'image/png' } }
-                    ]
-                }
-            ],
-            config: {
-                responseModalities: ["IMAGE"],
-                safetySettings: [
-                    {
-                        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-                        threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
-                    },
-                    {
-                        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-                        threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
-                    },
-                    {
-                        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-                        threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
-                    },
-                    {
-                        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-                        threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
+        let responseData: any;
+        let retryCount = 0;
+        const maxRetries = 3;
+
+        while (true) {
+            try {
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash-image',
+                    contents: [
+                        {
+                            role: "user",
+                            parts: [
+                                { text: STIPPLE_PROMPT },
+                                { inlineData: { data: base64Input, mimeType: 'image/png' } }
+                            ]
+                        }
+                    ],
+                    config: {
+                        responseModalities: ["IMAGE"],
+                        safetySettings: [
+                            {
+                                category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+                                threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
+                            },
+                            {
+                                category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                                threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
+                            },
+                            {
+                                category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+                                threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
+                            },
+                            {
+                                category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                                threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
+                            }
+                        ]
                     }
-                ]
+                });
+                
+                responseData = response as any;
+                break;
+            } catch (err: any) {
+                retryCount++;
+                if (retryCount > maxRetries) throw err;
+                
+                const isRateLimit = err.status === 429 || (err.message && err.message.includes('429'));
+                const waitTime = isRateLimit ? 5000 * retryCount : Math.pow(2, retryCount) * 1500;
+                
+                console.log(`Gemini API Error (Shade), retrying ${retryCount}/${maxRetries} in ${waitTime}ms... (${err.message})`);
+                await new Promise(r => setTimeout(r, waitTime));
             }
-        });
- 
-        const responseData = response as any;
+        }
         const candidate = responseData.candidates?.[0];
         const parts = candidate?.content?.parts || [];
         

@@ -3,7 +3,7 @@ import sharp from 'sharp';
 import fs from 'fs/promises';
 import path from 'path';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
+import { analyzeDermographicScore } from '@/lib/dermographic-scorer';
 const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 const TAXONOMY_PROMPT = `Context: You are an expert tattoo historian, botanical illustrator, technical artist, and data architect generating high-tier JSON metadata for a premium tattoo ecosystem (TattoosMap).
@@ -193,6 +193,15 @@ export async function POST(req: NextRequest) {
                 qualityNotes = 'Source resolution was low. Upscaled automatically.';
             }
 
+            // --- Pre-score check and Adaptive Processing ---
+            let scoreReport;
+            try {
+                scoreReport = await analyzeDermographicScore(buffer);
+            } catch (e) {
+                console.error("Scoring failed:", e);
+                // Graceful fallback if scoring fails for any reason
+            }
+
             // 2. Sharp Polishing (Line Art vs Color)
             if (processMode === 'COLOR') {
                 buffer = await sharp(buffer)
@@ -206,15 +215,31 @@ export async function POST(req: NextRequest) {
                     .webp({ quality: 85 })
                     .toBuffer();
             } else {
-                buffer = await sharp(buffer)
+                const stats = await sharp(buffer).stats();
+                const mean = stats.channels[0].mean;
+                const adaptiveThreshold = Math.min(Math.max(mean - 20, 100), 200);
+
+                let s = sharp(buffer)
                     .trim() // Auto-crop scanner/paper borders
                     .resize({ width: 1080, height: 1080, fit: 'inside', kernel: 'lanczos3' })
                     .extend({ top: 60, bottom: 60, left: 60, right: 60, background: '#ffffff' })
                     .flatten({ background: '#ffffff' })
                     .median(3) // Wipes out dust, hair, speckles, and small stains next to the design
                     .blur(0.4) // Smooth the edges for clean vectors
-                    .linear(2, -120) // High contrast shift to bleach paper smudges
-                    .threshold(160) // Keep only pure dark ink lines, erase shadows
+                    .linear(2, -120); // High contrast shift to bleach paper smudges
+                
+                if (scoreReport && scoreReport.breakdown.line_weight.flag) {
+                    // Thin lines detected: apply conditional .dilate() via blur + threshold trick
+                    s = s.blur(0.5).threshold(128); // blur to spread ink, threshold low to thicken
+                    scoreReport.transformations_applied.push('Line thickness normalization (dilation) applied.');
+                } else {
+                    s = s.threshold(Math.round(adaptiveThreshold)); // Adaptive threshold
+                    if (scoreReport) {
+                        scoreReport.transformations_applied.push(`Adaptive thresholding applied (v=${Math.round(adaptiveThreshold)}).`);
+                    }
+                }
+
+                buffer = await s
                     .sharpen() // Lock in crisp, vector-like line borders
                     .webp({ quality: 85 })
                     .toBuffer();
@@ -227,6 +252,7 @@ export async function POST(req: NextRequest) {
                 quality_flag: qualityFlag,
                 quality_notes: qualityNotes,
                 polished_base64: polishedBase64,
+                score_report: scoreReport,
                 success: true
             });
         }
@@ -241,7 +267,7 @@ export async function POST(req: NextRequest) {
         let retryCount = 0;
         const maxRetries = 3;
 
-        while (retryCount < maxRetries) {
+        while (true) {
             try {
                 const model = ai.getGenerativeModel({ model: 'gemini-flash-latest' });
                 const response = await model.generateContent([
@@ -255,8 +281,12 @@ export async function POST(req: NextRequest) {
             } catch (e: any) {
                 retryCount++;
                 if (retryCount >= maxRetries) throw e;
-                console.log(`Gemini API Error, retrying ${retryCount}/${maxRetries}...`);
-                await new Promise(r => setTimeout(r, 2000));
+                
+                const isRateLimit = e.status === 429 || (e.message && e.message.includes('429'));
+                const waitTime = isRateLimit ? 5000 * retryCount : Math.pow(2, retryCount) * 1500;
+                
+                console.log(`Gemini API Error, retrying ${retryCount}/${maxRetries} in ${waitTime}ms... (${e.message})`);
+                await new Promise(r => setTimeout(r, waitTime));
             }
         }
 
