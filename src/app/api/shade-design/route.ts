@@ -14,22 +14,90 @@ const getApiKey = () => {
 
 const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
-const STIPPLE_PROMPT = `CRITICAL OUTPUT RULE: Output ONLY a single tattoo design centred on a solid 100% pure white background (#FFFFFF). Do NOT include any extra sketches, scribbles, draft lines, reference panels, watermarks, borders, frames, multiple design variants, or any other mark outside the single design. The entire canvas outside the design must be completely empty pure white with absolutely nothing else on it.
+const getShadePrompt = (style: string, issues: string[]): string => {
+  const baseRule = `
+CRITICAL OUTPUT RULE: Output ONLY a single tattoo design 
+on pure white (#FFFFFF) background. Pure black (#000000) 
+ink only. No grey. No mid-tones. Stencil-ready at 300 DPI.
 
-INK COLOUR RULE — CRITICAL: All ink in the design must be pure black (#000000) only. No grey. No charcoal. No mid-tones. The only two colours in the output are pure black (#000000) for all ink and pure white (#FFFFFF) for the background. This is non-negotiable.
+INK RULE: Two colours only — #000000 and #FFFFFF.
+Depth and shadow via dot DENSITY not grey ink.
+Dense dots = dark. Sparse dots = light. White = highlight.
 
-DESIGN RULE: Replicate the precise line-art composition of the original design with absolute accuracy. Do not add, remove, or alter any existing lines or elements.
+COMPOSITION RULE: Keep the original design recognisable
+but elevate it to professional tattoo artist standard.
+`;
 
-SHADING RULE: Apply fine-point dotwork stippling to build volume, depth, gradients, and shadows. Use varying dot density to create shadow — dense dots for dark areas, sparse dots for light areas, white space for highlights. All dots must be pure black (#000000). Shadow and depth is created through dot density variation NOT through grey ink or mid-tone values.
+  const styleEnhancements: Record<string, string> = {
+    'fine-line': `
+FINE LINE ENHANCEMENTS:
+→ Add subtle dotwork shadow beneath each element
+→ Add small accent dots at all line endpoints and curves
+→ Ensure all lines minimum 0.3mm at final tattoo size
+→ Add delicate stippled texture to fill areas
+→ Clean all negative space to pure white
+`,
+    'blackwork': `
+BLACKWORK ENHANCEMENTS:
+→ Fill large black areas with geometric micro-pattern
+→ Add bold shadow lines on one side of all elements
+→ Strengthen main outline to 2x weight of detail lines
+→ Add geometric frame or border appropriate to design
+→ Use bold black fills contrasted with pure white negative space
+`,
+    'traditional': `
+TRADITIONAL ENHANCEMENTS:
+→ Thicken all outlines to classic American traditional weight
+→ Add bold shadow lines below and right of all elements
+→ Convert any gradient to solid black or white — no grey
+→ Add classic bold frame or banner if design permits
+→ Simplify all detail to bold clear shapes
+`,
+    'neo-traditional': `
+NEO-TRADITIONAL ENHANCEMENTS:
+→ Add ornate botanical or floral frame elements
+→ Vary line weights dramatically — bold outline, fine detail
+→ Add decorative dotwork texture to background areas
+→ Include decorative flourishes at natural endpoints
+`,
+    'default': `
+UNIVERSAL ENHANCEMENTS:
+→ Add dotwork stippling for all shadow areas
+→ Thicken main outlines by 15% over detail lines
+→ Add accent dots at line intersections
+→ Clean all negative space to pure white
+→ Ensure no element is closer than 1mm to another
+`
+  };
 
-LINE RULE: All main outlines must remain sharp, distinct, crisp, and pure black (#000000). No softening or greying of outlines.
+  const issueCorrections = issues.map(issue => {
+    if (issue.includes('thin')) return '→ PRIORITY: Thicken all lines to minimum tattooable weight';
+    if (issue.includes('detail')) return '→ PRIORITY: Simplify crowded areas — remove smallest details';
+    if (issue.includes('close')) return '→ PRIORITY: Add breathing space between touching elements';
+    if (issue.includes('grey')) return '→ PRIORITY: Convert all grey to pure black dotwork';
+    return `→ FIX: ${issue}`;
+  }).join('\n');
 
-FINAL CHECK: The output must be suitable for printing as a tattoo stencil at 300 DPI on thermal paper. If any grey appears in the output it is wrong. Pure black dotwork on pure white background only.`;
+  const enhancement = styleEnhancements[style] || styleEnhancements['default'];
+
+  return `${baseRule}\n${enhancement}\n${issueCorrections ? 'SPECIFIC FIXES REQUIRED:\n' + issueCorrections : ''}`;
+};
 
 export async function POST(req: NextRequest) {
     try {
         const formData = await req.formData();
         const file = formData.get('file') as File;
+        
+        const detectedStyle = (formData.get('style') as string) || 'default';
+        const issuesRaw = formData.get('issues') as string;
+        let detectedIssues: string[] = [];
+        try {
+            if (issuesRaw) detectedIssues = JSON.parse(issuesRaw);
+        } catch(e) {
+            // fallback if it's passed as a comma separated string
+            if (issuesRaw) detectedIssues = issuesRaw.split(',');
+        }
+        const STIPPLE_PROMPT = getShadePrompt(detectedStyle, detectedIssues);
         
         if (!file) return NextResponse.json({ error: 'No image provided' }, { status: 400 });
  
@@ -155,6 +223,10 @@ export async function POST(req: NextRequest) {
 
     } catch (err: any) {
         console.error("Shade design error:", err);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+        let errorMessage = err.message || "An unknown error occurred";
+        if (errorMessage.includes("429") && errorMessage.includes("Your project has exceeded")) {
+            errorMessage = "Gemini API Quota Exceeded: Your project has reached its usage limit for the Gemini API. Please check your Google Cloud Console billing/quotas or try again later.";
+        }
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 }
