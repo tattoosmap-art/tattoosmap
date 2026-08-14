@@ -97,6 +97,12 @@ export interface Design {
     real_save_count?: number;
     real_view_count?: number;
     is_published: boolean;
+    
+    // Dermographic Scoring
+    dermographic_score?: number | null;
+    dermographic_warnings?: string[] | null;
+    is_tattooable?: boolean | null;
+    min_size_cm?: number | null;
     uploaded_at: string;
     deleted_at: string | null;
 }

@@ -364,6 +364,62 @@ export default function DesignDetailClient({ design, publicCollections = [], hid
                                     </div>
                                 );
                             })()}
+
+                            {/* TATTOOABILITY REPORT */}
+                            {design.dermographic_score != null && (
+                              <div className="border border-neutral-200 p-6 mt-6">
+                                <p className="font-mono text-[10px] uppercase tracking-widest text-neutral-400 mb-4">
+                                  Tattooability Report
+                                </p>
+
+                                {/* Score bar */}
+                                <div className="flex items-center gap-4 mb-3">
+                                  <div className="flex-1 h-[2px] bg-neutral-100">
+                                    <div
+                                      className="h-[2px] bg-black transition-all duration-700"
+                                      style={{ width: `${design.dermographic_score}%` }}
+                                    />
+                                  </div>
+                                  <span className="font-mono text-[11px] font-bold tabular-nums">
+                                    {design.dermographic_score}/100
+                                  </span>
+                                </div>
+
+                                {/* Grade label */}
+                                <p className={`font-mono text-[10px] uppercase tracking-widest mb-4 ${
+                                  design.dermographic_score >= 90 ? 'text-green-600' :
+                                  design.dermographic_score >= 70 ? 'text-amber-600' :
+                                  design.dermographic_score >= 50 ? 'text-orange-600' :
+                                  'text-red-600'
+                                }`}>
+                                  {design.dermographic_score >= 90 ? '✓ Ready to tattoo' :
+                                   design.dermographic_score >= 70 ? '⚠ Minor adjustments recommended' :
+                                   design.dermographic_score >= 50 ? '⚠ Discuss with your artist first' :
+                                   '✗ Significant rework needed'}
+                                </p>
+
+                                {/* Artist warnings */}
+                                {design.dermographic_warnings && design.dermographic_warnings.length > 0 && (
+                                  <div className="space-y-2 mb-4">
+                                    <p className="font-mono text-[9px] uppercase tracking-widest text-neutral-400">
+                                      Artist Notes
+                                    </p>
+                                    {design.dermographic_warnings.map((warning: string, i: number) => (
+                                      <p key={i} className="font-mono text-[10px] text-neutral-500 leading-relaxed">
+                                        — {warning}
+                                      </p>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {/* Minimum size */}
+                                {design.min_size_cm && (
+                                  <p className="font-mono text-[9px] uppercase tracking-widest text-neutral-400">
+                                    Minimum recommended size: {design.min_size_cm}cm
+                                  </p>
+                                )}
+                              </div>
+                            )}
                         </div>
                     </div>
                 </section>

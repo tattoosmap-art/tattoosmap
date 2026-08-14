@@ -315,6 +315,10 @@ export async function POST(req: NextRequest) {
 
     } catch (err: any) {
         console.error(`Process design error (stage ${req.url}):`, err);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+        let errorMessage = err.message || "An unknown error occurred";
+        if (errorMessage.includes("429") && errorMessage.includes("Your project has exceeded")) {
+            errorMessage = "Gemini API Quota Exceeded: Your project has reached its usage limit for the Gemini API. Please check your Google Cloud Console billing/quotas or try again later.";
+        }
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 }

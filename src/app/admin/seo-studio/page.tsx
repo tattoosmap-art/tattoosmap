@@ -142,6 +142,9 @@ export default function SEOStudio() {
         setItemAnalyzing(item.id, true);
         const formData = new FormData();
         formData.append('file', item.file); // The API route will convert to base64 and use the prompt
+        
+        formData.append('style', item.stage2Result?.style_tags?.[0] || 'default');
+        formData.append('issues', JSON.stringify(item.stage1Result?.score_report?.issues || []));
 
         try {
             const res = await fetch('/api/shade-design', { method: 'POST', body: formData });
@@ -339,6 +342,12 @@ export default function SEOStudio() {
                 focus_keyword: item.stage2Result.focus_keyword,
                 confidence_score: item.stage2Result.confidence_score,
                 ip_flag: item.stage2Result.ip_flag,
+                
+                // Dermographic Scoring
+                dermographic_score: item.stage1Result?.score_report?.score ?? null,
+                dermographic_warnings: item.stage1Result?.score_report?.artist_warnings ?? [],
+                is_tattooable: (item.stage1Result?.score_report?.score ?? 100) >= 50,
+                min_size_cm: item.stage1Result?.score_report?.min_size_cm ?? null,
                 
                 // Stage 3 Content (Optional but merged if present)
                 meaning: item.stage3Result?.meaning,

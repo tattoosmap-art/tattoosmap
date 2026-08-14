@@ -72,6 +72,13 @@ export type PublishDesignPayload = {
     ip_flag?: boolean;
     low_confidence_flag?: boolean;
     slug: string;
+    
+    // Dermographic Scoring
+    dermographic_score?: number | null;
+    dermographic_warnings?: string[] | null;
+    is_tattooable?: boolean | null;
+    min_size_cm?: number | null;
+    
     visual_work_schema?: string;
     speakable_schema?: string;
     status?: string;
