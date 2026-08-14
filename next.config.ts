@@ -80,6 +80,26 @@ const nextConfig: NextConfig = {
         destination: '/ai-tattoo-generator',
         permanent: true,
       },
+      {
+        source: '/gallery/dotwork-haunting-fallen-angel-wings-tattoo-design',
+        destination: '/gallery/dotwork-haunting-fall-of-icarus-tattoo-design',
+        permanent: true,
+      },
+      {
+        source: '/gallery/illustrative-ascending-angel-with-radiant-sunburst-halo-tattoo-design',
+        destination: '/gallery/illustrative-icarus-ascending-with-radiant-sunburst-halo-tattoo-design',
+        permanent: true,
+      },
+      {
+        source: '/gallery/illustrative-divine-ascending-archangel-with-sword-tattoo-design',
+        destination: '/gallery/illustrative-icarus-ascending-with-sword-tattoo-design',
+        permanent: true,
+      },
+      {
+        source: '/gallery/illustrative-ascending-winged-angel-and-broken-clock-tattoo-design',
+        destination: '/gallery/illustrative-ascending-icarus-and-broken-clock-tattoo-design',
+        permanent: true,
+      },
     ];
   },
 };
