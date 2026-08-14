@@ -31,7 +31,7 @@ export async function analyzeDermographicScore(buffer: Buffer): Promise<Tattooab
     let warnings: string[] = [];
     let blowout_risk = 0;
     
-    // --- 1. Line Weight Scoring & Negative Space ---
+    // Grayscale thresholded base for pixel analysis
     const binary = image.clone().grayscale().threshold(128);
     const { data: binData } = await binary.raw().toBuffer({ resolveWithObject: true });
     
@@ -44,15 +44,52 @@ export async function analyzeDermographicScore(buffer: Buffer): Promise<Tattooab
     const totalWhite = totalPixels - totalBlack;
     const negSpaceRatio = totalWhite / totalPixels;
     
+    // --- 1. Negative Space Scoring (25%) ---
     let negSpaceScore = 25;
     let negSpaceFlag = false;
     if (negSpaceRatio < 0.4) {
         negSpaceScore = Math.max(0, 25 - (0.4 - negSpaceRatio) * 100);
         negSpaceFlag = true;
         warnings.push("High ink density: Negative space is below 40%, high risk of merging over time.");
+    } else if (negSpaceRatio > 0.95) {
+        negSpaceScore = Math.max(10, 25 - (negSpaceRatio - 0.95) * 200);
+        negSpaceFlag = true;
+        warnings.push("Empty design: Negative space is extremely high (>95%), very few lines detected.");
     }
 
-    // --- 2. Complexity (Sobel Edge Density) ---
+    // --- 2. Line Weight Scoring (25%) via Morphological Erosion ---
+    // Invert -> Blur -> Threshold -> Invert to simulate erosion of black lines
+    const eroded = image.clone()
+        .grayscale()
+        .threshold(128)
+        .negate() // invert so lines are white
+        .blur(1.5) // blur to eat edges
+        .threshold(200) // threshold high to erode
+        .negate(); // invert back
+    
+    const { data: erodedData } = await eroded.raw().toBuffer({ resolveWithObject: true });
+    let erodedBlack = 0;
+    for (let i = 0; i < erodedData.length; i++) {
+        if (erodedData[i] < 128) erodedBlack++;
+    }
+
+    // Compare black pixels before and after erosion
+    const lineLossRatio = totalBlack > 0 ? (totalBlack - erodedBlack) / totalBlack : 1;
+    let lineWeightScore = 25;
+    let lineWeightFlag = false;
+    
+    if (lineLossRatio > 0.7 && totalBlack > 50) {
+        lineWeightScore = Math.max(0, 25 - (lineLossRatio - 0.7) * 100);
+        lineWeightFlag = true;
+        blowout_risk += 40;
+        warnings.push("Very thin lines: Over 70% of linework was lost during safety erosion test. High risk of blowouts or fading.");
+    } else if (totalBlack < 50) {
+        lineWeightScore = 0;
+        lineWeightFlag = true;
+        warnings.push("No distinct linework detected.");
+    }
+
+    // --- 3. Complexity (Sobel Edge Density) (20%) ---
     const sobel = await image.clone().grayscale().convolve({
         width: 3, height: 3,
         kernel: [-1, 0, 1, -2, 0, 2, -1, 0, 1]
@@ -66,44 +103,35 @@ export async function analyzeDermographicScore(buffer: Buffer): Promise<Tattooab
     
     let complexityScore = 20;
     let complexityFlag = false;
-    if (edgeDensity > 0.15) {
-        complexityScore = Math.max(0, 20 - (edgeDensity - 0.15) * 100);
+    // Lowered complexity threshold from 0.15 to 0.08 based on real-world line art density
+    if (edgeDensity > 0.08) {
+        complexityScore = Math.max(0, 20 - (edgeDensity - 0.08) * 150);
         complexityFlag = true;
-        warnings.push("High detail complexity: Too many fine details per square inch. May blur as skin ages.");
+        warnings.push("High detail complexity: High edge density. Details may blur together as skin ages.");
     }
 
-    // --- 3. Contrast Distribution ---
+    // --- 4. Contrast Distribution (15%) via Standard Deviation ---
     const stats = await image.clone().stats();
     const luma = stats.channels[0];
-    const contrastSpread = luma.max - luma.min;
+    const contrastSD = luma.stdev;
     
     let contrastScore = 15;
     let contrastFlag = false;
-    if (contrastSpread < 150) {
-        contrastScore = Math.max(0, 15 - (150 - contrastSpread) / 10);
+    // High contrast black/white designs have stdev > 100. Lower stdev means washed out or photo.
+    if (contrastSD < 80) {
+        contrastScore = Math.max(0, 15 - (80 - contrastSD) * 0.3);
         contrastFlag = true;
-        warnings.push("Low contrast spread: Design lacks distinct black and gray values.");
+        warnings.push("Low contrast: Lacks defined black ink values. Needs contrast snapping.");
     }
 
-    // --- 4. Line Weight Approximation ---
-    const lineThicknessIndex = totalBlack > 0 ? (totalBlack / edgePixels) : 0;
-    let lineWeightScore = 25;
-    let lineWeightFlag = false;
-    if (lineThicknessIndex < 1.5 && totalBlack > 0) { // adjusted to be less aggressive
-         lineWeightScore = 15;
-         lineWeightFlag = true;
-         blowout_risk += 30;
-         warnings.push("Thin lines detected: Lines may be too fine (<4px) and prone to blowout.");
-    }
-    
-    // --- 5. Scale/Legibility ---
+    // --- 5. Scale/Legibility (15%) ---
     let scaleScore = 15;
     let scaleFlag = false;
     let recommended_min_size_cm = 5;
-    if (edgeDensity > 0.1) recommended_min_size_cm = 10;
-    if (edgeDensity > 0.2) recommended_min_size_cm = 15;
+    if (edgeDensity > 0.06) recommended_min_size_cm = 10;
+    if (edgeDensity > 0.12) recommended_min_size_cm = 15;
 
-    if (metadata.width < 500) {
+    if (metadata.width < 800 || metadata.height < 800) {
         scaleScore = 5;
         scaleFlag = true;
         warnings.push("Low resolution: May not scale well for stencil printing.");
@@ -126,7 +154,7 @@ export async function analyzeDermographicScore(buffer: Buffer): Promise<Tattooab
             line_weight: { score: Math.round(lineWeightScore), flag: lineWeightFlag, note: lineWeightFlag ? 'Thin lines detected' : 'Line weight optimal' },
             negative_space: { score: Math.round(negSpaceScore), flag: negSpaceFlag, ratio: Number(negSpaceRatio.toFixed(2)), note: negSpaceFlag ? 'Too packed' : 'Good breathing room' },
             complexity: { score: Math.round(complexityScore), flag: complexityFlag, density: Number(edgeDensity.toFixed(2)), note: complexityFlag ? 'Highly complex' : 'Manageable detail' },
-            contrast: { score: Math.round(contrastScore), flag: contrastFlag, variance: contrastSpread, note: contrastFlag ? 'Washed out' : 'Strong contrast' },
+            contrast: { score: Math.round(contrastScore), flag: contrastFlag, variance: Math.round(contrastSD), note: contrastFlag ? 'Washed out' : 'Strong contrast' },
             scale: { score: Math.round(scaleScore), flag: scaleFlag, min_element_px: 0, note: scaleFlag ? 'Too small' : 'Good scale' },
         },
         transformations_applied: [],
