@@ -14,7 +14,17 @@ const getApiKey = () => {
 
 const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
-const STIPPLE_PROMPT = "CRITICAL OUTPUT RULE: Output ONLY a single tattoo design centred on a solid 100% pure white background. Do NOT include any extra sketches, scribbles, draft lines, reference panels, watermarks, borders, frames, multiple design variants, or any other mark outside the single design. The entire canvas outside the design must be completely empty pure white (#FFFFFF) with absolutely nothing else on it. Hard constraint: Replicate the precise line-art composition of the original design with absolute accuracy; do not add, remove, or alter any existing lines. Apply detailed fine-point dotwork stippling across the design to build volume, gradients, and shadows. Create soft, realistic internal shadows using fine dotwork to build depth. The final output must look like a realistic charcoal-grey tattoo ink illustration. All main external outlines must remain sharp, distinct, and crisp. Background must be 100% solid pure white with zero texture, noise, shadow, or margin — nothing else.";
+const STIPPLE_PROMPT = `CRITICAL OUTPUT RULE: Output ONLY a single tattoo design centred on a solid 100% pure white background (#FFFFFF). Do NOT include any extra sketches, scribbles, draft lines, reference panels, watermarks, borders, frames, multiple design variants, or any other mark outside the single design. The entire canvas outside the design must be completely empty pure white with absolutely nothing else on it.
+
+INK COLOUR RULE — CRITICAL: All ink in the design must be pure black (#000000) only. No grey. No charcoal. No mid-tones. The only two colours in the output are pure black (#000000) for all ink and pure white (#FFFFFF) for the background. This is non-negotiable.
+
+DESIGN RULE: Replicate the precise line-art composition of the original design with absolute accuracy. Do not add, remove, or alter any existing lines or elements.
+
+SHADING RULE: Apply fine-point dotwork stippling to build volume, depth, gradients, and shadows. Use varying dot density to create shadow — dense dots for dark areas, sparse dots for light areas, white space for highlights. All dots must be pure black (#000000). Shadow and depth is created through dot density variation NOT through grey ink or mid-tone values.
+
+LINE RULE: All main outlines must remain sharp, distinct, crisp, and pure black (#000000). No softening or greying of outlines.
+
+FINAL CHECK: The output must be suitable for printing as a tattoo stencil at 300 DPI on thermal paper. If any grey appears in the output it is wrong. Pure black dotwork on pure white background only.`;
 
 export async function POST(req: NextRequest) {
     try {

@@ -225,34 +225,26 @@ export async function POST(req: NextRequest) {
                     .webp({ quality: 85 })
                     .toBuffer();
             } else {
-                const stats = await sharp(buffer).stats();
-                const mean = stats.channels[0].mean;
-                const adaptiveThreshold = Math.min(Math.max(mean - 20, 100), 200);
-
                 let s = sharp(buffer)
-                    .trim() // Auto-crop scanner/paper borders
-                    .resize({ width: 1080, height: 1080, fit: 'inside', kernel: 'lanczos3' })
-                    .extend({ top: 60, bottom: 60, left: 60, right: 60, background: '#ffffff' })
-                    .flatten({ background: '#ffffff' })
-                    .median(3) // Wipes out dust, hair, speckles, and small stains next to the design
-                    .blur(0.4) // Smooth the edges for clean vectors
-                    .linear(2, -120); // High contrast shift to bleach paper smudges
-                
+                  .trim()
+                  .resize({ width: 1080, height: 1080, fit: 'inside', kernel: 'lanczos3' })
+                  .extend({ top: 60, bottom: 60, left: 60, right: 60, background: '#ffffff' })
+                  .flatten({ background: '#ffffff' })
+                  .grayscale()
+                  .median(3)
+                  .blur(0.3)
+                  .linear(3, -200)  // aggressive contrast push to pure black
+                  .threshold(128);   // hard binary threshold — no grey values possible
+
                 if (scoreReport && scoreReport.breakdown.line_weight.flag) {
-                    // Thin lines detected: apply conditional .dilate() via blur + threshold trick
-                    s = s.blur(0.5).threshold(128); // blur to spread ink, threshold low to thicken
-                    scoreReport.transformations_applied.push('Line thickness normalization (dilation) applied.');
-                } else {
-                    s = s.threshold(Math.round(adaptiveThreshold)); // Adaptive threshold
-                    if (scoreReport) {
-                        scoreReport.transformations_applied.push(`Adaptive thresholding applied (v=${Math.round(adaptiveThreshold)}).`);
-                    }
+                  s = s.blur(0.4);
+                  scoreReport.transformations_applied.push('Line thickness normalization applied.');
                 }
 
                 buffer = await s
-                    .sharpen() // Lock in crisp, vector-like line borders
-                    .webp({ quality: 85 })
-                    .toBuffer();
+                  .sharpen()
+                  .png({ quality: 100, compressionLevel: 0 })  // PNG not WebP for pure black/white
+                  .toBuffer();
             }
 
             // Return polished base64
