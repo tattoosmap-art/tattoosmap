@@ -160,13 +160,14 @@ export default function SEOStudio() {
         }
     };
 
-    const applyAIShading = async (item: QueueItem) => {
+    const applyAIShading = async (item: QueueItem, mode: 'shade' | 'redraw' = 'shade') => {
         setItemAnalyzing(item.id, true);
         const formData = new FormData();
         formData.append('file', item.file); // The API route will convert to base64 and use the prompt
         
         formData.append('style', item.stage2Result?.style_tags?.[0] || 'default');
         formData.append('issues', JSON.stringify(item.stage1Result?.score_report?.issues || []));
+        formData.append('mode', mode);
 
         try {
             const res = await fetch('/api/shade-design', { method: 'POST', body: formData });
@@ -672,11 +673,23 @@ export default function SEOStudio() {
                                             {['UPLOADED', 'STAGE_1', 'STAGE_2', 'COMPLETE'].includes(item.status) 
                                               && processMode === 'LINE_ART' && (
                                               <button 
-                                                onClick={() => applyAIShading(item)} 
+                                                onClick={() => applyAIShading(item, 'shade')} 
                                                 disabled={item.isAnalyzing}
                                                 className="px-2.5 py-1.5 border border-neutral-700 bg-transparent text-neutral-300 hover:bg-neutral-800 font-mono text-[11px] uppercase tracking-widest transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
                                               >
                                                 {item.isAnalyzing ? '◈ Shading...' : item.shadedImageUrl ? '◈ Re-Shade' : '◈ Shade Only'}
+                                              </button>
+                                            )}
+
+                                            {/* NEW REDRAW & SHADE BUTTON */}
+                                            {['UPLOADED', 'STAGE_1', 'STAGE_2', 'COMPLETE'].includes(item.status) 
+                                              && processMode === 'LINE_ART' && (
+                                              <button 
+                                                onClick={() => applyAIShading(item, 'redraw')}
+                                                disabled={item.isAnalyzing}
+                                                className="px-2.5 py-1.5 border border-amber-700 bg-transparent text-amber-400 hover:bg-amber-950/30 font-mono text-[11px] uppercase tracking-widest transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                                              >
+                                                {item.isAnalyzing ? '✦ Redrawing...' : '✦ Redraw & Shade'}
                                               </button>
                                             )}
 

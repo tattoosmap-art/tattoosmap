@@ -15,7 +15,7 @@ const getApiKey = () => {
 
 const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
-const getShadePrompt = (style: string, issues: string[]): string => {
+const getShadePrompt = (style: string, issues: string[], mode: string): string => {
   const baseRule = `
 CRITICAL OUTPUT RULE: Output ONLY a single tattoo design 
 on pure white (#FFFFFF) background. Pure black (#000000) 
@@ -24,30 +24,40 @@ ink only. No grey. No mid-tones. Stencil-ready at 300 DPI.
 INK RULE: Two colours only — #000000 and #FFFFFF.
 Depth and shadow via dot DENSITY not grey ink.
 Dense dots = dark. Sparse dots = light. White = highlight.
+`;
 
-MASTER REDRAW RULE: Do not simply trace or copy the original lines. 
-Act as an elite professional tattoo illustrator redrawing this design 
-to the highest possible standard.
+const SHADE_ONLY_RULE = `
+PRESERVATION RULE: Keep the original design composition 
+and execution exactly as intended by the artist.
+Fix only: line weight inconsistency, grey values to black,
+spacing issues, and add dotwork shadows.
+Do NOT change any lines, shapes, or elements.
+`;
 
-KEEP IDENTICAL:
+const REDRAW_RULE = `
+MASTER REDRAW RULE: Treat the input as a rough concept 
+sketch from a client. You have full creative freedom to 
+redraw every line with professional tattoo artist skill.
+
+FIX AGGRESSIVELY:
+→ All wobbly or unconfident lines → smooth sweeping strokes
+→ Imperfect geometry → perfect symmetry and crisp angles
+→ Amateur organic shapes → elegant professional versions
+→ Inconsistent line weight → thick outlines, fine details
+→ Rough textures → clean pure linework
+
+KEEP:
 → The overall subject and what is depicted
-→ The general layout and composition  
-→ The relative size and position of each element
-→ The style category (fine line stays fine line, 
-  blackwork stays blackwork)
+→ The general composition and layout
+→ The relative positions of elements
 
-IMPROVE COMPLETELY:
-→ Redraw all shaky or unconfident lines as smooth 
-  professional strokes
-→ Replace basic geometric shapes with refined versions
-→ Make florals and organic shapes elegantly curved 
-  and dynamically layered
-→ Apply beautiful line weight variation — thicker 
-  outer outlines, delicate internal details
-→ Correct any imperfect geometry or symmetry
-→ Make the overall design look like it was drawn 
-  by a master tattoo artist with 20 years experience
+OUTPUT: A design so clean and professional that
+a tattoo artist could transfer it directly to skin.
+`;
 
+const activeRule = mode === 'redraw' ? REDRAW_RULE : SHADE_ONLY_RULE;
+
+const elementRules = `
 ELEMENT-SPECIFIC RULES:
 → Flowers and leaves: organic, elegantly curved petals,
   dynamically layered, never flat outlines
@@ -117,7 +127,7 @@ UNIVERSAL ENHANCEMENTS:
 
   const enhancement = styleEnhancements[style] || styleEnhancements['default'];
 
-  return `${baseRule}\n${enhancement}\n${issueCorrections ? 'SPECIFIC FIXES REQUIRED:\n' + issueCorrections : ''}`;
+  return `${baseRule}\n${activeRule}\n${elementRules}\n${enhancement}\n${issueCorrections ? 'SPECIFIC FIXES REQUIRED:\n' + issueCorrections : ''}`;
 };
 
 export async function POST(req: NextRequest) {
@@ -127,6 +137,10 @@ export async function POST(req: NextRequest) {
         
         const detectedStyle = (formData.get('style') as string) || 'default';
         const issuesRaw = formData.get('issues') as string;
+        const mode = formData.get('mode') as string || 'shade';
+        // 'shade' = shade only (preserve design)
+        // 'redraw' = redraw and shade (improve execution)
+
         let detectedIssues: string[] = [];
         try {
             if (issuesRaw) detectedIssues = JSON.parse(issuesRaw);
@@ -134,7 +148,7 @@ export async function POST(req: NextRequest) {
             // fallback if it's passed as a comma separated string
             if (issuesRaw) detectedIssues = issuesRaw.split(',');
         }
-        const STIPPLE_PROMPT = getShadePrompt(detectedStyle, detectedIssues);
+        const STIPPLE_PROMPT = getShadePrompt(detectedStyle, detectedIssues, mode);
         
         if (!file) return NextResponse.json({ error: 'No image provided' }, { status: 400 });
  
