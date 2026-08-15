@@ -191,6 +191,7 @@ export default function SEOStudio() {
             
             setQueue(q => q.map(i => i.id === item.id ? {
               ...i,
+              status: i.status === 'UPLOADED' ? 'STAGE_1' : i.status,
               stage1Result: { 
                 ...i.stage1Result, 
                 shaded_base64: data.shaded_base64,
