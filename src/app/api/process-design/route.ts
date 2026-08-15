@@ -205,15 +205,14 @@ export async function POST(req: NextRequest) {
 
             // --- Pre-score check and Adaptive Processing ---
             let scoreReport;
-            try {
-                scoreReport = await analyzeDermographicScore(buffer);
-            } catch (e) {
-                console.error("Scoring failed:", e);
-                // Graceful fallback if scoring fails for any reason
-            }
 
             // 2. Sharp Polishing (Line Art vs Color)
             if (processMode === 'COLOR') {
+                try {
+                    scoreReport = await analyzeDermographicScore(buffer);
+                } catch (e) {
+                    console.error("Scoring failed:", e);
+                }
                 buffer = await sharp(buffer)
                     .trim() // Auto-crop scanner/paper borders
                     .resize({ width: 1080, height: 1080, fit: 'inside', kernel: 'lanczos3' })
@@ -225,26 +224,99 @@ export async function POST(req: NextRequest) {
                     .webp({ quality: 85 })
                     .toBuffer();
             } else {
-                let s = sharp(buffer)
-                  .trim()
-                  .resize({ width: 1080, height: 1080, fit: 'inside', kernel: 'lanczos3' })
-                  .extend({ top: 60, bottom: 60, left: 60, right: 60, background: '#ffffff' })
-                  .flatten({ background: '#ffffff' })
-                  .grayscale()
-                  .median(3)
-                  .blur(0.3)
-                  .linear(3, -200)  // aggressive contrast push to pure black
-                  .threshold(128);   // hard binary threshold — no grey values possible
+                // IMPROVEMENT 4 — Style-aware preprocessing
+                // Detect if image already has strong contrast (blackwork)
+                // vs soft gradients (watercolor/sketch)
+                const stats = await sharp(buffer).grayscale().stats();
+                const contrastSD = stats.channels[0].stdev;
 
-                if (scoreReport && scoreReport.breakdown.line_weight.flag) {
-                  s = s.blur(0.4);
-                  scoreReport.transformations_applied.push('Line thickness normalization applied.');
+                let preprocessed: Buffer;
+
+                // IMPROVEMENT 1 — Upscale small images to preserve detail
+                const meta = await sharp(buffer).metadata();
+                const minDimension = Math.min(meta.width || 0, meta.height || 0);
+
+                let baseS = sharp(buffer).trim();
+
+                if (minDimension < 1200) {
+                  baseS = baseS.resize({ 
+                    width: 1200, 
+                    height: 1200, 
+                    fit: 'inside', 
+                    kernel: 'lanczos3',
+                    withoutEnlargement: false  // allow upscaling
+                  });
+                } else {
+                  baseS = baseS.resize({ 
+                    width: 1200, 
+                    height: 1200, 
+                    fit: 'inside', 
+                    kernel: 'lanczos3' 
+                  });
                 }
 
-                buffer = await s
-                  .sharpen()
-                  .png({ quality: 100, compressionLevel: 0 })  // PNG not WebP for pure black/white
+                if (contrastSD > 100) {
+                  // HIGH CONTRAST DESIGN (blackwork, traditional)
+                  // Already strong — just clean and normalize
+                  preprocessed = await baseS
+                    .flatten({ background: '#ffffff' })
+                    .grayscale()
+                    .median(2)
+                    .linear(2, -80)
+                    .png({ quality: 100 })
+                    .toBuffer();
+                } else {
+                  // LOW CONTRAST DESIGN (sketch, watercolor, pencil)
+                  // Needs more aggressive contrast push
+                  preprocessed = await baseS
+                    .flatten({ background: '#ffffff' })
+                    .grayscale()
+                    .median(3)
+                    .normalise()
+                    .linear(3, -150)
+                    .png({ quality: 100 })
+                    .toBuffer();
+                }
+
+                buffer = preprocessed;
+
+                // IMPROVEMENT 3 — Softer threshold for designs going to Gemini shading
+                // SOFT PROCESSING — preserves detail for Gemini
+                // Use high contrast but not binary for Gemini input
+                const softProcessed = await sharp(buffer)
+                  .extend({ top: 80, bottom: 80, left: 80, right: 80, background: '#ffffff' })
+                  .flatten({ background: '#ffffff' })
+                  .grayscale()
+                  .median(2)
+                  .normalise()              // stretch contrast to full range
+                  .linear(2.5, -120)        // boost contrast without going binary
+                  .png({ quality: 100 })
                   .toBuffer();
+
+                // HARD PROCESSING — pure binary for dermographic scoring
+                const hardProcessed = await sharp(buffer)
+                  .extend({ top: 80, bottom: 80, left: 80, right: 80, background: '#ffffff' })
+                  .flatten({ background: '#ffffff' })
+                  .grayscale()
+                  // IMPROVEMENT 2 — Remove background before threshold
+                  // Force white background — remove any grey/colored background
+                  // by pushing near-white pixels to pure white before thresholding
+                  .linear(1.2, -30)  // push light greys toward white
+                  .median(2)         // smooth noise before background detection
+                  .linear(3, -200)
+                  .threshold(128)
+                  .png({ quality: 100 })
+                  .toBuffer();
+
+                // Use softProcessed for Gemini (better detail)
+                // Use hardProcessed for dermographic scoring (needs binary)
+                try {
+                    scoreReport = await analyzeDermographicScore(hardProcessed);
+                } catch (e) {
+                    console.error("Scoring failed:", e);
+                }
+
+                buffer = softProcessed; // send soft version to Gemini for shading
             }
 
             // Return polished base64
