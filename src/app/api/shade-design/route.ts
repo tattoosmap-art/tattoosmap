@@ -140,6 +140,25 @@ export async function POST(req: NextRequest) {
  
         const rawBuffer = Buffer.from(new Uint8Array(await file.arrayBuffer()));
 
+        // Pre-check: do not waste API call on empty designs
+        const preCheck = await analyzeDermographicScore(rawBuffer);
+
+        if (preCheck.breakdown.negative_space.flag && preCheck.score < 30) {
+          return NextResponse.json({
+            success: false,
+            error: 'Design appears to be mostly empty or has very few lines. Please upload a design with clear linework before shading.',
+            score_report: preCheck
+          }, { status: 400 });
+        }
+
+        if (preCheck.score < 20) {
+          return NextResponse.json({
+            success: false,
+            error: 'Design quality is too low to shade effectively. The design may be missing major elements or have no detectable linework.',
+            score_report: preCheck
+          }, { status: 400 });
+        }
+
         // Add ~8% white padding on all sides so Gemini never clips edge elements.
         // This gives the model room to complete any part of the design that touches the border.
         const { width: origW = 800, height: origH = 800 } = await sharp(rawBuffer).metadata();
@@ -253,12 +272,9 @@ export async function POST(req: NextRequest) {
             .webp({ quality: 90 })
             .toBuffer();
 
-        const scoreReport = await analyzeDermographicScore(optimizedBuffer);
-
         return NextResponse.json({
-            shaded_base64: optimizedBuffer.toString('base64'),
-            score_report: scoreReport,
-            success: true
+          shaded_base64: optimizedBuffer.toString('base64'),
+          success: true
         });
 
     } catch (err: any) {

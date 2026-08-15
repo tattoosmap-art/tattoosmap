@@ -342,7 +342,13 @@ export async function publishDesignAction(payload: PublishDesignPayload) {
             is_published: isPublished,
             confidence_score: payload.confidence_score || 0.8,
             ip_flag: !!payload.ip_flag,
-            status: payload.status || "published"
+            status: payload.status || "published",
+
+            // Dermographic Scoring
+            dermographic_score: payload.dermographic_score ?? null,
+            dermographic_warnings: payload.dermographic_warnings ?? [],
+            is_tattooable: payload.is_tattooable ?? true,
+            min_size_cm: payload.min_size_cm ?? null
         };
 
         // Template opening patterns to reject

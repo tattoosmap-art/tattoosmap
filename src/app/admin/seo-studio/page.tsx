@@ -170,6 +170,18 @@ export default function SEOStudio() {
 
         try {
             const res = await fetch('/api/shade-design', { method: 'POST', body: formData });
+            
+            // Handle pre-check failures specifically
+            if (res.status === 400) {
+              const errData = await res.json();
+              setQueue(q => q.map(i => i.id === item.id ? {
+                ...i,
+                errorMessage: errData.error || 'Design quality too low to shade',
+                isAnalyzing: false
+              } : i));
+              return;
+            }
+
             if (!res.ok) {
                 const errText = await res.text();
                 let errMsg = `Status ${res.status}`;
