@@ -18,41 +18,93 @@ const ai = new GoogleGenAI({ apiKey: getApiKey() });
 const getShadePrompt = (style: string, issues: string[], mode: string): string => {
   const baseRule = `
 CRITICAL OUTPUT RULE: Output ONLY a single tattoo design 
-on pure white (#FFFFFF) background. Pure black (#000000) 
-ink only. No grey. No mid-tones. Stencil-ready at 300 DPI.
+centred on a solid pure white (#FFFFFF) background.
+Pure black (#000000) ink only. No grey. No mid-tones.
+Stencil-ready at 300 DPI.
 
 INK RULE: Two colours only — #000000 and #FFFFFF.
 Depth and shadow via dot DENSITY not grey ink.
-Dense dots = dark. Sparse dots = light. White = highlight.
+Dense dots = dark shadow. Sparse dots = mid-tone.
+White space = highlight. Never use grey ink.
+
+LINE WEIGHT RULE — CRITICAL FOR SKIN:
+All designs must have deliberate line weight variation:
+→ OUTER CONTOUR LINES: minimum 1.5mm stroke weight
+   These are the lines that define the main shape
+   They must be bold enough to hold in skin for 15+ years
+→ SECONDARY LINES: 0.8mm — internal structure lines
+→ DETAIL LINES: 0.4mm minimum — fine interior details
+   Nothing thinner than 0.4mm at final tattoo size
+→ NEVER use hairline or single-pixel lines anywhere
+   These disappear completely after healing
+Line weight variation creates visual hierarchy:
+bold outline → medium structure → fine detail
+This is what separates professional tattoo art
+from amateur digital illustration.
+
+DOTWORK DENSITY RULE — FOR REALISTIC DEPTH:
+Use three distinct dot density zones only:
+→ SHADOW ZONE (dark areas): dots touching or overlapping
+   Creates rich deep black shadow
+→ MID-TONE ZONE: dots spaced 1-2 dot-widths apart
+   Creates the appearance of grey without grey ink
+→ HIGHLIGHT ZONE: dots spaced 3-5 dot-widths apart
+   Or pure white space for brightest highlights
+The transition between zones must be gradual
+to create smooth realistic depth.
+Abrupt transitions look amateur.
+Gradual transitions look professional.
+
+SPACING RULE — PREVENT BLOWOUT:
+Minimum 1.5mm gap between any two separate elements
+at the intended tattoo size.
+Elements closer than 1.5mm will bleed together
+after healing and look like a bruise not a tattoo.
+If elements are too close — increase spacing
+rather than reducing element size.
+
+NEGATIVE SPACE RULE:
+Negative space (white areas) is as important
+as the ink. Do not fill every area with dots.
+Clean white space creates contrast and makes
+the design readable at a distance.
+A design that is 60-70% white space
+reads better on skin than one that is 80% black.
 `;
 
 const SHADE_ONLY_RULE = `
 PRESERVATION RULE: Keep the original design composition 
 and execution exactly as intended by the artist.
-Fix only: line weight inconsistency, grey values to black,
-spacing issues, and add dotwork shadows.
+Fix only: 
+→ Line weight inconsistency (apply minimum 0.4mm to all lines)
+→ Grey values to pure black dotwork
+→ Element spacing (ensure 1.5mm minimum gaps)
+→ Add dotwork shadows using three density zones
 Do NOT change any lines, shapes, or elements.
 `;
 
 const REDRAW_RULE = `
 MASTER REDRAW RULE: Treat the input as a rough concept 
-sketch from a client. You have full creative freedom to 
-redraw every line with professional tattoo artist skill.
+sketch. Redraw with full professional tattoo artist skill.
 
 FIX AGGRESSIVELY:
-→ All wobbly or unconfident lines → smooth sweeping strokes
-→ Imperfect geometry → perfect symmetry and crisp angles
+→ Wobbly lines → smooth confident strokes
+→ Imperfect geometry → perfect symmetry
 → Amateur organic shapes → elegant professional versions
-→ Inconsistent line weight → thick outlines, fine details
-→ Rough textures → clean pure linework
+→ All lines must have minimum 0.4mm weight
+→ Outer contours must be 1.5mm minimum
+→ Add three-zone dotwork density for depth
+→ Ensure 1.5mm minimum gaps between elements
+→ 60-70% white space ratio for readability
 
 KEEP:
-→ The overall subject and what is depicted
-→ The general composition and layout
-→ The relative positions of elements
+→ Overall subject and composition
+→ General layout and element positions
+→ Style category of the design
 
-OUTPUT: A design so clean and professional that
-a tattoo artist could transfer it directly to skin.
+OUTPUT STANDARD:
+A tattoo artist should be able to transfer this
+directly to skin with zero modifications needed.
 `;
 
 const activeRule = mode === 'redraw' ? REDRAW_RULE : SHADE_ONLY_RULE;
