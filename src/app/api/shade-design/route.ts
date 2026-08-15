@@ -140,8 +140,48 @@ export async function POST(req: NextRequest) {
  
         const rawBuffer = Buffer.from(new Uint8Array(await file.arrayBuffer()));
 
+        // --- AUTOMATIC PRE-POLISH (Upscale & Contrast Snap) ---
+        const meta = await sharp(rawBuffer).metadata();
+        const minDimension = Math.min(meta.width || 0, meta.height || 0);
+
+        let baseS = sharp(rawBuffer).trim();
+        if (minDimension < 1200) {
+            baseS = baseS.resize({ 
+                width: 1200, 
+                height: 1200, 
+                fit: 'inside', 
+                kernel: 'lanczos3',
+                withoutEnlargement: false
+            });
+        } else {
+            baseS = baseS.resize({ 
+                width: 1200, 
+                height: 1200, 
+                fit: 'inside', 
+                kernel: 'lanczos3' 
+            });
+        }
+
+        const preprocessedBuffer = await baseS
+            .flatten({ background: '#ffffff' })
+            .grayscale()
+            .median(2)
+            .normalise()
+            .linear(2.5, -120) // Soft contrast boost to clean background
+            .png({ quality: 100 })
+            .toBuffer();
+
+        // Use a hard-threshold version for accurate scoring
+        const hardProcessed = await sharp(preprocessedBuffer)
+            .linear(1.2, -30)
+            .median(2)
+            .linear(3, -200)
+            .threshold(128)
+            .png()
+            .toBuffer();
+
         // Pre-check: do not waste API call on empty designs
-        const preCheck = await analyzeDermographicScore(rawBuffer);
+        const preCheck = await analyzeDermographicScore(hardProcessed);
 
         if (preCheck.breakdown.negative_space.flag && preCheck.score < 30) {
           return NextResponse.json({
@@ -161,11 +201,11 @@ export async function POST(req: NextRequest) {
 
         // Add ~8% white padding on all sides so Gemini never clips edge elements.
         // This gives the model room to complete any part of the design that touches the border.
-        const { width: origW = 800, height: origH = 800 } = await sharp(rawBuffer).metadata();
+        const { width: origW = 1200, height: origH = 1200 } = await sharp(preprocessedBuffer).metadata();
         const padX = Math.round(origW * 0.08);
         const padY = Math.round(origH * 0.08);
 
-        const paddedBuffer = await sharp(rawBuffer)
+        const paddedBuffer = await sharp(preprocessedBuffer)
             .extend({
                 top: padY,
                 bottom: padY,
