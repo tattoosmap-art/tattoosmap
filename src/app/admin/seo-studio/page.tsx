@@ -57,6 +57,7 @@ interface QueueItem {
     };
     
     errorMessage?: string;
+    shadedImageUrl?: string;
 }
 
 export default function SEOStudio() {
@@ -163,10 +164,15 @@ export default function SEOStudio() {
             
             if (data.error) throw new Error(data.error);
 
+            const shadedUrl = data.shaded_base64 
+              ? `data:image/png;base64,${data.shaded_base64}`
+              : data.image_url || null;
+            
             setQueue(q => q.map(i => i.id === item.id ? {
-                ...i,
-                stage1Result: { ...i.stage1Result, shaded_base64: data.shaded_base64 },
-                isAnalyzing: false
+              ...i,
+              stage1Result: { ...i.stage1Result, shaded_base64: data.shaded_base64 },
+              shadedImageUrl: shadedUrl,
+              isAnalyzing: false
             } : i));
         } catch (err: any) {
             setQueue(q => q.map(i => i.id === item.id ? { ...i, errorMessage: 'Shading failed: ' + err.message, isAnalyzing: false } : i));
@@ -624,10 +630,30 @@ export default function SEOStudio() {
 
                                         {/* Action Buttons Row */}
                                         <div className="flex gap-2">
-                                            {item.status === 'STAGE_1' && processMode === 'LINE_ART' && (
-                                                <button onClick={() => applyAIShading(item)} disabled={item.isAnalyzing} className="px-2.5 py-1.5 border border-neutral-700 bg-transparent text-neutral-300 hover:bg-neutral-800 font-mono text-[11px] uppercase tracking-widest transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">
-                                                    ✨ Apply AI Shading
-                                                </button>
+                                            {/* Shade button available from upload — no bulk polish required */}
+                                            {['UPLOADED', 'STAGE_1', 'STAGE_2', 'COMPLETE'].includes(item.status) 
+                                              && processMode === 'LINE_ART' && (
+                                              <button 
+                                                onClick={() => applyAIShading(item)} 
+                                                disabled={item.isAnalyzing}
+                                                className="px-2.5 py-1.5 border border-neutral-700 bg-transparent text-neutral-300 hover:bg-neutral-800 font-mono text-[11px] uppercase tracking-widest transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                                              >
+                                                {item.isAnalyzing ? '◈ Shading...' : item.shadedImageUrl ? '◈ Re-Shade' : '◈ Shade Only'}
+                                              </button>
+                                            )}
+
+                                            {/* Show shaded result thumbnail */}
+                                            {item.shadedImageUrl && (
+                                              <div className="mt-2 flex items-center gap-2">
+                                                <img 
+                                                  src={item.shadedImageUrl} 
+                                                  alt="Shaded result" 
+                                                  className="h-16 w-16 object-contain border border-green-800 bg-white"
+                                                />
+                                                <span className="font-mono text-[9px] uppercase tracking-widest text-green-500">
+                                                  ✓ Shaded
+                                                </span>
+                                              </div>
                                             )}
                                             
                                             {['STAGE_1', 'STAGE_2'].includes(item.status) && (
