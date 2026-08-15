@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import Papa from 'papaparse';
 import { UploadCloud, FileImage, Play, AlertCircle, Download, FileDown, Trash2, Eye, Zap, Layers, Cpu, Sparkles, Loader2 } from 'lucide-react';
 import { publishDesignAction, PublishDesignPayload } from '@/actions/publishDesign';
+import { getQueue, saveQueue } from '@/lib/queue-db';
 
 type PipelineStage = 'UPLOADED' | 'STAGE_1' | 'STAGE_2' | 'STAGE_3' | 'COMPLETE' | 'ERROR';
 
@@ -72,6 +73,26 @@ export default function SEOStudio() {
     const [publishResults, setPublishResults] = useState<Map<string, 'PUBLISHING' | 'LIVE' | 'DRAFT' | 'ERROR'>>(new Map());
 
     const isGlobalProcessing = queue.some(q => q.isAnalyzing) || isPublishing;
+
+    // Load queue from IndexedDB on mount
+    useEffect(() => {
+        const loadQueue = async () => {
+            try {
+                const stored = await getQueue();
+                if (stored && stored.length > 0) {
+                    setQueue(stored);
+                }
+            } catch (e) {
+                console.error('Failed to load queue:', e);
+            }
+        };
+        loadQueue();
+    }, []);
+
+    // Persist queue to IndexedDB on any change
+    useEffect(() => {
+        saveQueue(queue).catch(e => console.error('Failed to auto-save queue:', e));
+    }, [queue]);
 
     const handleFiles = (files: File[]) => {
         const newItems: QueueItem[] = files.map(file => ({
