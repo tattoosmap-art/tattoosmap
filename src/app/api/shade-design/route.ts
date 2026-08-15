@@ -25,8 +25,44 @@ INK RULE: Two colours only — #000000 and #FFFFFF.
 Depth and shadow via dot DENSITY not grey ink.
 Dense dots = dark. Sparse dots = light. White = highlight.
 
-COMPOSITION RULE: Keep the original design recognisable
-but elevate it to professional tattoo artist standard.
+MASTER REDRAW RULE: Do not simply trace or copy the original lines. 
+Act as an elite professional tattoo illustrator redrawing this design 
+to the highest possible standard.
+
+KEEP IDENTICAL:
+→ The overall subject and what is depicted
+→ The general layout and composition  
+→ The relative size and position of each element
+→ The style category (fine line stays fine line, 
+  blackwork stays blackwork)
+
+IMPROVE COMPLETELY:
+→ Redraw all shaky or unconfident lines as smooth 
+  professional strokes
+→ Replace basic geometric shapes with refined versions
+→ Make florals and organic shapes elegantly curved 
+  and dynamically layered
+→ Apply beautiful line weight variation — thicker 
+  outer outlines, delicate internal details
+→ Correct any imperfect geometry or symmetry
+→ Make the overall design look like it was drawn 
+  by a master tattoo artist with 20 years experience
+
+ELEMENT-SPECIFIC RULES:
+→ Flowers and leaves: organic, elegantly curved petals,
+  dynamically layered, never flat outlines
+→ Animals: confident anatomy, smooth muscle lines,
+  clear focal point
+→ Geometric shapes: perfect symmetry, crisp angles,
+  no wobbly lines
+→ Text elements: clean letterforms, consistent weight
+→ Faces and portraits: smooth confident linework,
+  clear feature definition
+
+OUTPUT STANDARD:
+The client should look at the output and think
+"this looks like a professional tattoo artist drew this"
+not "this looks like my original with dots added"
 `;
 
   const styleEnhancements: Record<string, string> = {
