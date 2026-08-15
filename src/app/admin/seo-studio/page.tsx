@@ -170,7 +170,11 @@ export default function SEOStudio() {
             
             setQueue(q => q.map(i => i.id === item.id ? {
               ...i,
-              stage1Result: { ...i.stage1Result, shaded_base64: data.shaded_base64 },
+              stage1Result: { 
+                ...i.stage1Result, 
+                shaded_base64: data.shaded_base64,
+                score_report: data.score_report || i.stage1Result?.score_report
+              },
               shadedImageUrl: shadedUrl,
               isAnalyzing: false
             } : i));

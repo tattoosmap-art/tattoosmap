@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from '@google/genai';
 import sharp from 'sharp';
+import { analyzeDermographicScore } from '@/lib/dermographic-scorer';
 
 const getApiKey = () => {
     const envKey = process.env.GEMINI_API_KEY;
@@ -216,8 +217,11 @@ export async function POST(req: NextRequest) {
             .webp({ quality: 90 })
             .toBuffer();
 
+        const scoreReport = await analyzeDermographicScore(optimizedBuffer);
+
         return NextResponse.json({
             shaded_base64: optimizedBuffer.toString('base64'),
+            score_report: scoreReport,
             success: true
         });
 
