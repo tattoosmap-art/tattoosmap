@@ -26,7 +26,8 @@ export async function analyzeDermographicScore(buffer: Buffer): Promise<Tattooab
     }
 
     const dpi = metadata.density || 72; // Default if no EXIF density
-    const stencil_dpi_ready = dpi >= 203;
+    // Stencil ready if EXIF has high DPI, or if absolute pixel size is high (>=1200px)
+    const stencil_dpi_ready = (dpi >= 203) || (Math.min(metadata.width, metadata.height) >= 1200);
     
     let warnings: string[] = [];
     let blowout_risk = 0;
@@ -110,16 +111,22 @@ export async function analyzeDermographicScore(buffer: Buffer): Promise<Tattooab
         warnings.push("High detail complexity: High edge density. Details may blur together as skin ages.");
     }
 
-    // --- 4. Contrast Distribution (15%) via Standard Deviation ---
+    // --- 4. Contrast Distribution (15%) ---
     const stats = await image.clone().stats();
     const luma = stats.channels[0];
     const contrastSD = luma.stdev;
     
     let contrastScore = 15;
     let contrastFlag = false;
-    // High contrast black/white designs have stdev > 100. Lower stdev means washed out or photo.
-    if (contrastSD < 80) {
-        contrastScore = Math.max(0, 15 - (80 - contrastSD) * 0.3);
+    
+    // Clean line art with lots of negative space naturally has a lower stdev because it is mostly white.
+    // We flag low contrast if the dynamic range is narrow (washed out) OR if there are no true black values (min > 80).
+    const minVal = luma.min;
+    const maxVal = luma.max;
+    const range = maxVal - minVal;
+    
+    if (range < 150 || minVal > 80) {
+        contrastScore = range < 150 ? 5 : 10;
         contrastFlag = true;
         warnings.push("Low contrast: Lacks defined black ink values. Needs contrast snapping.");
     }
