@@ -17,61 +17,56 @@ const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 const getShadePrompt = (style: string, issues: string[], mode: string): string => {
 
-  const SHADE_ONLY_PROMPT = `
-You are a master tattoo artist creating a professional stipple-shaded tattoo design.
+  const SHADE_ONLY_PROMPT = `You are a professional tattoo stencil artist.
 
-OUTPUT REQUIREMENTS:
-- Pure white (#FFFFFF) background only
-- Pure black (#000000) ink only  
-- No grey, no mid-tones, no colour
-- Stencil quality at 300 DPI
-
-WHAT TO DO:
-1. Keep every line and element exactly as positioned in the original
-2. Add stipple dotwork shading to create depth and shadow
-3. Use dot DENSITY for tonal variation — not grey ink:
-   Dense clustered dots = deep shadow
-   Spaced dots = mid-tone
-   White space = highlight
-4. Bold outer outlines, finer interior detail lines
-5. Clean white space between elements
-
-DO NOT: change the design, move elements, or add new elements
-`;
-
-  const REDRAW_PROMPT = `
-You are a master tattoo artist refining a rough client concept sketch.
-
-OUTPUT REQUIREMENTS:
-- Pure white (#FFFFFF) background only
-- Pure black (#000000) ink only
-- No grey, no mid-tones, no colour
-- Stencil quality at 300 DPI
+OUTPUT REQUIREMENTS — NON NEGOTIABLE:
+- Pure white (#FFFFFF) background only. Nothing else outside the design.
+- Pure black (#000000) ink only. No exceptions.
+- No grey. No charcoal. No mid-tones. No colour.
+- Depth and shadow via dot DENSITY only — not grey ink.
+- Output must be suitable for printing as tattoo stencil at 300 DPI.
 
 WHAT TO DO:
-1. Redraw every line smooth and confident — no wobbly strokes
-2. Fix geometry — make circles perfect, symmetry exact
-3. Make organic shapes elegant — flowers curved and layered
-4. Apply line weight variation — bold outlines, fine details
-5. Add stipple dotwork for depth using dot density not grey
-6. Keep the same subject, composition, and layout
+- Replicate the exact line-art composition of the original design accurately.
+- Add fine-point stipple dotwork to build volume, depth and shadow.
+- Dense dots = dark shadow areas.
+- Spaced dots = mid-tone areas.
+- White space = highlights.
+- All dots must be pure black (#000000).
+- All outlines remain sharp, crisp and pure black.
+- Do not add, remove or alter any existing lines or elements.`;
 
-OUTPUT: So clean a tattoo artist can transfer it directly to skin
-`;
+  const REDRAW_PROMPT = `You are a master tattoo artist refining a rough concept sketch into a professional tattoo stencil.
+
+OUTPUT REQUIREMENTS — NON NEGOTIABLE:
+- Pure white (#FFFFFF) background only.
+- Pure black (#000000) ink only.
+- No grey. No charcoal. No mid-tones. No colour.
+- Depth via dot DENSITY only — never grey ink.
+- Stencil quality at 300 DPI.
+
+WHAT TO DO:
+- Treat the input as a rough concept. You have creative freedom to improve execution.
+- Redraw all wobbly lines as smooth confident strokes.
+- Fix imperfect geometry — make circles perfect, symmetry exact.
+- Make organic shapes elegant — flowers curved and layered.
+- Apply line weight variation — bold outer outlines, finer interior details.
+- Add stipple dotwork for depth using density variation only.
+- Keep the same subject, composition and general layout.
+- Output must look like a professional tattoo artist drew it from scratch.`;
 
   const basePrompt = mode === 'redraw' ? REDRAW_PROMPT : SHADE_ONLY_PROMPT;
 
   const styleAddons: Record<string, string> = {
-    'fine-line': '\nAdd subtle dotwork shadows beneath elements. Keep lines delicate and precise.',
-    'blackwork': '\nUse bold fills and geometric dot patterns. Strong contrast between black and white.',
-    'traditional': '\nThicken outer outlines. Bold shadow lines. High contrast fills.',
-    'neo-traditional': '\nOrnate detail in shadow areas. Varied line weights throughout.',
-    'default': '\nBalance dotwork density with clean white space for maximum readability.'
+    'fine-line': ' Add subtle dotwork shadows beneath each element. Keep all lines delicate and precise. Accent dots at line endpoints.',
+    'blackwork': ' Bold geometric fills. Strong black and white contrast. Geometric dot patterns in shadow areas.',
+    'traditional': ' Thicken outer outlines. Bold shadow lines below main elements. High contrast fills.',
+    'neo-traditional': ' Ornate botanical elements in shadow areas. Varied line weights throughout. Decorative flourishes.',
+    'default': ' Balance dotwork density with clean white negative space for maximum readability on skin.'
   };
 
   const addon = styleAddons[style] || styleAddons['default'];
-  
-  return basePrompt + addon;
+  return basePrompt + '\n' + addon;
 };
 
 export async function POST(req: NextRequest) {
@@ -265,8 +260,8 @@ export async function POST(req: NextRequest) {
             .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })
             .flatten({ background: '#ffffff' })
             .grayscale()
-            .normalise()
-            .linear(2.5, -100)
+            .linear(3, -200)
+            .threshold(128)
             .toColorspace('srgb')
             .png({ compressionLevel: 6 })
             .toBuffer();
