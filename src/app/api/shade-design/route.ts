@@ -35,21 +35,21 @@ LINE WEIGHT — CRITICAL:
 - Hairline lines, single-pixel lines, sketch lines: DELETE or thicken.
 - Line weight variation creates professional hierarchy — apply it.
 
-DOTWORK SHADING — WHIP SHADING GRADIENTS:
-Apply traditional whip shading and fine-grain pepper shading for volume:
-- Create ultra-smooth, continuous stipple gradients.
-- Start with dense, touching dots in the deepest shadows (under coils, deep recesses).
-- Smoothly transition to fine, dissipating dots (pepper shading) as it moves towards the light.
-- Leave the center of scales, the flat blade of the dagger, and convex curves PURE WHITE to create high contrast.
-- Ensure extremely high density of micro-dots in the shadows, pulling out into a smooth whip shade.
-- DO NOT use discrete or abrupt zones. The gradient must be perfectly continuous, mimicking a traditional tattoo whip shade.
+DOTWORK SHADING — SOLID-TO-STIPPLE GRADIENTS:
+Apply high-contrast traditional pepper shading for volume:
+- Anchor the deepest shadows (inside mouths, under overlapping coils, deep recesses) with SOLID BLACK fill.
+- From the solid black, immediately break out into ultra-fine, tightly packed micro-stippling (pepper shading).
+- Smoothly whip the dots out so they dissipate as they move towards the light.
+- Leave large portions of the form (centers of scales, highlights, tops of forms) PURE WHITE for extreme contrast.
+- The shading must strictly hug the shadow edges and transition seamlessly from solid black -> dense dots -> sparse dots -> pure white.
+- The dots MUST be ultra-fine micro-dots, NOT large sparse dots.
 
 WHAT TO DO:
 - Thicken all thin lines before adding any shading.
-- Apply traditional whip shading and pepper shading to all curved surfaces for volume.
+- Apply the solid-to-stipple pepper shading to all curved surfaces for volume.
 - Bold outer outlines, progressively thinner inward details.
 - Clean white space in highlight areas — do not over-dot the centers of forms.
-- The result must look like it was drawn by a tattoo artist with 20 years of professional experience, specifically skilled in smooth stipple gradients.`;
+- The result must look like it was drawn by a tattoo artist with 20 years of professional experience, specifically skilled in ultra-fine traditional pepper shading.`;
 
   const REDRAW_PROMPT = `You are a master tattoo artist refining a rough concept into a professional stencil.
 
@@ -66,11 +66,12 @@ REDRAW RULES:
 - Outer contours minimum 1.5mm. Interior details minimum 0.4mm.
 - Delete any hairline or sketch lines — redraw at proper weight.
 
-SHADING RULES (TRADITIONAL WHIP SHADING):
-- Apply traditional whip shading and pepper shading for smooth, continuous gradients.
-- Start dense in deepest shadows, whipping out to fine, dissipating dots.
-- Leave the center of forms and highlight areas pure white.
-- The gradient must be perfectly continuous, with no abrupt zones.
+SHADING RULES (SOLID-TO-STIPPLE PEPPER SHADING):
+- Anchor deepest shadows with SOLID BLACK fill.
+- Transition from solid black into ultra-fine, dense micro-stippling (pepper shading).
+- Whip the dots out to dissipate into pure white.
+- Leave large portions of the form pure white for extreme contrast.
+- The dots must be ultra-fine and tightly packed.
 
 OUTPUT: A design so technically correct that a tattoo artist
 can transfer it directly to skin with zero modifications.`;
