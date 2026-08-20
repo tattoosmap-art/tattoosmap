@@ -35,31 +35,21 @@ LINE WEIGHT — CRITICAL:
 - Hairline lines, single-pixel lines, sketch lines: DELETE or thicken.
 - Line weight variation creates professional hierarchy — apply it.
 
-DOTWORK SHADING — THREE ZONE SYSTEM:
-Apply stipple dotwork in exactly three density zones:
-ZONE 1 — SHADOW (darkest areas, where light does not reach):
-  Dots touching or almost touching. Very dense cluster.
-  Examples: eye sockets, under coils, inside curves.
-ZONE 2 — MID-TONE (body surface, form):
-  Dots spaced 1-2 dot-widths apart.
-  Creates the visual impression of grey without grey ink.
-ZONE 3 — HIGHLIGHT (where light hits directly):
-  Dots spaced 3-5 dot-widths apart, or pure white space.
-  
-TRANSITION RULE: 
-Each zone must GRADUALLY transition into the next.
-Shadow → slow density decrease → mid-tone → slow decrease → highlight.
-Never jump abruptly from dense to empty.
-Gradual transitions create smooth professional depth.
-Abrupt transitions look amateur.
+DOTWORK SHADING — WHIP SHADING GRADIENTS:
+Apply traditional whip shading and fine-grain pepper shading for volume:
+- Create ultra-smooth, continuous stipple gradients.
+- Start with dense, touching dots in the deepest shadows (under coils, deep recesses).
+- Smoothly transition to fine, dissipating dots (pepper shading) as it moves towards the light.
+- Leave the center of scales, the flat blade of the dagger, and convex curves PURE WHITE to create high contrast.
+- Ensure extremely high density of micro-dots in the shadows, pulling out into a smooth whip shade.
+- DO NOT use discrete or abrupt zones. The gradient must be perfectly continuous, mimicking a traditional tattoo whip shade.
 
 WHAT TO DO:
 - Thicken all thin lines before adding any shading.
-- Add three-zone dotwork to all curved surfaces for volume.
+- Apply traditional whip shading and pepper shading to all curved surfaces for volume.
 - Bold outer outlines, progressively thinner inward details.
-- Clean white space in highlight areas — do not over-dot.
-- The result must look like it was drawn by a tattoo artist
-  with 20 years of professional experience.`;
+- Clean white space in highlight areas — do not over-dot the centers of forms.
+- The result must look like it was drawn by a tattoo artist with 20 years of professional experience, specifically skilled in smooth stipple gradients.`;
 
   const REDRAW_PROMPT = `You are a master tattoo artist refining a rough concept into a professional stencil.
 
@@ -76,11 +66,11 @@ REDRAW RULES:
 - Outer contours minimum 1.5mm. Interior details minimum 0.4mm.
 - Delete any hairline or sketch lines — redraw at proper weight.
 
-SHADING RULES (same three-zone system):
-SHADOW ZONE: Dense touching dots in darkest areas.
-MID-TONE ZONE: Dots 1-2 widths apart on curved surfaces.
-HIGHLIGHT ZONE: Sparse dots or pure white on light-hit areas.
-Gradual transitions between all zones — never abrupt jumps.
+SHADING RULES (TRADITIONAL WHIP SHADING):
+- Apply traditional whip shading and pepper shading for smooth, continuous gradients.
+- Start dense in deepest shadows, whipping out to fine, dissipating dots.
+- Leave the center of forms and highlight areas pure white.
+- The gradient must be perfectly continuous, with no abrupt zones.
 
 OUTPUT: A design so technically correct that a tattoo artist
 can transfer it directly to skin with zero modifications.`;
