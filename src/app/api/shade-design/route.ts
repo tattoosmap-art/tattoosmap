@@ -118,9 +118,14 @@ export async function POST(req: NextRequest) {
         const preprocessedBuffer = await baseS
             .flatten({ background: '#ffffff' })
             .grayscale()
-            .median(2)
-            .normalise()
-            .linear(2.5, -120) // Soft contrast boost to clean background
+            .median(2)              // remove noise
+            .clahe({               // CLAHE: enhance local contrast
+              width: 64,           // tile width
+              height: 64,          // tile height
+              maxSlope: 3          // limit contrast amplification
+            })
+            .normalise()           // stretch to full tonal range
+            .linear(1.3, -15)      // gentle boost only — preserve grey tones
             .png({ quality: 100 })
             .toBuffer();
 
@@ -261,7 +266,7 @@ export async function POST(req: NextRequest) {
             .flatten({ background: '#ffffff' })
             .grayscale()
             .normalise()
-            .linear(1.8, -40)
+            .linear(1.6, -20)
             .png({ compressionLevel: 6 })
             .toBuffer();
 
