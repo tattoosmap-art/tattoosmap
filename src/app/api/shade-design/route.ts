@@ -17,39 +17,17 @@ const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 const getShadePrompt = (style: string, issues: string[], mode: string): string => {
 
-  const SHADE_ONLY_PROMPT = `You are a professional tattoo stencil artist producing a print-ready tattoo design.
+  const SHADE_ONLY_PROMPT = `CRITICAL OUTPUT RULE: Output ONLY a single tattoo design centred on a solid 100% pure white background (#FFFFFF). Do NOT include any extra sketches, scribbles, draft lines, reference panels, watermarks, borders, frames, multiple design variants, or any other mark outside the single design. The entire canvas outside the design must be completely empty pure white with absolutely nothing else on it.
 
-OUTPUT REQUIREMENTS — NON NEGOTIABLE:
-- Pure white (#FFFFFF) background only.
-- Pure black (#000000) ink only. No exceptions.
-- No grey ink. No charcoal. No mid-tones.
-- Depth via dot DENSITY only — never grey ink.
-- Stencil-ready at 300 DPI for thermal transfer paper.
+INK COLOUR RULE — CRITICAL: All ink in the design must be pure black (#000000) only. No grey. No charcoal. No mid-tones. The only two colours in the output are pure black (#000000) for all ink and pure white (#FFFFFF) for the background. This is non-negotiable.
 
-LINE WEIGHT — CRITICAL:
-- Scan every line in the design.
-- Any line thinner than 0.4mm at tattoo size MUST be thickened.
-- Outer silhouette and main contours: minimum 1.5mm bold stroke.
-- Secondary structure lines: minimum 0.8mm.
-- Fine interior details: minimum 0.4mm.
-- Hairline lines, single-pixel lines, sketch lines: DELETE or thicken.
-- Line weight variation creates professional hierarchy — apply it.
+DESIGN RULE: Replicate the precise line-art composition of the original design with absolute accuracy. Do not add, remove, or alter any existing lines or elements.
 
-DOTWORK SHADING — SOLID-TO-STIPPLE GRADIENTS:
-Apply high-contrast traditional pepper shading for volume:
-- Anchor the deepest shadows (inside mouths, under overlapping coils, deep recesses) with SOLID BLACK fill.
-- From the solid black, immediately break out into ultra-fine, tightly packed micro-stippling (pepper shading).
-- Smoothly whip the dots out so they dissipate as they move towards the light.
-- Leave large portions of the form (centers of scales, highlights, tops of forms) PURE WHITE for extreme contrast.
-- The shading must strictly hug the shadow edges and transition seamlessly from solid black -> dense dots -> sparse dots -> pure white.
-- The dots MUST be ultra-fine micro-dots, NOT large sparse dots.
+SHADING RULE: Apply fine-point dotwork stippling to build volume, depth, gradients, and shadows. Use varying dot density to create shadow — dense dots for dark areas, sparse dots for light areas, white space for highlights. All dots must be pure black (#000000). Shadow and depth is created through dot density variation NOT through grey ink or mid-tone values.
 
-WHAT TO DO:
-- Thicken all thin lines before adding any shading.
-- Apply the solid-to-stipple pepper shading to all curved surfaces for volume.
-- Bold outer outlines, progressively thinner inward details.
-- Clean white space in highlight areas — do not over-dot the centers of forms.
-- The result must look like it was drawn by a tattoo artist with 20 years of professional experience, specifically skilled in ultra-fine traditional pepper shading.`;
+LINE RULE: All main outlines must remain sharp, distinct, crisp, and pure black (#000000). No softening or greying of outlines.
+
+FINAL CHECK: The output must be suitable for printing as a tattoo stencil at 300 DPI on thermal paper. If any grey appears in the output it is wrong. Pure black dotwork on pure white background only.`;
 
   const REDRAW_PROMPT = `You are a master tattoo artist refining a rough concept into a professional stencil.
 
