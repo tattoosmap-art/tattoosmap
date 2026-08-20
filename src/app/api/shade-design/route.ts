@@ -260,9 +260,8 @@ export async function POST(req: NextRequest) {
             .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })
             .flatten({ background: '#ffffff' })
             .grayscale()
-            .linear(3, -200)
-            .threshold(128)
-            .toColorspace('srgb')
+            .normalise()
+            .linear(1.4, -30)
             .png({ compressionLevel: 6 })
             .toBuffer();
 
