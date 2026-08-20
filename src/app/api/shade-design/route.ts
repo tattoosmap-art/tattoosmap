@@ -17,43 +17,73 @@ const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 const getShadePrompt = (style: string, issues: string[], mode: string): string => {
 
-  const SHADE_ONLY_PROMPT = `You are a professional tattoo stencil artist.
-
-OUTPUT REQUIREMENTS — NON NEGOTIABLE:
-- Pure white (#FFFFFF) background only. Nothing else outside the design.
-- Pure black (#000000) ink only. No exceptions.
-- No grey. No charcoal. No mid-tones. No colour.
-- Depth and shadow via dot DENSITY only — not grey ink.
-- Output must be suitable for printing as tattoo stencil at 300 DPI.
-
-WHAT TO DO:
-- Replicate the exact line-art composition of the original design accurately.
-- Add fine-point stipple dotwork to build volume, depth and shadow.
-- Dense dots = dark shadow areas.
-- Spaced dots = mid-tone areas.
-- White space = highlights.
-- All dots must be pure black (#000000).
-- All outlines remain sharp, crisp and pure black.
-- Do not add, remove or alter any existing lines or elements.`;
-
-  const REDRAW_PROMPT = `You are a master tattoo artist refining a rough concept sketch into a professional tattoo stencil.
+  const SHADE_ONLY_PROMPT = `You are a professional tattoo stencil artist producing a print-ready tattoo design.
 
 OUTPUT REQUIREMENTS — NON NEGOTIABLE:
 - Pure white (#FFFFFF) background only.
-- Pure black (#000000) ink only.
-- No grey. No charcoal. No mid-tones. No colour.
+- Pure black (#000000) ink only. No exceptions.
+- No grey ink. No charcoal. No mid-tones.
 - Depth via dot DENSITY only — never grey ink.
-- Stencil quality at 300 DPI.
+- Stencil-ready at 300 DPI for thermal transfer paper.
+
+LINE WEIGHT — CRITICAL:
+- Scan every line in the design.
+- Any line thinner than 0.4mm at tattoo size MUST be thickened.
+- Outer silhouette and main contours: minimum 1.5mm bold stroke.
+- Secondary structure lines: minimum 0.8mm.
+- Fine interior details: minimum 0.4mm.
+- Hairline lines, single-pixel lines, sketch lines: DELETE or thicken.
+- Line weight variation creates professional hierarchy — apply it.
+
+DOTWORK SHADING — THREE ZONE SYSTEM:
+Apply stipple dotwork in exactly three density zones:
+ZONE 1 — SHADOW (darkest areas, where light does not reach):
+  Dots touching or almost touching. Very dense cluster.
+  Examples: eye sockets, under coils, inside curves.
+ZONE 2 — MID-TONE (body surface, form):
+  Dots spaced 1-2 dot-widths apart.
+  Creates the visual impression of grey without grey ink.
+ZONE 3 — HIGHLIGHT (where light hits directly):
+  Dots spaced 3-5 dot-widths apart, or pure white space.
+  
+TRANSITION RULE: 
+Each zone must GRADUALLY transition into the next.
+Shadow → slow density decrease → mid-tone → slow decrease → highlight.
+Never jump abruptly from dense to empty.
+Gradual transitions create smooth professional depth.
+Abrupt transitions look amateur.
 
 WHAT TO DO:
-- Treat the input as a rough concept. You have creative freedom to improve execution.
-- Redraw all wobbly lines as smooth confident strokes.
-- Fix imperfect geometry — make circles perfect, symmetry exact.
-- Make organic shapes elegant — flowers curved and layered.
-- Apply line weight variation — bold outer outlines, finer interior details.
-- Add stipple dotwork for depth using density variation only.
-- Keep the same subject, composition and general layout.
-- Output must look like a professional tattoo artist drew it from scratch.`;
+- Thicken all thin lines before adding any shading.
+- Add three-zone dotwork to all curved surfaces for volume.
+- Bold outer outlines, progressively thinner inward details.
+- Clean white space in highlight areas — do not over-dot.
+- The result must look like it was drawn by a tattoo artist
+  with 20 years of professional experience.`;
+
+  const REDRAW_PROMPT = `You are a master tattoo artist refining a rough concept into a professional stencil.
+
+OUTPUT REQUIREMENTS — NON NEGOTIABLE:
+- Pure white (#FFFFFF) background only.
+- Pure black (#000000) ink only. No grey. No mid-tones.
+- Depth via dot DENSITY only.
+- Stencil-ready at 300 DPI.
+
+REDRAW RULES:
+- Redraw every wobbly line as smooth confident stroke.
+- Fix all geometry — perfect circles, exact symmetry.
+- Make organic shapes elegant — curved petals, smooth muscle lines.
+- Outer contours minimum 1.5mm. Interior details minimum 0.4mm.
+- Delete any hairline or sketch lines — redraw at proper weight.
+
+SHADING RULES (same three-zone system):
+SHADOW ZONE: Dense touching dots in darkest areas.
+MID-TONE ZONE: Dots 1-2 widths apart on curved surfaces.
+HIGHLIGHT ZONE: Sparse dots or pure white on light-hit areas.
+Gradual transitions between all zones — never abrupt jumps.
+
+OUTPUT: A design so technically correct that a tattoo artist
+can transfer it directly to skin with zero modifications.`;
 
   const basePrompt = mode === 'redraw' ? REDRAW_PROMPT : SHADE_ONLY_PROMPT;
 
