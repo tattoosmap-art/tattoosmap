@@ -15,72 +15,73 @@ const getApiKey = () => {
 
 const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
-const getShadePrompt = (style: string, issues: string[], mode: string): string => {
+const getShadePrompt = (style: string, issues: string[]): string => {
+  const baseRule = `
+CRITICAL OUTPUT RULE: Output ONLY a single tattoo design 
+on pure white (#FFFFFF) background. Pure black (#000000) 
+ink only. No grey. No mid-tones. Stencil-ready at 300 DPI.
 
-  const SHADE_ONLY_PROMPT = `CRITICAL OUTPUT RULE: Output ONLY a single tattoo design centred on a solid 100% pure white background (#FFFFFF). Do NOT include any extra sketches, scribbles, draft lines, reference panels, watermarks, borders, frames, multiple design variants, or any other mark outside the single design. The entire canvas outside the design must be completely empty pure white with absolutely nothing else on it.
+INK RULE: Two colours only — #000000 and #FFFFFF.
+Depth and shadow via dot DENSITY not grey ink.
+Dense dots = dark. Sparse dots = light. White = highlight.
 
-INK COLOUR RULE — CRITICAL: All ink in the design must be pure black (#000000) only. No grey. No charcoal. No mid-tones. The only two colours in the output are pure black (#000000) for all ink and pure white (#FFFFFF) for the background. This is non-negotiable.
+COMPOSITION RULE: Keep the original design recognisable
+but elevate it to professional tattoo artist standard.
+`;
 
-DESIGN RULE: Replicate the precise line-art composition of the original design with absolute accuracy. Do not add, remove, or alter any existing lines or elements.
-
-LINE WEIGHT RULE: Apply deliberate line weight variation to create visual hierarchy:
-- OUTER CONTOUR LINES (main silhouette): boldest and thickest strokes — minimum 1.5mm
-- SECONDARY LINES (internal structure): medium weight — approximately 0.8mm
-- DETAIL LINES (fine interior elements): thinnest strokes — minimum 0.4mm
-- NEVER use hairline or single-pixel lines — these disappear after healing in skin
-This variation is what separates professional tattoo art from amateur illustration.
-
-THREE-ZONE DOTWORK SHADING RULE: Apply stipple dotwork in exactly three density zones:
-- ZONE 1 — SHADOW (darkest areas where light does not reach): dots touching or almost touching — very dense cluster — use in eye sockets, under coils, inside deep curves
-- ZONE 2 — MID-TONE (body surface, form): dots spaced 1-2 dot-widths apart — creates the visual impression of grey without grey ink
-- ZONE 3 — HIGHLIGHT (where light hits directly): dots spaced 3-5 dot-widths apart or pure white space — do not over-dot highlight areas
-TRANSITION RULE: Each zone must GRADUALLY transition into the next. Shadow → slow density decrease → mid-tone → slow decrease → highlight. Never jump abruptly from dense to empty. Gradual transitions create smooth professional depth. Abrupt transitions look amateur.
-
-SPACING RULE: Maintain a minimum 1mm gap between any two separate elements at the intended tattoo size. Elements closer than 1mm will bleed together after healing in skin.
-
-LINE RULE: All main outlines must remain sharp, distinct, crisp, and pure black (#000000). No softening or greying of outlines.
-
-NEGATIVE SPACE RULE: Clean white space is as important as the ink. Do not fill every area with dots. A design that is 60-70% white space reads better on skin than one that is 80% black. Leave the highlight zones as clean white.
-
-FINAL CHECK: The output must be suitable for printing as a tattoo stencil at 300 DPI on thermal paper. If any grey appears in the output it is wrong. Pure black dotwork on pure white background only. A professional tattoo artist should be able to transfer this directly to skin with zero modifications.`;
-
-  const REDRAW_PROMPT = `You are a master tattoo artist refining a rough concept into a professional stencil.
-
-OUTPUT REQUIREMENTS — NON NEGOTIABLE:
-- Pure white (#FFFFFF) background only.
-- Pure black (#000000) ink only. No grey. No mid-tones.
-- Depth via dot DENSITY only.
-- Stencil-ready at 300 DPI.
-
-REDRAW RULES:
-- Redraw every wobbly line as smooth confident stroke.
-- Fix all geometry — perfect circles, exact symmetry.
-- Make organic shapes elegant — curved petals, smooth muscle lines.
-- Outer contours minimum 1.5mm. Interior details minimum 0.4mm.
-- Delete any hairline or sketch lines — redraw at proper weight.
-
-SHADING RULES (SOLID-TO-STIPPLE PEPPER SHADING):
-- Anchor deepest shadows with SOLID BLACK fill.
-- Transition from solid black into ultra-fine, dense micro-stippling (pepper shading).
-- Whip the dots out to dissipate into pure white.
-- Leave large portions of the form pure white for extreme contrast.
-- The dots must be ultra-fine and tightly packed.
-
-OUTPUT: A design so technically correct that a tattoo artist
-can transfer it directly to skin with zero modifications.`;
-
-  const basePrompt = mode === 'redraw' ? REDRAW_PROMPT : SHADE_ONLY_PROMPT;
-
-  const styleAddons: Record<string, string> = {
-    'fine-line': ' Add subtle dotwork shadows beneath each element. Keep all lines delicate and precise. Accent dots at line endpoints.',
-    'blackwork': ' Bold geometric fills. Strong black and white contrast. Geometric dot patterns in shadow areas.',
-    'traditional': ' Thicken outer outlines. Bold shadow lines below main elements. High contrast fills.',
-    'neo-traditional': ' Ornate botanical elements in shadow areas. Varied line weights throughout. Decorative flourishes.',
-    'default': ' Balance dotwork density with clean white negative space for maximum readability on skin.'
+  const styleEnhancements: Record<string, string> = {
+    'fine-line': `
+FINE LINE ENHANCEMENTS:
+→ Add subtle dotwork shadow beneath each element
+→ Add small accent dots at all line endpoints and curves
+→ Ensure all lines minimum 0.3mm at final tattoo size
+→ Add delicate stippled texture to fill areas
+→ Clean all negative space to pure white
+`,
+    'blackwork': `
+BLACKWORK ENHANCEMENTS:
+→ Fill large black areas with geometric micro-pattern
+→ Add bold shadow lines on one side of all elements
+→ Strengthen main outline to 2x weight of detail lines
+→ Add geometric frame or border appropriate to design
+→ Use bold black fills contrasted with pure white negative space
+`,
+    'traditional': `
+TRADITIONAL ENHANCEMENTS:
+→ Thicken all outlines to classic American traditional weight
+→ Add bold shadow lines below and right of all elements
+→ Convert any gradient to solid black or white — no grey
+→ Add classic bold frame or banner if design permits
+→ Simplify all detail to bold clear shapes
+`,
+    'neo-traditional': `
+NEO-TRADITIONAL ENHANCEMENTS:
+→ Add ornate botanical or floral frame elements
+→ Vary line weights dramatically — bold outline, fine detail
+→ Add decorative dotwork texture to background areas
+→ Include decorative flourishes at natural endpoints
+`,
+    'default': `
+UNIVERSAL ENHANCEMENTS:
+→ Add dotwork stippling for all shadow areas
+→ Thicken main outlines by 15% over detail lines
+→ Add accent dots at line intersections
+→ Clean all negative space to pure white
+→ Ensure no element is closer than 1mm to another
+`
   };
 
-  const addon = styleAddons[style] || styleAddons['default'];
-  return basePrompt + '\n' + addon;
+  const issueCorrections = issues.map(issue => {
+    if (issue.includes('thin')) return '→ PRIORITY: Thicken all lines to minimum tattooable weight';
+    if (issue.includes('detail')) return '→ PRIORITY: Simplify crowded areas — remove smallest details';
+    if (issue.includes('close')) return '→ PRIORITY: Add breathing space between touching elements';
+    if (issue.includes('grey')) return '→ PRIORITY: Convert all grey to pure black dotwork';
+    return `→ FIX: ${issue}`;
+  }).join('\n');
+
+  const enhancement = styleEnhancements[style] || styleEnhancements['default'];
+
+  return `${baseRule}\n${enhancement}\n${issueCorrections ? 'SPECIFIC FIXES REQUIRED:\n' + issueCorrections : ''}`;
 };
 
 export async function POST(req: NextRequest) {
@@ -102,7 +103,7 @@ export async function POST(req: NextRequest) {
             // fallback if it's passed as a comma separated string
             if (issuesRaw) detectedIssues = issuesRaw.split(',');
         }
-        const STIPPLE_PROMPT = getShadePrompt(detectedStyle, detectedIssues, mode);
+        const STIPPLE_PROMPT = getShadePrompt(detectedStyle, detectedIssues);
         
         if (!file) return NextResponse.json({ error: 'No image provided' }, { status: 400 });
  
