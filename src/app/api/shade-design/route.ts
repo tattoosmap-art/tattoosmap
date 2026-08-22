@@ -265,7 +265,7 @@ export async function POST(req: NextRequest) {
             .flatten({ background: '#ffffff' })
             .grayscale()
             .normalise()
-            .linear(1.8, -40)
+            .linear(2.2, -60)
             .png({ compressionLevel: 6 })
             .toBuffer();
 
