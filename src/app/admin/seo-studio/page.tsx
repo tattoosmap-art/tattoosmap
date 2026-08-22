@@ -165,7 +165,9 @@ export default function SEOStudio() {
         const formData = new FormData();
         
         let fileToUpload: File | Blob = item.file;
+        let isPolished = 'false';
         if (item.stage1Result?.polished_base64) {
+            isPolished = 'true';
             try {
                 const byteCharacters = atob(item.stage1Result.polished_base64);
                 const byteArrays = [];
@@ -182,10 +184,12 @@ export default function SEOStudio() {
                 fileToUpload = new File([blob], 'polished.png', { type: 'image/png' });
             } catch (e) {
                 console.error("Failed to convert polished base64 to file, falling back to original", e);
+                isPolished = 'false';
             }
         }
         
         formData.append('file', fileToUpload);
+        formData.append('isPolished', isPolished);
         
         formData.append('style', item.stage2Result?.style_tags?.[0] || 'default');
         formData.append('issues', JSON.stringify(item.stage1Result?.score_report?.issues || []));

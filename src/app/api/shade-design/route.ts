@@ -76,6 +76,7 @@ export async function POST(req: NextRequest) {
         const detectedStyle = (formData.get('style') as string) || 'default';
         const issuesRaw = formData.get('issues') as string;
         const mode = formData.get('mode') as string || 'shade';
+        const isPolished = formData.get('isPolished') as string === 'true';
         // 'shade' = shade only (preserve design)
         // 'redraw' = redraw and shade (improve execution)
 
@@ -114,19 +115,28 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        const preprocessedBuffer = await baseS
-            .flatten({ background: '#ffffff' })
-            .grayscale()
-            .median(2)              // remove noise
-            .clahe({               // CLAHE: enhance local contrast
-              width: 64,           // tile width
-              height: 64,          // tile height
-              maxSlope: 3          // limit contrast amplification
-            })
-            .normalise()           // stretch to full tonal range
-            .linear(1.3, -15)      // gentle boost only — preserve grey tones
-            .png({ quality: 100 })
-            .toBuffer();
+        let preprocessedBuffer: Buffer;
+        if (isPolished) {
+            preprocessedBuffer = await baseS
+                .flatten({ background: '#ffffff' })
+                .grayscale()
+                .png({ quality: 100 })
+                .toBuffer();
+        } else {
+            preprocessedBuffer = await baseS
+                .flatten({ background: '#ffffff' })
+                .grayscale()
+                .median(2)              // remove noise
+                .clahe({               // CLAHE: enhance local contrast
+                  width: 64,           // tile width
+                  height: 64,          // tile height
+                  maxSlope: 3          // limit contrast amplification
+                })
+                .normalise()           // stretch to full tonal range
+                .linear(1.3, -15)      // gentle boost only — preserve grey tones
+                .png({ quality: 100 })
+                .toBuffer();
+        }
 
         // Use a hard-threshold version for accurate scoring
         const hardProcessed = await sharp(preprocessedBuffer)

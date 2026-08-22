@@ -1,0 +1,29 @@
+{
+  "min_line_px": 3,
+  "min_gap_px": 12,
+  "quality": {
+    "total": 34.18,
+    "p_dense": 1.0,
+    "p_thin": 0.6852,
+    "p_noise": 0.3509,
+    "p_face_viol": 0.0,
+    "weights": {
+      "dense": 40,
+      "thin": 30,
+      "noise": 15,
+      "face": 50
+    }
+  },
+  "face_detected": false,
+  "geometry_flag": true,
+  "edge_engine": "canny",
+  "vector_engine": "raster_fallback",
+  "tiled": false,
+  "warnings": [],
+  "outputs": {
+    "png": "test_out/sample_polished.png",
+    "svg": "test_out/sample_polished.svg",
+    "handoff_json": "test_out/sample_handoff.json",
+    "report_json": "test_out/sample_report.json"
+  }
+}
