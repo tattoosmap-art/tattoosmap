@@ -15,19 +15,72 @@ const getApiKey = () => {
 
 const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
-const getShadePrompt = (style: string, issues: string[]): string => {
-  const baseRule = `
-CRITICAL OUTPUT RULE: Output ONLY a single tattoo design 
-on pure white (#FFFFFF) background. Pure black (#000000) 
-ink only. No grey. No mid-tones. Stencil-ready at 300 DPI.
+const getShadePrompt = (style: string, issues: string[], mode: string): string => {
+  const SHADE_ONLY_PROMPT = `You are a master tattoo stencil artist with 20 years of professional dotwork experience. Your output will be printed directly onto thermal stencil transfer paper and transferred to human skin. Every decision must respect the biological physics of ink longevity and thermal printer requirements.
 
-INK RULE: Two colours only — #000000 and #FFFFFF.
-Depth and shadow via dot DENSITY not grey ink.
-Dense dots = dark. Sparse dots = light. White = highlight.
+ABSOLUTE OUTPUT CONTRACT — VIOLATION = UNUSABLE:
+1. Output is pure 1-bit: ONLY #000000 black and #FFFFFF white. Zero grey. Zero anti-aliasing. If you zoom to 800% every dot must be a solid geometric black shape with no soft edges.
+2. The background canvas must be 100% pure white with zero stray pixels, borders, watermarks, or noise anywhere outside the design.
+3. Every master outline in the original must be preserved exactly — same position, same weight, same shape. Do not alter, move, add or remove any line or element.
+4. Leave a clear white separation gap around every outline before shading begins. Shading dots must NEVER touch or overlap the master outlines. A clean white halo must surround every line.
+5. Faces, text, and fine detail areas must remain visibly lighter than primary shadow regions — never over-shade delicate features.
 
-COMPOSITION RULE: Keep the original design recognisable
-but elevate it to professional tattoo artist standard.
-`;
+SHADING ARCHITECTURE — FOUR DISCRETE TONAL STEPS ONLY:
+Build ALL depth and shadow using exactly four dot density levels. Never blend continuously between them — each zone must be clearly distinct:
+
+STEP 1 — PURE WHITE (0% fill): All highlight areas and background. No marks whatsoever. Leave generous white space — aim for 60-70% of the total design area being pure white.
+
+STEP 2 — HIGHLIGHT SHADOW (20% fill): Very sparse dots spaced far apart. The first hint of form and volume. Used on surfaces facing toward the light source.
+
+STEP 3 — MID-TONE (50% fill): Dots spaced 1-2 dot-widths apart. The main body surface tone. Used on surfaces perpendicular to the light source.
+
+STEP 4 — DEEP SHADOW (80-100% fill): Dense touching dots transitioning to solid black fill. Used in deepest recesses — eye sockets, under coils, inside curves, where light cannot reach. The very darkest areas use 100% solid black fill with no dots — pure carbon mass.
+
+TRANSITION RULE: Move gradually between steps across the form. The sequence is always: SOLID BLACK → DENSE DOTS → SPACED DOTS → SPARSE DOTS → WHITE SPACE. Never jump from solid black directly to white. Each transition zone should span at least 3-5mm in the final design.
+
+DOTWORK PHYSICS — WHY THIS MATTERS:
+Continuous grey tones and washes are absorbed by skin melanin over time and disappear. Only discrete dense carbon-black deposits survive long-term in all skin tones. Tonal values below 20% fade to invisible within 5 years. This is why every shadow must be built from solid black dots — never grey ink.
+
+LINE WEIGHT HIERARCHY:
+- Outer silhouette/contours: boldest strokes (visually heaviest)
+- Internal structure lines: medium weight
+- Fine interior details: thinnest strokes (minimum visible weight)
+This hierarchy must be visible and deliberate in the output.
+
+STENCIL PRODUCTION REQUIREMENT:
+The output must transfer cleanly when photocopied at high contrast. If any area loses structural integrity at high contrast photocopy — it is wrong. The design must be readable from 3 feet away with no detail lost.`;
+
+  const REDRAW_PROMPT = `You are a master tattoo artist redrawing a rough client concept sketch into a production-ready professional stencil. Every line you draw will be transferred to human skin via thermal stencil paper.
+
+ABSOLUTE OUTPUT CONTRACT — VIOLATION = UNUSABLE:
+1. Pure 1-bit output only: #000000 black and #FFFFFF white. No grey. No anti-aliasing. Every mark must be a solid geometric shape at 800% zoom.
+2. Pure white background with zero stray pixels outside the design boundary.
+3. Preserve the original concept subject, composition, and layout. Change the execution quality — not the design concept.
+4. Clear white separation gap around every outline — shading never touches linework.
+5. Delicate features (faces, text, fine detail) always lighter than primary shadow zones.
+
+REDRAW EXECUTION:
+- Redraw every wobbly line as a smooth, confident stroke
+- Fix imperfect geometry — perfect circles, exact symmetry
+- Make organic shapes elegant — curved petals, smooth muscle lines
+- Apply deliberate line weight variation: bold outer contours, medium internal structure, fine detail lines
+- Remove any hairline or sub-pixel lines — redraw at proper tattooable weight
+
+FOUR-STEP TONAL ARCHITECTURE:
+STEP 1 — PURE WHITE (0%): Highlights and background. 60-70% of total area.
+STEP 2 — HIGHLIGHT (20%): Sparse far-apart dots. Surfaces facing light.
+STEP 3 — MID-TONE (50%): Dots 1-2 widths apart. Main body surface.
+STEP 4 — DEEP SHADOW (80-100%): Dense touching dots into solid black. Deepest recesses.
+
+TRANSITION: Always gradual. Solid black → dense → spaced → sparse → white. Minimum 3-5mm per transition zone. Never abrupt jumps.
+
+LINE WEIGHT HIERARCHY: Bold outer silhouette → medium internal structure → fine interior details. This hierarchy must be immediately visible.
+
+PHYSICS: Tonal values below 20% are absorbed by skin melanin and disappear within years. Build ALL depth from discrete pure-black dots — never grey ink. Only carbon-black deposits survive long-term in all skin tones globally.
+
+OUTPUT STANDARD: Transferable via thermal stencil printer. Readable at 3 feet. Survives high-contrast photocopy. A professional tattoo artist accepts it with zero modifications.`;
+
+  const basePrompt = mode === 'redraw' ? REDRAW_PROMPT : SHADE_ONLY_PROMPT;
 
   const styleEnhancements: Record<string, string> = {
     'fine-line': `
@@ -81,7 +134,7 @@ UNIVERSAL ENHANCEMENTS:
 
   const enhancement = styleEnhancements[style] || styleEnhancements['default'];
 
-  return `${baseRule}\n${enhancement}\n${issueCorrections ? 'SPECIFIC FIXES REQUIRED:\n' + issueCorrections : ''}`;
+  return `${basePrompt}\n\n${enhancement}\n${issueCorrections ? 'SPECIFIC FIXES REQUIRED:\n' + issueCorrections : ''}`;
 };
 
 export async function POST(req: NextRequest) {
@@ -103,7 +156,7 @@ export async function POST(req: NextRequest) {
             // fallback if it's passed as a comma separated string
             if (issuesRaw) detectedIssues = issuesRaw.split(',');
         }
-        const STIPPLE_PROMPT = getShadePrompt(detectedStyle, detectedIssues);
+        const STIPPLE_PROMPT = getShadePrompt(detectedStyle, detectedIssues, mode);
         
         if (!file) return NextResponse.json({ error: 'No image provided' }, { status: 400 });
  
