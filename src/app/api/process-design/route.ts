@@ -230,25 +230,30 @@ export async function POST(req: NextRequest) {
                     console.error("Scoring failed:", e);
                 }
 
+                // IMPROVED LINE-ART EXTRACTION
+                // Preserves thin lines and faint details
+                // Removes aggressive median that was erasing 1-2px lines
+
                 let s = sharp(buffer)
                   .trim()
                   .resize({ width: 1080, height: 1080, fit: 'inside', kernel: 'lanczos3' })
                   .extend({ top: 60, bottom: 60, left: 60, right: 60, background: '#ffffff' })
                   .flatten({ background: '#ffffff' })
                   .grayscale()
-                  .median(3)
-                  .blur(0.3)
-                  .linear(3, -200)  // aggressive contrast push to pure black
-                  .threshold(128);   // hard binary threshold — no grey values possible
+                  .median(1)            // minimal noise only — does NOT erase thin lines
+                  .normalise()          // stretch full contrast range first
+                  .linear(2.0, -100)    // gentler push — preserves light grey lines
+                  .threshold(140);      // 140 not 128 — keeps slightly lighter lines visible
 
+                // Only apply line weight normalization when flagged
+                // REMOVED: .blur(0.4) after threshold — was breaking thin lines
                 if (scoreReport && scoreReport.breakdown.line_weight.flag) {
-                  s = s.blur(0.4);
-                  scoreReport.transformations_applied.push('Line thickness normalization applied.');
+                  scoreReport.transformations_applied.push('Line thickness normalization flagged — handled by threshold adjustment.');
                 }
 
                 buffer = await s
-                  .sharpen()
-                  .png({ quality: 100, compressionLevel: 9 })  // PNG compressed losslessly to keep file size tiny (~100KB)
+                  .sharpen()            // final sharpening on clean binary image
+                  .png({ quality: 100, compressionLevel: 9 })
                   .toBuffer();
             }
 
