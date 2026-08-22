@@ -350,79 +350,131 @@ export default function SEOStudio() {
             const item = queue.find(q => q.id === id);
             if (!item || !item.stage1Result || !item.stage2Result) continue;
 
-            // Convert original file to base64 for master archiving
+            // Convert original file to base64 for master archiving, compressing if too large (> 1.5MB)
             const getMasterBase64 = async (file: File): Promise<string> => {
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        const base64String = (reader.result as string).split(',')[1];
+                if (file.size <= 1.5 * 1024 * 1024) {
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            const base64String = (reader.result as string).split(',')[1];
+                            resolve(base64String);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
+
+                // If file is > 1.5MB, compress client-side to prevent Vercel 4.5MB payload size limit failures (413)
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.src = URL.createObjectURL(file);
+                    img.onload = () => {
+                        URL.revokeObjectURL(img.src);
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 2048;
+                        const MAX_HEIGHT = 2048;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height = Math.round((height * MAX_WIDTH) / width);
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width = Math.round((width * MAX_HEIGHT) / height);
+                                height = MAX_HEIGHT;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        if (!ctx) {
+                            reject(new Error('Canvas context not available'));
+                            return;
+                        }
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Compress as JPEG to keep the payload size extremely small but highly detailed
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                        const base64String = dataUrl.split(',')[1];
                         resolve(base64String);
                     };
-                    reader.readAsDataURL(file);
+                    img.onerror = () => reject(new Error('Image load failed'));
                 });
             };
 
-            const masterBase64 = await getMasterBase64(item.file);
+            try {
+                const masterBase64 = await getMasterBase64(item.file);
 
-            const payload: PublishDesignPayload = {
-                // Core Identification
-                seo_filename: item.stage2Result.seo_filename!,
-                thumbnail_filename: item.stage2Result.thumbnail_filename!,
-                slug: item.stage2Result.slug!,
-                base64Image: item.stage1Result.shaded_base64 || item.stage1Result.polished_base64!,
-                masterBase64: masterBase64,
-                status: 'published',
-                
-                // Stage 2 Taxonomy
-                subject: item.stage2Result.subject || 'Unknown Subject',
-                public_category: item.stage2Result.public_category || 'minimalist-objects',
-                mood: item.stage2Result.mood,
-                elements: item.stage2Result.elements,
-                alt_text: item.stage2Result.alt_text,
-                speakable_summary: item.stage2Result.speakable_summary,
-                gender_suitability: item.stage2Result.gender_suitability,
-                style_tags: item.stage2Result.style_tags,
-                placement_recommendations: item.stage2Result.placement_recommendations,
-                meta_title: item.stage2Result.meta_title,
-                focus_keyword: item.stage2Result.focus_keyword,
-                confidence_score: item.stage2Result.confidence_score,
-                ip_flag: item.stage2Result.ip_flag,
-                
-                // Dermographic Scoring
-                dermographic_score: item.stage1Result?.score_report?.score ?? null,
-                dermographic_warnings: item.stage1Result?.score_report?.artist_warnings ?? [],
-                is_tattooable: (item.stage1Result?.score_report?.score ?? 100) >= 50,
-                min_size_cm: item.stage1Result?.score_report?.min_size_cm ?? null,
-                
-                // Stage 3 Content (Optional but merged if present)
-                meaning: item.stage3Result?.meaning,
-                cultural_origin: item.stage3Result?.cultural_origin,
-                cultural_sensitivity: item.stage3Result?.cultural_sensitivity,
-                artist_technical_notes: item.stage3Result?.artist_technical_notes,
-                recommended_needle: item.stage3Result?.recommended_needle,
-                minimum_size_cm: item.stage3Result?.minimum_size_cm,
-                aging_prediction: item.stage3Result?.aging_prediction,
-                pain_level_map: item.stage3Result?.pain_level_map,
-                emotion_tags: item.stage3Result?.emotion_tags,
-            };
+                const payload: PublishDesignPayload = {
+                    // Core Identification
+                    seo_filename: item.stage2Result.seo_filename!,
+                    thumbnail_filename: item.stage2Result.thumbnail_filename!,
+                    slug: item.stage2Result.slug!,
+                    base64Image: item.stage1Result.shaded_base64 || item.stage1Result.polished_base64!,
+                    masterBase64: masterBase64,
+                    status: 'published',
+                    
+                    // Stage 2 Taxonomy
+                    subject: item.stage2Result.subject || 'Unknown Subject',
+                    public_category: item.stage2Result.public_category || 'minimalist-objects',
+                    mood: item.stage2Result.mood,
+                    elements: item.stage2Result.elements,
+                    alt_text: item.stage2Result.alt_text,
+                    speakable_summary: item.stage2Result.speakable_summary,
+                    gender_suitability: item.stage2Result.gender_suitability,
+                    style_tags: item.stage2Result.style_tags,
+                    placement_recommendations: item.stage2Result.placement_recommendations,
+                    meta_title: item.stage2Result.meta_title,
+                    focus_keyword: item.stage2Result.focus_keyword,
+                    confidence_score: item.stage2Result.confidence_score,
+                    ip_flag: item.stage2Result.ip_flag,
+                    
+                    // Dermographic Scoring
+                    dermographic_score: item.stage1Result?.score_report?.score ?? null,
+                    dermographic_warnings: item.stage1Result?.score_report?.artist_warnings ?? [],
+                    is_tattooable: (item.stage1Result?.score_report?.score ?? 100) >= 50,
+                    min_size_cm: item.stage1Result?.score_report?.min_size_cm ?? null,
+                    
+                    // Stage 3 Content (Optional but merged if present)
+                    meaning: item.stage3Result?.meaning,
+                    cultural_origin: item.stage3Result?.cultural_origin,
+                    cultural_sensitivity: item.stage3Result?.cultural_sensitivity,
+                    artist_technical_notes: item.stage3Result?.artist_technical_notes,
+                    recommended_needle: item.stage3Result?.recommended_needle,
+                    minimum_size_cm: item.stage3Result?.minimum_size_cm,
+                    aging_prediction: item.stage3Result?.aging_prediction,
+                    pain_level_map: item.stage3Result?.pain_level_map,
+                    emotion_tags: item.stage3Result?.emotion_tags,
+                };
 
-            const result = await publishDesignAction(payload);
+                const result = await publishDesignAction(payload);
 
-            setPublishResults(prev => {
-                const updated = new Map(prev);
-                updated.set(id, result.success ? (result.isPublished ? 'LIVE' : 'DRAFT') : 'ERROR');
-                return updated;
-            });
-
-            if (!result.success) {
-                setQueue(q => q.map(i => i.id === id ? { ...i, errorMessage: "Atomic DB Ingestion failed: " + result.error } : i));
-            }
-            if (result.success) {
-                setSelectedIds(prev => {
-                    const next = new Set(prev);
-                    next.delete(id);
-                    return next;
+                setPublishResults(prev => {
+                    const updated = new Map(prev);
+                    updated.set(id, result.success ? (result.isPublished ? 'LIVE' : 'DRAFT') : 'ERROR');
+                    return updated;
                 });
+
+                if (!result.success) {
+                    setQueue(q => q.map(i => i.id === id ? { ...i, errorMessage: "Atomic DB Ingestion failed: " + result.error } : i));
+                }
+                if (result.success) {
+                    setSelectedIds(prev => {
+                        const next = new Set(prev);
+                        next.delete(id);
+                        return next;
+                    });
+                }
+            } catch (err: any) {
+                setPublishResults(prev => {
+                    const updated = new Map(prev);
+                    updated.set(id, 'ERROR');
+                    return updated;
+                });
+                setQueue(q => q.map(i => i.id === id ? { ...i, errorMessage: "Network or payload size error: " + err.message } : i));
             }
         }
 

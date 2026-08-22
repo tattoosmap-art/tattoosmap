@@ -248,7 +248,7 @@ export async function POST(req: NextRequest) {
 
                 buffer = await s
                   .sharpen()
-                  .png({ quality: 100, compressionLevel: 0 })  // PNG not WebP for pure black/white
+                  .png({ quality: 100, compressionLevel: 9 })  // PNG compressed losslessly to keep file size tiny (~100KB)
                   .toBuffer();
             }
 
