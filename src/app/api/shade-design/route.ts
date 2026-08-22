@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from '@google/genai';
 import sharp from 'sharp';
 import { analyzeDermographicScore } from '@/lib/dermographic-scorer';
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 
 const getApiKey = () => {
     const envKey = process.env.GEMINI_API_KEY;
@@ -336,22 +340,85 @@ export async function POST(req: NextRequest) {
         }
  
         const generatedBase64 = inlineData.data;
- 
-        // Post-process with Sharp to ensure web optimization and strict white background
         const generatedBuffer = Buffer.from(generatedBase64, 'base64');
-        const optimizedBuffer = await sharp(generatedBuffer)
-            .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })
-            .flatten({ background: '#ffffff' })
-            .grayscale()
-            .normalise()
-            .linear(2.2, -60)
-            .webp({ quality: 85 })
-            .toBuffer();
+ 
+        let shadedBuffer: Buffer = Buffer.alloc(0);
+        let svgContent: string = "";
 
-        return NextResponse.json({
-          shaded_base64: optimizedBuffer.toString('base64'),
-          success: true
-        });
+        // Write temp files to invoke Python stippling compiler
+        const tempDir = os.tmpdir();
+        const randId = Math.random().toString(36).substring(7);
+        const tempShadePath = path.join(tempDir, `shade_${randId}.png`);
+        const tempLinePath = path.join(tempDir, `line_${randId}.png`);
+        const tempOutPngPath = path.join(tempDir, `out_png_${randId}.png`);
+        const tempOutSvgPath = path.join(tempDir, `out_svg_${randId}.svg`);
+
+        try {
+            await fs.promises.writeFile(tempShadePath, generatedBuffer);
+            await fs.promises.writeFile(tempLinePath, paddedBuffer);
+
+            let success = false;
+
+            // Method 1: Try FastAPI python service
+            try {
+                const formData = new FormData();
+                formData.append('gemini_shade', new Blob([new Uint8Array(generatedBuffer)]), 'shade.png');
+                formData.append('master_linework', new Blob([new Uint8Array(paddedBuffer)]), 'line.png');
+
+                const response = await fetch('http://127.0.0.1:8000/shade-compile', {
+                    method: 'POST',
+                    body: formData,
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        shadedBuffer = Buffer.from(data.png_base64, 'base64');
+                        svgContent = data.svg_content;
+                        success = true;
+                        console.log("Next.js: Shading compiled successfully via FastAPI microservice.");
+                    }
+                }
+            } catch (microserviceErr) {
+                console.warn("FastAPI stippling microservice offline or failed, falling back to direct python3 spawn:", microserviceErr);
+            }
+
+            // Method 2: Direct CLI spawn fallback
+            if (!success) {
+                const scriptPath = path.join(process.cwd(), 'tattoo_shading.py');
+                const pythonCmd = 'python3'; // System default Python
+                
+                // Spawn direct process
+                execSync(`"${pythonCmd}" "${scriptPath}" "${tempShadePath}" "${tempLinePath}" "${tempOutPngPath}" "${tempOutSvgPath}"`);
+                
+                shadedBuffer = await fs.promises.readFile(tempOutPngPath);
+                svgContent = await fs.promises.readFile(tempOutSvgPath, 'utf-8');
+                console.log("Next.js: Shading compiled successfully via local python3 CLI spawn.");
+            }
+
+            // Web-optimize the 1-bit output to keep file size small using sharp.
+            // Note: Since it's already 1-bit binary black/white, we convert to WebP/PNG losslessly.
+            const optimizedBuffer = await sharp(shadedBuffer)
+                .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })
+                .png({ compressionLevel: 8 }) // lossless PNG keeps stencil edges pixel-perfect
+                .toBuffer();
+
+            return NextResponse.json({
+                shaded_base64: optimizedBuffer.toString('base64'),
+                svg_content: svgContent,
+                success: true
+            });
+
+        } catch (err: any) {
+            console.error("Shading compilation failed:", err);
+            throw new Error(`Algorithmic stippling compilation failed: ${err.message}`);
+        } finally {
+            // Clean up temp files asynchronously
+            fs.promises.unlink(tempShadePath).catch(() => {});
+            fs.promises.unlink(tempLinePath).catch(() => {});
+            fs.promises.unlink(tempOutPngPath).catch(() => {});
+            fs.promises.unlink(tempOutSvgPath).catch(() => {});
+        }
 
     } catch (err: any) {
         console.error("Shade design error:", err);

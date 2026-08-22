@@ -5,14 +5,16 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse, HTMLResponse
 import base64
 
-# Import the pipeline from the local script
+# Import the pipeline and shading engine
 from tattoo_polish import TattooPolishPipeline, PolishConfig
+from tattoo_shading import TattooShadingEngine
 import cv2
 
 app = FastAPI(title="Tattoo Polish Service")
 
-# Instantiate the pipeline ONCE at startup to avoid reloading models per request
+# Instantiate engines ONCE at startup
 pipeline = TattooPolishPipeline(PolishConfig())
+shading_engine = TattooShadingEngine(target_dpi=300)
 
 HTML_FORM = """
 <!DOCTYPE html>
@@ -148,14 +150,80 @@ async def polish_endpoint(image: UploadFile = File(...)):
             "svg_content": svg_content
         }
 
+@app.post("/shade-compile")
+async def shade_compile_endpoint(
+    gemini_shade: UploadFile = File(...),
+    master_linework: UploadFile = File(...),
+    protected_mask: UploadFile = None
+):
+    """
+    Accepts Gemini greyscale shade image, master linework, and optional protected mask.
+    Enforces EDT collision mask, 60% regional density cap, 4-step tonal quantization,
+    and runs Lloyd's Voronoi relaxation stippling.
+    Returns:
+        - png_base64: 1-bit monochome stencil image
+        - svg_content: stipple dots and solid black paths
+    """
+    print("Received shade compilation request")
+    tmp_shade_path = None
+    tmp_line_path = None
+    tmp_prot_path = None
+    
+    try:
+        # Save uploaded images to temp files
+        with NamedTemporaryFile(delete=False, suffix=".png") as tmp_shade:
+            shutil.copyfileobj(gemini_shade.file, tmp_shade)
+            tmp_shade_path = tmp.name = tmp_shade.name
+
+        with NamedTemporaryFile(delete=False, suffix=".png") as tmp_line:
+            shutil.copyfileobj(master_linework.file, tmp_line)
+            tmp_line_path = tmp_line.name
+
+        # Read images via OpenCV
+        gemini_gray = cv2.imread(tmp_shade_path, cv2.IMREAD_GRAYSCALE)
+        linework_gray = cv2.imread(tmp_line_path, cv2.IMREAD_GRAYSCALE)
+
+        if gemini_gray is None or linework_gray is None:
+            return JSONResponse({"error": "Invalid image inputs"}, status_code=400)
+
+        protected_mask_gray = None
+        if protected_mask is not None:
+            with NamedTemporaryFile(delete=False, suffix=".png") as tmp_prot:
+                shutil.copyfileobj(protected_mask.file, tmp_prot)
+                tmp_prot_path = tmp_prot.name
+            protected_mask_gray = cv2.imread(tmp_prot_path, cv2.IMREAD_GRAYSCALE)
+
+        # Run pipeline
+        shaded_1bit, svg_content = shading_engine.compile_shading(
+            gemini_gray, 
+            linework_gray, 
+            protected_mask_gray
+        )
+
+        # Encode 1-bit image to PNG in memory
+        _, buffer = cv2.imencode('.png', shaded_1bit)
+        png_b64 = base64.b64encode(buffer).decode('utf-8')
+
+        return {
+            "status": "success",
+            "png_base64": png_b64,
+            "svg_content": svg_content
+        }
+
+    except Exception as e:
+        import traceback
+        print("Shading compilation failed:")
+        traceback.print_exc()
+        return JSONResponse({"error": str(e)}, status_code=500)
+
     finally:
         # Cleanup temp files
-        if 'tmp_path' in locals() and os.path.exists(tmp_path):
-            os.remove(tmp_path)
-        if 'out_png' in locals() and os.path.exists(out_png):
-            os.remove(out_png)
-        if 'out_svg' in locals() and os.path.exists(out_svg):
-            os.remove(out_svg)
+        if tmp_shade_path and os.path.exists(tmp_shade_path):
+            os.remove(tmp_shade_path)
+        if tmp_line_path and os.path.exists(tmp_line_path):
+            os.remove(tmp_line_path)
+        if tmp_prot_path and os.path.exists(tmp_prot_path):
+            os.remove(tmp_prot_path)
 
 if __name__ == "__main__":
     import uvicorn
