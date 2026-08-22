@@ -266,7 +266,7 @@ export async function POST(req: NextRequest) {
             .grayscale()
             .normalise()
             .linear(2.2, -60)
-            .png({ compressionLevel: 6 })
+            .webp({ quality: 85 })
             .toBuffer();
 
         return NextResponse.json({

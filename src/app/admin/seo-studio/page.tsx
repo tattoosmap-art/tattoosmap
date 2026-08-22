@@ -221,7 +221,7 @@ export default function SEOStudio() {
             if (data.error) throw new Error(data.error);
 
             const shadedUrl = data.shaded_base64 
-              ? `data:image/png;base64,${data.shaded_base64}`
+              ? `data:image/webp;base64,${data.shaded_base64}`
               : data.image_url || null;
             
             setQueue(q => q.map(i => i.id === item.id ? {
@@ -372,9 +372,9 @@ export default function SEOStudio() {
             const item = queue.find(q => q.id === id);
             if (!item || !item.stage1Result || !item.stage2Result) continue;
 
-            // Convert original file to base64 for master archiving, compressing if too large (> 1.5MB)
+            // Convert original file to base64 for master archiving, compressing if too large (> 200KB)
             const getMasterBase64 = async (file: File): Promise<string> => {
-                if (file.size <= 1.5 * 1024 * 1024) {
+                if (file.size <= 200 * 1024) {
                     return new Promise((resolve) => {
                         const reader = new FileReader();
                         reader.onloadend = () => {
