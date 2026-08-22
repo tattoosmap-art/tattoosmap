@@ -163,7 +163,29 @@ export default function SEOStudio() {
     const applyAIShading = async (item: QueueItem, mode: 'shade' | 'redraw' = 'shade') => {
         setItemAnalyzing(item.id, true);
         const formData = new FormData();
-        formData.append('file', item.file); // The API route will convert to base64 and use the prompt
+        
+        let fileToUpload: File | Blob = item.file;
+        if (item.stage1Result?.polished_base64) {
+            try {
+                const byteCharacters = atob(item.stage1Result.polished_base64);
+                const byteArrays = [];
+                for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                    const slice = byteCharacters.slice(offset, offset + 512);
+                    const byteNumbers = new Array(slice.length);
+                    for (let i = 0; i < slice.length; i++) {
+                        byteNumbers[i] = slice.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    byteArrays.push(byteArray);
+                }
+                const blob = new Blob(byteArrays, { type: 'image/png' });
+                fileToUpload = new File([blob], 'polished.png', { type: 'image/png' });
+            } catch (e) {
+                console.error("Failed to convert polished base64 to file, falling back to original", e);
+            }
+        }
+        
+        formData.append('file', fileToUpload);
         
         formData.append('style', item.stage2Result?.style_tags?.[0] || 'default');
         formData.append('issues', JSON.stringify(item.stage1Result?.score_report?.issues || []));
