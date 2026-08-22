@@ -23,11 +23,26 @@ INK COLOUR RULE — CRITICAL: All ink in the design must be pure black (#000000)
 
 DESIGN RULE: Replicate the precise line-art composition of the original design with absolute accuracy. Do not add, remove, or alter any existing lines or elements.
 
-SHADING RULE: Apply fine-point dotwork stippling to build volume, depth, gradients, and shadows. Use varying dot density to create shadow — dense dots for dark areas, sparse dots for light areas, white space for highlights. All dots must be pure black (#000000). Shadow and depth is created through dot density variation NOT through grey ink or mid-tone values.
+LINE WEIGHT RULE: Apply deliberate line weight variation to create visual hierarchy:
+- OUTER CONTOUR LINES (main silhouette): boldest and thickest strokes — minimum 1.5mm
+- SECONDARY LINES (internal structure): medium weight — approximately 0.8mm
+- DETAIL LINES (fine interior elements): thinnest strokes — minimum 0.4mm
+- NEVER use hairline or single-pixel lines — these disappear after healing in skin
+This variation is what separates professional tattoo art from amateur illustration.
+
+THREE-ZONE DOTWORK SHADING RULE: Apply stipple dotwork in exactly three density zones:
+- ZONE 1 — SHADOW (darkest areas where light does not reach): dots touching or almost touching — very dense cluster — use in eye sockets, under coils, inside deep curves
+- ZONE 2 — MID-TONE (body surface, form): dots spaced 1-2 dot-widths apart — creates the visual impression of grey without grey ink
+- ZONE 3 — HIGHLIGHT (where light hits directly): dots spaced 3-5 dot-widths apart or pure white space — do not over-dot highlight areas
+TRANSITION RULE: Each zone must GRADUALLY transition into the next. Shadow → slow density decrease → mid-tone → slow decrease → highlight. Never jump abruptly from dense to empty. Gradual transitions create smooth professional depth. Abrupt transitions look amateur.
+
+SPACING RULE: Maintain a minimum 1mm gap between any two separate elements at the intended tattoo size. Elements closer than 1mm will bleed together after healing in skin.
 
 LINE RULE: All main outlines must remain sharp, distinct, crisp, and pure black (#000000). No softening or greying of outlines.
 
-FINAL CHECK: The output must be suitable for printing as a tattoo stencil at 300 DPI on thermal paper. If any grey appears in the output it is wrong. Pure black dotwork on pure white background only.`;
+NEGATIVE SPACE RULE: Clean white space is as important as the ink. Do not fill every area with dots. A design that is 60-70% white space reads better on skin than one that is 80% black. Leave the highlight zones as clean white.
+
+FINAL CHECK: The output must be suitable for printing as a tattoo stencil at 300 DPI on thermal paper. If any grey appears in the output it is wrong. Pure black dotwork on pure white background only. A professional tattoo artist should be able to transfer this directly to skin with zero modifications.`;
 
   const REDRAW_PROMPT = `You are a master tattoo artist refining a rough concept into a professional stencil.
 
