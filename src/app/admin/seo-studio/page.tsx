@@ -427,7 +427,16 @@ export default function SEOStudio() {
                         const base64String = dataUrl.split(',')[1];
                         resolve(base64String);
                     };
-                    img.onerror = () => reject(new Error('Image load failed'));
+                    img.onerror = () => {
+                        console.warn("Canvas image load failed, falling back to raw FileReader base64");
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const result = reader.result as string;
+                            resolve(result.split(',')[1]);
+                        };
+                        reader.onerror = () => reject(new Error('Image load failed and FileReader fallback failed'));
+                        reader.readAsDataURL(file);
+                    };
                 });
             };
 
