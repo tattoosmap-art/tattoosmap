@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import Papa from 'papaparse';
 import { UploadCloud, FileImage, Play, AlertCircle, Download, FileDown, Trash2, Eye, Zap, Layers, Cpu, Sparkles, Loader2 } from 'lucide-react';
-import { publishDesignAction, PublishDesignPayload } from '@/actions/publishDesign';
+
 import { getQueue, saveQueue } from '@/lib/queue-db';
 
 /**
