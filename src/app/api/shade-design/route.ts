@@ -216,7 +216,7 @@ export async function POST(req: NextRequest) {
         while (retryCount <= maxRetries) {
             try {
                 const response = await ai.models.generateContent({
-                    model: 'gemini-2.5-pro',
+                    model: 'gemini-2.5-flash-image',
                     contents: [
                         { role: "user", parts: [{ text: STIPPLE_PROMPT }, { inlineData: { mimeType: 'image/png', data: imageBase64 } }] }
                     ],
