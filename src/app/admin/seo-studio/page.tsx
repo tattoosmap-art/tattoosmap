@@ -5,6 +5,9 @@ import Papa from 'papaparse';
 import { UploadCloud, FileImage, Play, AlertCircle, Download, FileDown, Trash2, Eye, Zap, Layers, Cpu, Sparkles, Loader2 } from 'lucide-react';
 
 import { getQueue, saveQueue } from '@/lib/queue-db';
+import { useAuth } from '@/context/AuthContext';
+import { hasStudioAccess } from '@/lib/admin';
+import { useRouter } from 'next/navigation';
 
 /**
  * Upload a base64 image to Supabase storage via the server-side API route.
@@ -108,6 +111,8 @@ interface QueueItem {
 }
 
 export default function SEOStudio() {
+    const { user } = useAuth();
+    const router = useRouter();
     const [queue, setQueue] = useState<QueueItem[]>([]);
     const [showClearModal, setShowClearModal] = useState(false);
     const [processMode, setProcessMode] = useState<'LINE_ART' | 'COLOR'>('LINE_ART');
@@ -120,7 +125,17 @@ export default function SEOStudio() {
 
     const isGlobalProcessing = queue.some(q => q.isAnalyzing) || isPublishing;
 
-    // Load queue from IndexedDB on mount
+    // Auth guard — redirect anyone who is not admin or studio
+    useEffect(() => {
+        if (user === null) {
+            // user is explicitly null (not loading), redirect to home
+            router.replace('/');
+        } else if (user && !hasStudioAccess(user.email)) {
+            // logged in but not authorised
+            router.replace('/');
+        }
+    }, [user, router]);
+
     useEffect(() => {
         const loadQueue = async () => {
             try {

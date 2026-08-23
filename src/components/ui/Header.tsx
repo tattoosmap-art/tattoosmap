@@ -8,7 +8,7 @@ import { Bookmark, Menu, LogOut, X, PenLine, Sparkles, LayoutGrid, CloudUpload }
 import { useModal } from "@/context/ModalContext";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { isAdmin } from "@/lib/admin";
+import { isAdmin, isStudio } from "@/lib/admin";
 
 export default function Header() {
     const router = useRouter();
@@ -154,7 +154,7 @@ export default function Header() {
                                         Your Archive
                                     </Link>
 
-                                    {/* Admin-only: Publish & Manage */}
+                                    {/* Admin-only: Publish, Manage & Design Studio */}
                                     {isAdmin(user.email) && (
                                         <>
                                             <Link
@@ -182,6 +182,18 @@ export default function Header() {
                                                 Design Studio
                                             </Link>
                                         </>
+                                    )}
+
+                                    {/* Studio-only: just Design Studio */}
+                                    {isStudio(user.email) && (
+                                        <Link
+                                            href="/admin/seo-studio"
+                                            onClick={() => setIsProfileOpen(false)}
+                                            className="flex items-center gap-3 px-5 py-3 font-mono text-[11px] uppercase tracking-wider text-black hover:bg-off-white transition-colors border-t border-gray-light/50"
+                                        >
+                                            <Sparkles className="w-4 h-4" strokeWidth={1.5} />
+                                            Design Studio
+                                        </Link>
                                     )}
 
                                     <button
