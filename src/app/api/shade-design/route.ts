@@ -194,13 +194,7 @@ export async function POST(req: NextRequest) {
         const hardProcessed = await sharp(preprocessedBuffer).linear(1.2, -30).median(2).linear(3, -200).threshold(128).png().toBuffer();
         const preCheck = await analyzeDermographicScore(hardProcessed);
 
-        if (preCheck.breakdown.negative_space.flag && preCheck.score < 30) {
-          return NextResponse.json({ success: false, error: 'Design appears to be mostly empty or has very few lines. Please upload a design with clear linework before shading.', score_report: preCheck }, { status: 400 });
-        }
 
-        if (preCheck.score < 20) {
-          return NextResponse.json({ success: false, error: 'Design quality is too low to shade effectively. The design may be missing major elements or have no detectable linework.', score_report: preCheck }, { status: 400 });
-        }
 
         const { width: origW = 1200, height: origH = 1200 } = await sharp(preprocessedBuffer).metadata();
         const padX = Math.round(origW * 0.08);

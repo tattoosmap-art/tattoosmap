@@ -869,42 +869,6 @@ export default function SEOStudio() {
                                             )}
                                         </div>
 
-                                        {/* --- NEW SCORE PANEL --- */}
-                                        {item.stage1Result?.score_report && (
-                                            <div className={`mt-4 p-3 border ${item.stage1Result.score_report.grade === 'UNTATTOOABLE' ? 'border-red-900 bg-red-950/20' : item.stage1Result.score_report.grade === 'MAJOR_REWORK' ? 'border-orange-900 bg-orange-950/20' : item.stage1Result.score_report.grade === 'MINOR_ADJUST' ? 'border-amber-900 bg-amber-950/20' : 'border-green-900 bg-green-950/20'}`}>
-                                                <div className="flex justify-between items-center mb-2">
-                                                    <h6 className="font-mono text-[10px] uppercase tracking-widest text-neutral-300">Dermographic Score</h6>
-                                                    <span className={`font-mono text-[11px] font-bold ${item.stage1Result.score_report.score >= 90 ? 'text-green-400' : item.stage1Result.score_report.score >= 70 ? 'text-amber-400' : item.stage1Result.score_report.score >= 50 ? 'text-orange-400' : 'text-red-400'}`}>
-                                                        {item.stage1Result.score_report.score}/100 - {item.stage1Result.score_report.grade}
-                                                    </span>
-                                                </div>
-                                                <div className="space-y-1 mb-2">
-                                                    <div className="flex justify-between text-[9px] text-neutral-500 font-mono uppercase"><span className={item.stage1Result.score_report.breakdown.line_weight.flag ? 'text-brand-red' : ''}>Line Weight</span><span>{item.stage1Result.score_report.breakdown.line_weight.score}/25</span></div>
-                                                    <div className="flex justify-between text-[9px] text-neutral-500 font-mono uppercase"><span className={item.stage1Result.score_report.breakdown.negative_space.flag ? 'text-brand-red' : ''}>Negative Space</span><span>{item.stage1Result.score_report.breakdown.negative_space.score}/25</span></div>
-                                                    <div className="flex justify-between text-[9px] text-neutral-500 font-mono uppercase"><span className={item.stage1Result.score_report.breakdown.complexity.flag ? 'text-brand-red' : ''}>Complexity</span><span>{item.stage1Result.score_report.breakdown.complexity.score}/20</span></div>
-                                                    <div className="flex justify-between text-[9px] text-neutral-500 font-mono uppercase"><span className={item.stage1Result.score_report.breakdown.contrast.flag ? 'text-brand-red' : ''}>Contrast</span><span>{item.stage1Result.score_report.breakdown.contrast.score}/15</span></div>
-                                                    <div className="flex justify-between text-[9px] text-neutral-500 font-mono uppercase"><span className={item.stage1Result.score_report.breakdown.scale.flag ? 'text-brand-red' : ''}>Scale</span><span>{item.stage1Result.score_report.breakdown.scale.score}/15</span></div>
-                                                </div>
-                                                <div className="flex justify-between items-center border-t border-neutral-800 pt-2 mt-2">
-                                                    <span className={`text-[9px] font-mono uppercase ${item.stage1Result.score_report.blowout_risk_percent > 30 ? 'text-red-400' : 'text-neutral-500'}`}>Blowout Risk: {item.stage1Result.score_report.blowout_risk_percent}%</span>
-                                                    <span className={`text-[9px] font-mono uppercase ${item.stage1Result.score_report.stencil_dpi_ready ? 'text-green-500' : 'text-red-500'}`}>{item.stage1Result.score_report.stencil_dpi_ready ? '✓ 203+ DPI' : '⚠ Low DPI'}</span>
-                                                </div>
-                                                {item.stage1Result.score_report.artist_warnings?.length > 0 && (
-                                                    <div className="mt-2 text-[10px] text-red-400/80 bg-red-950/30 p-2 border border-red-900/50">
-                                                        <ul className="list-disc pl-3">
-                                                            {item.stage1Result.score_report.artist_warnings.map((w: string, i: number) => <li key={i}>{w}</li>)}
-                                                        </ul>
-                                                    </div>
-                                                )}
-                                                {item.stage1Result.score_report.transformations_applied?.length > 0 && (
-                                                    <div className="mt-2 text-[10px] text-blue-400/80 bg-blue-950/30 p-2 border border-blue-900/50">
-                                                        <ul className="list-disc pl-3">
-                                                            {item.stage1Result.score_report.transformations_applied.map((t: string, i: number) => <li key={i}>{t}</li>)}
-                                                        </ul>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
                                     </div>
 
                                     {!isGlobalProcessing && (
