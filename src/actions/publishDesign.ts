@@ -1,5 +1,7 @@
 "use server";
 
+export const maxDuration = 60; // Prevent Vercel 10s Hobby timeout
+
 import { revalidatePath } from "next/cache";
 import fs from "fs/promises";
 import path from "path";
