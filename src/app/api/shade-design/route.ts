@@ -52,7 +52,14 @@ LINE WEIGHT HIERARCHY:
 This hierarchy must be visible and deliberate in the output.
 
 STENCIL PRODUCTION REQUIREMENT:
-The output must transfer cleanly when photocopied at high contrast. If any area loses structural integrity at high contrast photocopy — it is wrong. The design must be readable from 3 feet away with no detail lost.`;
+The output must transfer cleanly when photocopied at high contrast. If any area loses structural integrity at high contrast photocopy — it is wrong. The design must be readable from 3 feet away with no detail lost.
+
+BLACKWORK ENHANCEMENTS:
+→ Fill large black areas with geometric micro-pattern
+→ Add bold shadow lines on one side of all elements
+→ Strengthen main outline to 2x weight of detail lines
+→ Add geometric frame or border appropriate to design
+→ Use bold black fills contrasted with pure white negative space`;
 
   const REDRAW_PROMPT = `You are a master tattoo artist redrawing a rough client concept sketch into a production-ready professional stencil. Every line you draw will be transferred to human skin via thermal stencil paper.
 
@@ -84,7 +91,11 @@ PHYSICS: Tonal values below 20% are absorbed by skin melanin and disappear withi
 
 OUTPUT STANDARD: Transferable via thermal stencil printer. Readable at 3 feet. Survives high-contrast photocopy. A professional tattoo artist accepts it with zero modifications.`;
 
-  const basePrompt = mode === 'redraw' ? REDRAW_PROMPT : SHADE_ONLY_PROMPT;
+  if (mode === 'shade') {
+    return SHADE_ONLY_PROMPT;
+  }
+
+  const basePrompt = REDRAW_PROMPT;
 
   const styleEnhancements: Record<string, string> = {
     'fine-line': `
@@ -150,14 +161,11 @@ export async function POST(req: NextRequest) {
         const issuesRaw = formData.get('issues') as string;
         const mode = formData.get('mode') as string || 'shade';
         const isPolished = formData.get('isPolished') as string === 'true';
-        // 'shade' = shade only (preserve design)
-        // 'redraw' = redraw and shade (improve execution)
 
         let detectedIssues: string[] = [];
         try {
             if (issuesRaw) detectedIssues = JSON.parse(issuesRaw);
         } catch(e) {
-            // fallback if it's passed as a comma separated string
             if (issuesRaw) detectedIssues = issuesRaw.split(',');
         }
         const STIPPLE_PROMPT = getShadePrompt(detectedStyle, detectedIssues, mode);
@@ -166,259 +174,88 @@ export async function POST(req: NextRequest) {
  
         const rawBuffer = Buffer.from(new Uint8Array(await file.arrayBuffer()));
 
-        // --- AUTOMATIC PRE-POLISH (Upscale & Contrast Snap) ---
         const meta = await sharp(rawBuffer).metadata();
         const minDimension = Math.min(meta.width || 0, meta.height || 0);
 
         let baseS = sharp(rawBuffer).trim();
         if (minDimension < 1200) {
-            baseS = baseS.resize({ 
-                width: 1200, 
-                height: 1200, 
-                fit: 'inside', 
-                kernel: 'lanczos3',
-                withoutEnlargement: false
-            });
+            baseS = baseS.resize({ width: 1200, height: 1200, fit: 'inside', kernel: 'lanczos3', withoutEnlargement: false });
         } else {
-            baseS = baseS.resize({ 
-                width: 1200, 
-                height: 1200, 
-                fit: 'inside', 
-                kernel: 'lanczos3' 
-            });
+            baseS = baseS.resize({ width: 1200, height: 1200, fit: 'inside', kernel: 'lanczos3' });
         }
 
         let preprocessedBuffer: Buffer;
         if (isPolished) {
-            preprocessedBuffer = await baseS
-                .flatten({ background: '#ffffff' })
-                .grayscale()
-                .png({ quality: 100 })
-                .toBuffer();
+            preprocessedBuffer = await baseS.flatten({ background: '#ffffff' }).grayscale().png({ quality: 100 }).toBuffer();
         } else {
-            preprocessedBuffer = await baseS
-                .flatten({ background: '#ffffff' })
-                .grayscale()
-                .median(2)              // remove noise
-                .clahe({               // CLAHE: enhance local contrast
-                  width: 64,           // tile width
-                  height: 64,          // tile height
-                  maxSlope: 3          // limit contrast amplification
-                })
-                .normalise()           // stretch to full tonal range
-                .linear(1.3, -15)      // gentle boost only — preserve grey tones
-                .png({ quality: 100 })
-                .toBuffer();
+            preprocessedBuffer = await baseS.flatten({ background: '#ffffff' }).grayscale().median(2).clahe({ width: 64, height: 64, maxSlope: 3 }).normalise().linear(1.3, -15).png({ quality: 100 }).toBuffer();
         }
 
-        // Use a hard-threshold version for accurate scoring
-        const hardProcessed = await sharp(preprocessedBuffer)
-            .linear(1.2, -30)
-            .median(2)
-            .linear(3, -200)
-            .threshold(128)
-            .png()
-            .toBuffer();
-
-        // Pre-check: do not waste API call on empty designs
+        const hardProcessed = await sharp(preprocessedBuffer).linear(1.2, -30).median(2).linear(3, -200).threshold(128).png().toBuffer();
         const preCheck = await analyzeDermographicScore(hardProcessed);
 
         if (preCheck.breakdown.negative_space.flag && preCheck.score < 30) {
-          return NextResponse.json({
-            success: false,
-            error: 'Design appears to be mostly empty or has very few lines. Please upload a design with clear linework before shading.',
-            score_report: preCheck
-          }, { status: 400 });
+          return NextResponse.json({ success: false, error: 'Design appears to be mostly empty or has very few lines. Please upload a design with clear linework before shading.', score_report: preCheck }, { status: 400 });
         }
 
         if (preCheck.score < 20) {
-          return NextResponse.json({
-            success: false,
-            error: 'Design quality is too low to shade effectively. The design may be missing major elements or have no detectable linework.',
-            score_report: preCheck
-          }, { status: 400 });
+          return NextResponse.json({ success: false, error: 'Design quality is too low to shade effectively. The design may be missing major elements or have no detectable linework.', score_report: preCheck }, { status: 400 });
         }
 
-        // Add ~8% white padding on all sides so Gemini never clips edge elements.
-        // This gives the model room to complete any part of the design that touches the border.
         const { width: origW = 1200, height: origH = 1200 } = await sharp(preprocessedBuffer).metadata();
         const padX = Math.round(origW * 0.08);
         const padY = Math.round(origH * 0.08);
 
-        const paddedBuffer = await sharp(preprocessedBuffer)
-            .extend({
-                top: padY,
-                bottom: padY,
-                left: padX,
-                right: padX,
-                background: { r: 255, g: 255, b: 255, alpha: 1 }
-            })
-            .flatten({ background: '#ffffff' })
-            .png()
-            .toBuffer();
+        const paddedBuffer = await sharp(preprocessedBuffer).extend({ top: padY, bottom: padY, left: padX, right: padX, background: { r: 255, g: 255, b: 255 } }).png().toBuffer();
+        const imageBase64 = paddedBuffer.toString('base64');
 
-        const base64Input = paddedBuffer.toString('base64');
- 
-        let responseData: any;
+        let responseData: any = null;
         let retryCount = 0;
         const maxRetries = 3;
-
-        while (true) {
+        
+        while (retryCount <= maxRetries) {
             try {
                 const response = await ai.models.generateContent({
-                    model: 'gemini-2.5-flash-image',
+                    model: 'gemini-2.5-pro',
                     contents: [
-                        {
-                            role: "user",
-                            parts: [
-                                { text: STIPPLE_PROMPT },
-                                { inlineData: { data: base64Input, mimeType: 'image/png' } }
-                            ]
-                        }
+                        { role: "user", parts: [{ text: STIPPLE_PROMPT }, { inlineData: { mimeType: 'image/png', data: imageBase64 } }] }
                     ],
                     config: {
                         responseModalities: ["IMAGE"],
                         safetySettings: [
-                            {
-                                category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-                                threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
-                            },
-                            {
-                                category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-                                threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
-                            },
-                            {
-                                category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-                                threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
-                            },
-                            {
-                                category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-                                threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH
-                            }
+                            { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
+                            { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
+                            { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
+                            { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH }
                         ]
                     }
                 });
-                
                 responseData = response as any;
                 break;
             } catch (err: any) {
                 retryCount++;
                 if (retryCount > maxRetries) throw err;
-                
-                const isRateLimit = err.status === 429 || (err.message && err.message.includes('429'));
-                const waitTime = isRateLimit ? 5000 * retryCount : Math.pow(2, retryCount) * 1500;
-                
-                console.log(`Gemini API Error (Shade), retrying ${retryCount}/${maxRetries} in ${waitTime}ms... (${err.message})`);
-                await new Promise(r => setTimeout(r, waitTime));
+                await new Promise(r => setTimeout(r, 2000 * retryCount));
             }
         }
+
         const candidate = responseData.candidates?.[0];
-        const parts = candidate?.content?.parts || [];
+        const part = candidate?.content?.parts?.find((p: any) => p.inlineData);
         
-        let inlineData = responseData.inlineData;
-        let textResponse = "";
-        
-        for (const part of parts) {
-            if (part.inlineData) {
-                inlineData = part.inlineData;
-            }
-            if (part.text) {
-                textResponse += part.text;
-            }
-        }
+        if (!part) throw new Error("No image data returned from Gemini");
  
-        if (!inlineData || !inlineData.data) {
-            console.error("Gemini Response without image data:", JSON.stringify(responseData, null, 2));
-            
-            if (candidate?.finishReason && candidate.finishReason !== 'STOP') {
-                throw new Error(`Gemini generation stopped. Reason: ${candidate.finishReason}`);
-            }
-            if (textResponse.trim()) {
-                throw new Error(`Gemini response: ${textResponse.trim()}`);
-            }
-            throw new Error("No image data returned from Gemini");
-        }
- 
-        const generatedBase64 = inlineData.data;
+        const generatedBase64 = part.inlineData.data;
         const generatedBuffer = Buffer.from(generatedBase64, 'base64');
  
-        let shadedBuffer: Buffer = Buffer.alloc(0);
-        let svgContent: string = "";
+        const optimizedBuffer = await sharp(generatedBuffer)
+            .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })
+            .png({ compressionLevel: 8 })
+            .toBuffer();
 
-        // Write temp files to invoke Python stippling compiler
-        const tempDir = os.tmpdir();
-        const randId = Math.random().toString(36).substring(7);
-        const tempShadePath = path.join(tempDir, `shade_${randId}.png`);
-        const tempLinePath = path.join(tempDir, `line_${randId}.png`);
-        const tempOutPngPath = path.join(tempDir, `out_png_${randId}.png`);
-        const tempOutSvgPath = path.join(tempDir, `out_svg_${randId}.svg`);
-
-        try {
-            await fs.promises.writeFile(tempShadePath, generatedBuffer);
-            await fs.promises.writeFile(tempLinePath, paddedBuffer);
-
-            let success = false;
-
-            // Method 1: Try FastAPI python service
-            try {
-                const formData = new FormData();
-                formData.append('gemini_shade', new Blob([new Uint8Array(generatedBuffer)]), 'shade.png');
-                formData.append('master_linework', new Blob([new Uint8Array(paddedBuffer)]), 'line.png');
-
-                const response = await fetch('http://127.0.0.1:8000/shade-compile', {
-                    method: 'POST',
-                    body: formData,
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.status === 'success') {
-                        shadedBuffer = Buffer.from(data.png_base64, 'base64');
-                        svgContent = data.svg_content;
-                        success = true;
-                        console.log("Next.js: Shading compiled successfully via FastAPI microservice.");
-                    }
-                }
-            } catch (microserviceErr) {
-                console.warn("FastAPI stippling microservice offline or failed, falling back to direct python3 spawn:", microserviceErr);
-            }
-
-            // Method 2: Direct CLI spawn fallback
-            if (!success) {
-                const scriptPath = path.join(process.cwd(), 'tattoo_shading.py');
-                const pythonCmd = 'python3'; // System default Python
-                
-                // Spawn direct process
-                execSync(`"${pythonCmd}" "${scriptPath}" "${tempShadePath}" "${tempLinePath}" "${tempOutPngPath}" "${tempOutSvgPath}"`);
-                
-                shadedBuffer = await fs.promises.readFile(tempOutPngPath);
-                svgContent = await fs.promises.readFile(tempOutSvgPath, 'utf-8');
-                console.log("Next.js: Shading compiled successfully via local python3 CLI spawn.");
-            }
-
-            // Web-optimize the 1-bit output to keep file size small using sharp.
-            // Note: Since it's already 1-bit binary black/white, we convert to WebP/PNG losslessly.
-            const optimizedBuffer = await sharp(shadedBuffer)
-                .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })
-                .png({ compressionLevel: 8 }) // lossless PNG keeps stencil edges pixel-perfect
-                .toBuffer();
-
-            return NextResponse.json({
-                shaded_base64: optimizedBuffer.toString('base64'),
-                svg_content: svgContent,
-                success: true
-            });
-
-        } catch (err: any) {
-            console.error("Shading compilation failed:", err);
-            throw new Error(`Algorithmic stippling compilation failed: ${err.message}`);
-        } finally {
-            // Clean up temp files asynchronously
-            fs.promises.unlink(tempShadePath).catch(() => {});
-            fs.promises.unlink(tempLinePath).catch(() => {});
-            fs.promises.unlink(tempOutPngPath).catch(() => {});
-            fs.promises.unlink(tempOutSvgPath).catch(() => {});
-        }
+        return NextResponse.json({
+            shaded_base64: optimizedBuffer.toString('base64'),
+            success: true
+        });
 
     } catch (err: any) {
         console.error("Shade design error:", err);

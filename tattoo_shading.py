@@ -9,8 +9,8 @@ class TattooShadingEngine:
         self.target_dpi = target_dpi
         # 0.75 mm in pixels: 0.75 * (DPI / 25.4)
         self.collision_radius_px = int(np.ceil(0.75 * (target_dpi / 25.4)))
-        # Target dot size: 0.4 mm in diameter (radius ~0.2 mm)
-        self.dot_radius_px = max(1, int(0.2 * (target_dpi / 25.4)))
+        # Target dot size: 0.2 mm in diameter (radius ~0.1 mm)
+        self.dot_radius_px = max(1, int(0.1 * (target_dpi / 25.4)))
         self.dot_area = np.pi * (self.dot_radius_px ** 2)
 
     def compute_edt_mask(self, linework_gray: np.ndarray) -> np.ndarray:
