@@ -31,11 +31,11 @@ const uploadBase64ToStorage = async (
     const blob = new Blob(byteArrays, { type: mimeType });
     const file = new File([blob], filename, { type: mimeType });
 
-    // Send to server-side API route that uses the service role key
     const form = new FormData();
     form.append('file', file);
     form.append('filename', filename);
 
+    console.log('[uploadBase64ToStorage] Uploading to storage:', filename, 'size:', base64.length);
     const res = await fetch('/api/upload-to-storage', { method: 'POST', body: form });
     if (!res.ok) {
       const errText = await res.text();
@@ -43,9 +43,10 @@ const uploadBase64ToStorage = async (
       return null;
     }
     const json = await res.json();
+    console.log('[uploadBase64ToStorage] Upload success:', json.url);
     return json.url || null;
   } catch (err) {
-    console.error('[uploadBase64ToStorage] Fatal:', err);
+    console.error('[uploadBase64ToStorage] Storage upload FAILED:', filename, err);
     return null;
   }
 };
@@ -475,7 +476,11 @@ export default function SEOStudio() {
                         item.stage2Result.seo_filename || `${slug}-${timestamp}.png`
                     );
                     if (!uploadedImageUrl) {
-                        throw new Error('Failed to upload processed image to storage — check Supabase bucket permissions');
+                        setQueue(q => q.map(i => i.id === id ? {
+                            ...i,
+                            errorMessage: 'Image upload to storage failed — check Supabase storage permissions'
+                        } : i));
+                        continue;
                     }
                 } else {
                     throw new Error('No processed image found — run Stage 1 first before publishing');
@@ -555,12 +560,18 @@ export default function SEOStudio() {
                     });
                 }
             } catch (err: any) {
+                console.error('PUBLISH ERROR FULL:', err);
+                console.error('PUBLISH ERROR MESSAGE:', err?.message);
+                console.error('PUBLISH ERROR CAUSE:', err?.cause);
                 setPublishResults(prev => {
                     const updated = new Map(prev);
                     updated.set(id, 'ERROR');
                     return updated;
                 });
-                setQueue(q => q.map(i => i.id === id ? { ...i, errorMessage: "Network or payload size error: " + err.message } : i));
+                setQueue(q => q.map(i => i.id === id ? {
+                    ...i,
+                    errorMessage: 'Publish failed: ' + (err?.message || JSON.stringify(err))
+                } : i));
             }
         }
 
@@ -814,6 +825,14 @@ export default function SEOStudio() {
                                                 → Try uploading a higher contrast version of this design
                                               </p>
                                             ) : null}
+                                          </div>
+                                        )}
+
+                                        {item.errorMessage && (
+                                          <div className="mt-2 p-2 border border-red-800 bg-red-950/20">
+                                            <p className="font-mono text-[9px] text-red-400 leading-relaxed break-all">
+                                              {item.errorMessage}
+                                            </p>
                                           </div>
                                         )}
 
