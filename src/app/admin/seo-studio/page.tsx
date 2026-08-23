@@ -5,15 +5,21 @@ import Papa from 'papaparse';
 import { UploadCloud, FileImage, Play, AlertCircle, Download, FileDown, Trash2, Eye, Zap, Layers, Cpu, Sparkles, Loader2 } from 'lucide-react';
 import { publishDesignAction, PublishDesignPayload } from '@/actions/publishDesign';
 import { getQueue, saveQueue } from '@/lib/queue-db';
-import { supabase } from '@/lib/supabase';
 
-const uploadBase64ToSupabase = async (
+/**
+ * Upload a base64 image to Supabase storage via the server-side API route.
+ * This uses the service role key server-side, bypassing all RLS/bucket permission issues.
+ * Returns the public URL on success, or null on failure.
+ */
+const uploadBase64ToStorage = async (
   base64: string,
-  filename: string
+  filename: string,
+  mimeType: string = 'image/png'
 ): Promise<string | null> => {
   try {
+    // Convert base64 to Blob
     const byteCharacters = atob(base64);
-    const byteArrays = [];
+    const byteArrays: Uint8Array<ArrayBuffer>[] = [];
     for (let offset = 0; offset < byteCharacters.length; offset += 512) {
       const slice = byteCharacters.slice(offset, offset + 512);
       const byteNumbers = new Array(slice.length);
@@ -22,25 +28,24 @@ const uploadBase64ToSupabase = async (
       }
       byteArrays.push(new Uint8Array(byteNumbers));
     }
-    const blob = new Blob(byteArrays, { type: 'image/png' });
-    const file = new File([blob], filename, { type: 'image/png' });
-    
-    const { data, error } = await supabase.storage
-      .from('designs')
-      .upload(`published/${filename}`, file, { 
-        contentType: 'image/png', 
-        upsert: true 
-      });
-    
-    if (error) throw error;
-    
-    const { data: urlData } = supabase.storage
-      .from('designs')
-      .getPublicUrl(data.path);
-    
-    return urlData.publicUrl;
+    const blob = new Blob(byteArrays, { type: mimeType });
+    const file = new File([blob], filename, { type: mimeType });
+
+    // Send to server-side API route that uses the service role key
+    const form = new FormData();
+    form.append('file', file);
+    form.append('filename', filename);
+
+    const res = await fetch('/api/upload-to-storage', { method: 'POST', body: form });
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error('[uploadBase64ToStorage] API error:', res.status, errText);
+      return null;
+    }
+    const json = await res.json();
+    return json.url || null;
   } catch (err) {
-    console.error('Supabase upload failed:', err);
+    console.error('[uploadBase64ToStorage] Fatal:', err);
     return null;
   }
 };
@@ -456,100 +461,37 @@ export default function SEOStudio() {
             const item = queue.find(q => q.id === id);
             if (!item || !item.stage1Result || !item.stage2Result) continue;
 
-            // Convert original file to base64 for master archiving, compressing if too large (> 200KB)
-            const getMasterBase64 = async (file: File): Promise<string> => {
-                if (file.size <= 200 * 1024) {
-                    return new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                            const base64String = (reader.result as string).split(',')[1];
-                            resolve(base64String);
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                }
-
-                // If file is > 1.5MB, compress client-side to prevent Vercel 4.5MB payload size limit failures (413)
-                return new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.src = URL.createObjectURL(file);
-                    img.onload = () => {
-                        URL.revokeObjectURL(img.src);
-                        const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 2048;
-                        const MAX_HEIGHT = 2048;
-                        let width = img.width;
-                        let height = img.height;
-
-                        if (width > height) {
-                            if (width > MAX_WIDTH) {
-                                height = Math.round((height * MAX_WIDTH) / width);
-                                width = MAX_WIDTH;
-                            }
-                        } else {
-                            if (height > MAX_HEIGHT) {
-                                width = Math.round((width * MAX_HEIGHT) / height);
-                                height = MAX_HEIGHT;
-                            }
-                        }
-
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        if (!ctx) {
-                            reject(new Error('Canvas context not available'));
-                            return;
-                        }
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        // Compress as JPEG to keep the payload size extremely small but highly detailed
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-                        const base64String = dataUrl.split(',')[1];
-                        resolve(base64String);
-                    };
-                    img.onerror = () => {
-                        console.warn("Canvas image load failed, falling back to raw FileReader base64");
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                            const result = reader.result as string;
-                            resolve(result.split(',')[1]);
-                        };
-                        reader.onerror = () => reject(new Error('Image load failed and FileReader fallback failed'));
-                        reader.readAsDataURL(file);
-                    };
-                });
-            };
-
             try {
-                let masterBase64 = item.masterBase64;
-                if (!masterBase64) {
-                    try {
-                        masterBase64 = await getMasterBase64(item.file);
-                    } catch (err) {
-                        console.warn("Could not read original file for master, falling back to processed image", err);
-                        masterBase64 = item.stage1Result.shaded_base64 || item.stage1Result.polished_base64;
-                    }
-                }
                 const slug = item.stage2Result.slug || 'design';
                 const timestamp = Date.now();
 
-                // Upload the processed design image
+                // ── Processed design image (shaded or polished) ──────────────────────
+                // This is always a base64 string stored in-memory/IndexedDB — reliable.
                 const processedBase64 = item.stage1Result.shaded_base64 || item.stage1Result.polished_base64;
                 let uploadedImageUrl: string | null = null;
                 if (processedBase64) {
-                  uploadedImageUrl = await uploadBase64ToSupabase(
-                    processedBase64,
-                    item.stage2Result.seo_filename || `${slug}-${timestamp}.png`
-                  );
+                    uploadedImageUrl = await uploadBase64ToStorage(
+                        processedBase64,
+                        item.stage2Result.seo_filename || `${slug}-${timestamp}.png`
+                    );
+                    if (!uploadedImageUrl) {
+                        throw new Error('Failed to upload processed image to storage — check Supabase bucket permissions');
+                    }
+                } else {
+                    throw new Error('No processed image found — run Stage 1 first before publishing');
                 }
 
-                // Upload master/original image
+                // ── Master / original image ──────────────────────────────────────────
+                // item.masterBase64 is stored as a base64 string in IndexedDB when the
+                // file is first uploaded. We NEVER touch item.file here because browser
+                // File handles become stale after a page reload.
+                const masterBase64 = item.masterBase64 || item.stage1Result.shaded_base64 || item.stage1Result.polished_base64;
                 let uploadedMasterUrl: string | null = null;
                 if (masterBase64) {
-                  uploadedMasterUrl = await uploadBase64ToSupabase(
-                    masterBase64,
-                    `masters/${slug}-${timestamp}-master.png`
-                  );
+                    uploadedMasterUrl = await uploadBase64ToStorage(
+                        masterBase64,
+                        `masters/${slug}-${timestamp}-master.png`
+                    );
                 }
 
                 const payload: PublishDesignPayload = {
