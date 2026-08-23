@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { hasStudioAccess, isAdmin } from '@/lib/admin';
 
 export async function middleware(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
@@ -57,8 +58,6 @@ export async function middleware(request: NextRequest) {
             data: { user },
         } = await supabase.auth.getUser();
 
-        const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'hotosevents@gmail.com';
-        
         // Development bypass for local testing
         const isLocalhost = request.headers.get('host')?.includes('localhost') || request.headers.get('host')?.includes('127.0.0.1');
         const hasBypass = request.nextUrl.searchParams.get('bypass') === 'true';
@@ -67,7 +66,29 @@ export async function middleware(request: NextRequest) {
             return supabaseResponse;
         }
 
-        if (!user || user.email !== adminEmail) {
+        if (!user || !user.email) {
+            // Check if it's an API route
+            if (request.nextUrl.pathname.startsWith('/api/')) {
+                return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            }
+            // Redirect unauthorized users to the homepage
+            const url = request.nextUrl.clone();
+            url.pathname = '/';
+            return NextResponse.redirect(url);
+        }
+
+        // Protect studio route — only admin or studio emails allowed
+        if (request.nextUrl.pathname.startsWith('/admin/seo-studio')) {
+            if (!hasStudioAccess(user.email)) {
+                const url = request.nextUrl.clone();
+                url.pathname = '/';
+                return NextResponse.redirect(url);
+            }
+            return supabaseResponse;
+        }
+
+        // All other admin/protected pages — admin only
+        if (!isAdmin(user.email)) {
             // Check if it's an API route
             if (request.nextUrl.pathname.startsWith('/api/')) {
                 return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
