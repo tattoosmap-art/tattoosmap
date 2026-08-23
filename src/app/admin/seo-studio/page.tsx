@@ -451,131 +451,93 @@ export default function SEOStudio() {
     };
 
     const publishSelected = async () => {
-        if (selectedIds.size === 0) return;
-        setIsPublishing(true);
+      if (selectedIds.size === 0) return;
+      setIsPublishing(true);
+      const newResults = new Map(publishResults);
 
-        const newResults = new Map(publishResults);
-        selectedIds.forEach(id => newResults.set(id, 'PUBLISHING'));
-        setPublishResults(newResults);
+      for (const id of selectedIds) {
+        const item = queue.find(q => q.id === id);
+        if (!item || !item.stage2Result) continue;
 
-        for (const id of Array.from(selectedIds)) {
-            const item = queue.find(q => q.id === id);
-            if (!item || !item.stage1Result || !item.stage2Result) continue;
+        newResults.set(id, 'PUBLISHING');
+        setPublishResults(new Map(newResults));
 
-            try {
-                const slug = item.stage2Result.slug || 'design';
-                const timestamp = Date.now();
+        try {
+          // Build the image file to upload
+          const imageBase64 = item.stage1Result?.shaded_base64 
+            || item.stage1Result?.polished_base64 
+            || item.masterBase64;
+          
+          if (!imageBase64) {
+            throw new Error('No image data found — run Bulk Polish first');
+          }
 
-                // ── Processed design image (shaded or polished) ──────────────────────
-                // This is always a base64 string stored in-memory/IndexedDB — reliable.
-                const processedBase64 = item.stage1Result.shaded_base64 || item.stage1Result.polished_base64;
-                let uploadedImageUrl: string | null = null;
-                if (processedBase64) {
-                    uploadedImageUrl = await uploadBase64ToStorage(
-                        processedBase64,
-                        item.stage2Result.seo_filename || `${slug}-${timestamp}.png`
-                    );
-                    if (!uploadedImageUrl) {
-                        setQueue(q => q.map(i => i.id === id ? {
-                            ...i,
-                            errorMessage: 'Image upload to storage failed — check Supabase storage permissions'
-                        } : i));
-                        continue;
-                    }
-                } else {
-                    throw new Error('No processed image found — run Stage 1 first before publishing');
-                }
+          // Convert base64 to file
+          const imageBlob = await fetch(`data:image/png;base64,${imageBase64}`).then(r => r.blob());
+          const imageFile = new File([imageBlob], `${item.stage2Result.slug}.png`, { type: 'image/png' });
 
-                // ── Master / original image ──────────────────────────────────────────
-                // item.masterBase64 is stored as a base64 string in IndexedDB when the
-                // file is first uploaded. We NEVER touch item.file here because browser
-                // File handles become stale after a page reload.
-                const masterBase64 = item.masterBase64 || item.stage1Result.shaded_base64 || item.stage1Result.polished_base64;
-                let uploadedMasterUrl: string | null = null;
-                if (masterBase64) {
-                    uploadedMasterUrl = await uploadBase64ToStorage(
-                        masterBase64,
-                        `masters/${slug}-${timestamp}-master.png`
-                    );
-                }
+          // Build master file
+          let masterFile: File | null = null;
+          if (item.masterBase64 && item.masterBase64 !== imageBase64) {
+            const masterBlob = await fetch(`data:image/png;base64,${item.masterBase64}`).then(r => r.blob());
+            masterFile = new File([masterBlob], `${item.stage2Result.slug}-master.png`, { type: 'image/png' });
+          }
 
-                const payload: PublishDesignPayload = {
-                    // Core Identification
-                    seo_filename: item.stage2Result.seo_filename!,
-                    thumbnail_filename: item.stage2Result.thumbnail_filename!,
-                    slug: item.stage2Result.slug!,
-                    uploaded_image_url: uploadedImageUrl,
-                    uploaded_master_url: uploadedMasterUrl,
-                    status: 'published',
-                    
-                    // Stage 2 Taxonomy
-                    subject: item.stage2Result.subject || 'Unknown Subject',
-                    public_category: item.stage2Result.public_category || 'minimalist-objects',
-                    mood: item.stage2Result.mood,
-                    elements: item.stage2Result.elements,
-                    alt_text: item.stage2Result.alt_text,
-                    speakable_summary: item.stage2Result.speakable_summary,
-                    gender_suitability: item.stage2Result.gender_suitability,
-                    style_tags: item.stage2Result.style_tags,
-                    placement_recommendations: item.stage2Result.placement_recommendations,
-                    meta_title: item.stage2Result.meta_title,
-                    focus_keyword: item.stage2Result.focus_keyword,
-                    confidence_score: item.stage2Result.confidence_score,
-                    ip_flag: item.stage2Result.ip_flag,
-                    
-                    // Dermographic Scoring
-                    dermographic_score: item.stage1Result?.score_report?.score ?? null,
-                    dermographic_warnings: item.stage1Result?.score_report?.artist_warnings ?? [],
-                    is_tattooable: (item.stage1Result?.score_report?.score ?? 100) >= 50,
-                    min_size_cm: item.stage1Result?.score_report?.min_size_cm ?? null,
-                    
-                    // Stage 3 Content (Optional but merged if present)
-                    meaning: item.stage3Result?.meaning,
-                    cultural_origin: item.stage3Result?.cultural_origin,
-                    cultural_sensitivity: item.stage3Result?.cultural_sensitivity,
-                    artist_technical_notes: item.stage3Result?.artist_technical_notes,
-                    recommended_needle: item.stage3Result?.recommended_needle,
-                    minimum_size_cm: item.stage3Result?.minimum_size_cm,
-                    aging_prediction: item.stage3Result?.aging_prediction,
-                    pain_level_map: item.stage3Result?.pain_level_map,
-                    emotion_tags: item.stage3Result?.emotion_tags,
-                };
+          // Build metadata
+          const metadata = {
+            slug: item.stage2Result.slug,
+            subject: item.stage2Result.subject || 'Unknown Subject',
+            alt_text: item.stage2Result.alt_text,
+            speakable_summary: item.stage2Result.speakable_summary,
+            meaning: item.stage3Result?.meaning,
+            cultural_origin: item.stage3Result?.cultural_origin,
+            style_tags: item.stage2Result.style_tags || [],
+            placement_recommendations: item.stage2Result.placement_recommendations || [],
+            emotion_tags: item.stage3Result?.emotion_tags || [],
+            public_category: item.stage2Result.public_category || 'minimalist-objects',
+            technical_notes: item.stage3Result?.artist_technical_notes,
+            pain_level_map: item.stage3Result?.pain_level_map,
+            aging_prediction: item.stage3Result?.aging_prediction,
+            recommended_needle: item.stage3Result?.recommended_needle,
+            minimum_size_cm: item.stage3Result?.minimum_size_cm,
+            dermographic_score: item.stage1Result?.score_report?.score ?? null,
+            dermographic_warnings: item.stage1Result?.score_report?.artist_warnings ?? [],
+            is_tattooable: (item.stage1Result?.score_report?.score ?? 100) >= 50,
+            min_size_cm: item.stage1Result?.score_report?.min_size_cm ?? null,
+          };
 
-                const result = await publishDesignAction(payload);
+          // Send to our simple API
+          const formData = new FormData();
+          formData.append('image', imageFile);
+          if (masterFile) formData.append('master', masterFile);
+          formData.append('metadata', JSON.stringify(metadata));
 
-                setPublishResults(prev => {
-                    const updated = new Map(prev);
-                    updated.set(id, result.success ? (result.isPublished ? 'LIVE' : 'DRAFT') : 'ERROR');
-                    return updated;
-                });
+          const res = await fetch('/api/publish-design', {
+            method: 'POST',
+            body: formData,
+          });
 
-                if (!result.success) {
-                    setQueue(q => q.map(i => i.id === id ? { ...i, errorMessage: "Atomic DB Ingestion failed: " + result.error } : i));
-                }
-                if (result.success) {
-                    setSelectedIds(prev => {
-                        const next = new Set(prev);
-                        next.delete(id);
-                        return next;
-                    });
-                }
-            } catch (err: any) {
-                console.error('PUBLISH ERROR FULL:', err);
-                console.error('PUBLISH ERROR MESSAGE:', err?.message);
-                console.error('PUBLISH ERROR CAUSE:', err?.cause);
-                setPublishResults(prev => {
-                    const updated = new Map(prev);
-                    updated.set(id, 'ERROR');
-                    return updated;
-                });
-                setQueue(q => q.map(i => i.id === id ? {
-                    ...i,
-                    errorMessage: 'Publish failed: ' + (err?.message || JSON.stringify(err))
-                } : i));
-            }
+          const result = await res.json();
+
+          if (!res.ok || !result.success) {
+            throw new Error(result.error || `HTTP ${res.status}`);
+          }
+
+          newResults.set(id, 'LIVE');
+          setPublishResults(new Map(newResults));
+
+        } catch (err: any) {
+          console.error('Publish failed for', id, err);
+          newResults.set(id, 'ERROR');
+          setPublishResults(new Map(newResults));
+          setQueue(q => q.map(i => i.id === id ? {
+            ...i,
+            errorMessage: 'Publish failed: ' + err.message
+          } : i));
         }
+      }
 
-        setIsPublishing(false);
+      setIsPublishing(false);
     };
 
     const getPipelineDots = (status: PipelineStage) => {
@@ -946,3 +908,4 @@ export default function SEOStudio() {
         </div>
     );
 }
+// trigger fast refresh
