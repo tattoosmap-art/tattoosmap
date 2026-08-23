@@ -111,7 +111,7 @@ interface QueueItem {
 }
 
 export default function SEOStudio() {
-    const { user } = useAuth();
+    const { user, loading } = useAuth();
     const router = useRouter();
     const [queue, setQueue] = useState<QueueItem[]>([]);
     const [showClearModal, setShowClearModal] = useState(false);
@@ -127,6 +127,7 @@ export default function SEOStudio() {
 
     // Auth guard — redirect anyone who is not admin or studio
     useEffect(() => {
+        if (loading) return;
         if (user === null) {
             // user is explicitly null (not loading), redirect to home
             router.replace('/');
@@ -134,7 +135,7 @@ export default function SEOStudio() {
             // logged in but not authorised
             router.replace('/');
         }
-    }, [user, router]);
+    }, [user, loading, router]);
 
     useEffect(() => {
         const loadQueue = async () => {
