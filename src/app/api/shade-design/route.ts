@@ -24,7 +24,7 @@ const getShadePrompt = (style: string, issues: string[], mode: string): string =
 
 ABSOLUTE OUTPUT CONTRACT — VIOLATION = UNUSABLE:
 1. Output is pure 1-bit: ONLY #000000 black and #FFFFFF white. Zero grey. Zero anti-aliasing. If you zoom to 800% every dot must be a solid geometric black shape with no soft edges.
-2. The background canvas must be 100% pure white with zero stray pixels, borders, watermarks, or noise anywhere outside the design.
+2. The background canvas must be 100% pure white with absolutely nothing outside the design boundary. NO borders. NO frames. NO decorative edges. NO corner marks. NO watermarks. NO boxes around the design. The design floats on pure white with nothing else.
 3. Every master outline in the original must be preserved exactly — same position, same weight, same shape. Do not alter, move, add or remove any line or element.
 4. Leave a clear white separation gap around every outline before shading begins. Shading dots must NEVER touch or overlap the master outlines. A clean white halo must surround every line.
 5. Faces, text, and fine detail areas must remain visibly lighter than primary shadow regions — never over-shade delicate features.
@@ -58,8 +58,15 @@ BLACKWORK ENHANCEMENTS:
 → Fill large black areas with geometric micro-pattern
 → Add bold shadow lines on one side of all elements
 → Strengthen main outline to 2x weight of detail lines
-→ Add geometric frame or border appropriate to design
-→ Use bold black fills contrasted with pure white negative space`;
+→ Use bold black fills contrasted with pure white negative space
+
+HALLUCINATION PREVENTION — STRICTLY FORBIDDEN:
+- Do NOT add any border, frame, box, or decorative edge around the design
+- Do NOT add any lines that were not in the original input
+- Do NOT add background textures or patterns
+- Do NOT add corner marks or registration marks
+- Do NOT add any element outside the original design boundary
+- The output contains ONLY what was in the input — shaded with dots`;
 
   const REDRAW_PROMPT = `You are a master tattoo artist redrawing a rough client concept sketch into a production-ready professional stencil. Every line you draw will be transferred to human skin via thermal stencil paper.
 
@@ -111,7 +118,6 @@ BLACKWORK ENHANCEMENTS:
 → Fill large black areas with geometric micro-pattern
 → Add bold shadow lines on one side of all elements
 → Strengthen main outline to 2x weight of detail lines
-→ Add geometric frame or border appropriate to design
 → Use bold black fills contrasted with pure white negative space
 `,
     'traditional': `
