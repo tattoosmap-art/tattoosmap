@@ -521,7 +521,15 @@ export default function SEOStudio() {
             };
 
             try {
-                const masterBase64 = item.masterBase64 || await getMasterBase64(item.file);
+                let masterBase64 = item.masterBase64;
+                if (!masterBase64) {
+                    try {
+                        masterBase64 = await getMasterBase64(item.file);
+                    } catch (err) {
+                        console.warn("Could not read original file for master, falling back to processed image", err);
+                        masterBase64 = item.stage1Result.shaded_base64 || item.stage1Result.polished_base64;
+                    }
+                }
                 const slug = item.stage2Result.slug || 'design';
                 const timestamp = Date.now();
 
