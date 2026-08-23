@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { supabaseAnon } from '@/lib/supabase-anon';
 import Link from 'next/link';
 import Image from 'next/image';
+import GalleryGrid from "@/components/gallery/GalleryGrid";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -18,7 +19,7 @@ async function getMeaningPageData(slug: string) {
   // Strategy 1: Search by subject containing space-separated term
   const { data: designs1 } = await supabaseAnon
     .from('designs')
-    .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags, style_tags')
+    .select('*')
     .eq('is_published', true)
     .ilike('subject', `%${searchTerm}%`)
     .limit(24);
@@ -28,7 +29,7 @@ async function getMeaningPageData(slug: string) {
   // Strategy 2: Search style_tags with HYPHENATED term (key fix)
   const { data: designs2 } = await supabaseAnon
     .from('designs')
-    .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags, style_tags')
+    .select('*')
     .eq('is_published', true)
     .contains('style_tags', [hyphenatedTerm])
     .limit(24);
@@ -38,7 +39,7 @@ async function getMeaningPageData(slug: string) {
   // Strategy 3: Search style_tags with full hyphenated slug minus tattoo
   const { data: designs3 } = await supabaseAnon
     .from('designs')
-    .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags, style_tags')
+    .select('*')
     .eq('is_published', true)
     .contains('style_tags', [slug.replace(/-tattoo$/, '').replace(/-tattoos$/, '')])
     .limit(24);
@@ -60,7 +61,7 @@ async function getMeaningPageData(slug: string) {
   // Strategy 5: Full slug term in subject
   const { data: designs5 } = await supabaseAnon
     .from('designs')
-    .select('id, slug, subject, style, image_url, alt_text, speakable_summary, meaning, cultural_origin, emotion_tags, style_tags')
+    .select('*')
     .eq('is_published', true)
     .ilike('subject', `%${fullTerm}%`)
     .limit(24);
@@ -239,30 +240,11 @@ export default async function MeaningPage({ params }: Props) {
         <h2 className="font-display text-[20px] uppercase tracking-tight text-black mb-6">
           {subject} Designs
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {designs.map((design) => (
-            <Link 
-              key={design.id} 
-              href={`/gallery/${design.slug}`}
-              className="group block"
-            >
-              <div className="aspect-square bg-neutral-50 overflow-hidden mb-2">
-                {design.image_url && (
-                  <Image
-                    src={design.image_url}
-                    alt={design.alt_text || design.subject || subject}
-                    width={400}
-                    height={400}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                )}
-              </div>
-              <p className="font-mono text-[9px] uppercase tracking-widest text-neutral-500 line-clamp-2">
-                {design.speakable_summary || design.subject}
-              </p>
-            </Link>
-          ))}
-        </div>
+        <GalleryGrid 
+            initialDesigns={designs as any} 
+            totalDesignsCount={designs.length}
+            filters={{}}
+        />
       </div>
 
       {/* Meaning Section */}
