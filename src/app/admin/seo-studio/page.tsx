@@ -266,12 +266,12 @@ export default function SEOStudio() {
             if (data.error) throw new Error(data.error);
 
             const shadedUrl = data.shaded_base64 
-              ? `data:image/webp;base64,${data.shaded_base64}`
+              ? `data:image/png;base64,${data.shaded_base64}`
               : data.image_url || null;
             
             setQueue(q => q.map(i => i.id === item.id ? {
               ...i,
-              status: i.status === 'UPLOADED' ? 'STAGE_1' : i.status,
+              status: i.status,
               stage1Result: { 
                 ...i.stage1Result, 
                 shaded_base64: data.shaded_base64,
@@ -780,11 +780,7 @@ export default function SEOStudio() {
                                         </div>
 
                                         <div className="text-sm text-white mb-2 h-5 truncate">
-                                            {item.errorMessage && !item.errorMessage.includes('Upscaled') ? (
-                                                <span className="text-brand-red font-mono text-[10px] uppercase tracking-widest" title={item.errorMessage}>❌ {item.errorMessage}</span>
-                                            ) : item.errorMessage && item.errorMessage.includes('Upscaled') ? (
-                                                <span className="text-amber-600 font-mono text-[10px] uppercase tracking-widest italic">⚠️ {item.errorMessage}</span>
-                                            ) : item.stage2Result?.seo_filename ? (
+                                            {item.stage2Result?.seo_filename ? (
                                                 <span className="text-neutral-400 font-mono text-[10px] uppercase tracking-widest">/{item.stage2Result.seo_filename}</span>
                                             ) : item.status === 'STAGE_1' ? (
                                                 <span className="text-neutral-400 font-mono text-[10px] uppercase tracking-widest">Ready for Semantic Analysis</span>
@@ -794,31 +790,46 @@ export default function SEOStudio() {
                                                 <span className="text-neutral-400 font-mono text-[10px] uppercase tracking-widest">Processing...</span>
                                             )}
                                         </div>
+                                        
+                                        {item.errorMessage && (
+                                          <div className="mt-2 mb-2 p-2 border border-red-800 bg-red-950/20">
+                                            <p className="font-mono text-[9px] uppercase tracking-widest text-red-400 mb-1">
+                                              ⚠ Shading Issue
+                                            </p>
+                                            <p className="font-mono text-[9px] text-red-300 leading-relaxed">
+                                              {item.errorMessage}
+                                            </p>
+                                            {item.errorMessage.includes('empty') || item.errorMessage.includes('quality') ? (
+                                              <p className="font-mono text-[9px] text-neutral-400 mt-1">
+                                                → Try uploading a higher contrast version of this design
+                                              </p>
+                                            ) : null}
+                                          </div>
+                                        )}
 
                                         {/* Action Buttons Row */}
                                         <div className="flex gap-2">
-                                            {/* Shade button available from upload — no bulk polish required */}
-                                            {['UPLOADED', 'STAGE_1', 'STAGE_2', 'COMPLETE'].includes(item.status) 
+                                            {/* Shade button — disabled if already shaded and not explicitly re-shading */}
+                                            {['UPLOADED', 'STAGE_1', 'STAGE_2', 'COMPLETE'].includes(item.status)
                                               && processMode === 'LINE_ART' && (
-                                              <button 
-                                                onClick={() => applyAIShading(item, 'shade')} 
-                                                disabled={item.isAnalyzing}
-                                                className="px-2.5 py-1.5 border border-neutral-700 bg-transparent text-neutral-300 hover:bg-neutral-800 font-mono text-[11px] uppercase tracking-widest transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                                              >
-                                                {item.isAnalyzing ? '◈ Shading...' : item.shadedImageUrl ? '◈ Re-Shade' : '◈ Shade Only'}
-                                              </button>
-                                            )}
+                                              <div className="flex flex-col gap-1">
+                                                <button
+                                                  onClick={() => applyAIShading(item, 'shade')}
+                                                  disabled={item.isAnalyzing}
+                                                  className="px-2.5 py-1.5 border border-neutral-700 bg-transparent text-neutral-300 hover:bg-neutral-800 font-mono text-[11px] uppercase tracking-widest transition-colors disabled:opacity-50"
+                                                >
+                                                  {item.isAnalyzing ? '◈ Shading...' : item.shadedImageUrl ? '◈ Re-Shade' : '◈ Shade Only'}
+                                                </button>
 
-                                            {/* NEW REDRAW & SHADE BUTTON */}
-                                            {['UPLOADED', 'STAGE_1', 'STAGE_2', 'COMPLETE'].includes(item.status) 
-                                              && processMode === 'LINE_ART' && (
-                                              <button 
-                                                onClick={() => applyAIShading(item, 'redraw')}
-                                                disabled={item.isAnalyzing}
-                                                className="px-2.5 py-1.5 border border-amber-700 bg-transparent text-amber-400 hover:bg-amber-950/30 font-mono text-[11px] uppercase tracking-widest transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                                              >
-                                                {item.isAnalyzing ? '✦ Redrawing...' : '✦ Redraw & Shade'}
-                                              </button>
+                                                {/* Only show Redraw button if not already shaded OR explicitly wants redraw */}
+                                                <button
+                                                  onClick={() => applyAIShading(item, 'redraw')}
+                                                  disabled={item.isAnalyzing}
+                                                  className="px-2.5 py-1.5 border border-amber-700 bg-transparent text-amber-400 hover:bg-amber-950/30 font-mono text-[11px] uppercase tracking-widest transition-colors disabled:opacity-50"
+                                                >
+                                                  {item.isAnalyzing ? '✦ Redrawing...' : '✦ Redraw & Shade'}
+                                                </button>
+                                              </div>
                                             )}
 
                                             {/* Show shaded result thumbnail */}
