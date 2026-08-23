@@ -61,6 +61,7 @@ BLACKWORK ENHANCEMENTS:
 → Use bold black fills contrasted with pure white negative space
 
 HALLUCINATION PREVENTION — STRICTLY FORBIDDEN:
+- Do NOT add a dotted "cut-out" line or scissor boundary around the design
 - Do NOT add any border, frame, box, or decorative edge around the design
 - Do NOT add any lines that were not in the original input
 - Do NOT add background textures or patterns
