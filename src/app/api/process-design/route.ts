@@ -160,14 +160,18 @@ Analyze the image and return ONLY a valid JSON object. Do NOT wrap it in markdow
 }`;
 
 function createSlug(subject: string) {
-  return subject
+  const raw = subject
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')
     .trim()
     .split(/\s+/)
-    .join('-')
-    .slice(0, 80)
-    .replace(/-+$/, '');
+    .join('-');
+  
+  // Cap at 60 chars but always break at a word boundary (hyphen), never mid-word
+  if (raw.length <= 60) return raw;
+  const truncated = raw.slice(0, 60);
+  const lastHyphen = truncated.lastIndexOf('-');
+  return lastHyphen > 20 ? truncated.slice(0, lastHyphen) : truncated;
 }
 
 const FAMILY_CODES: Record<string, string> = {

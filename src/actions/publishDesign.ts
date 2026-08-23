@@ -119,7 +119,13 @@ export type PublishDesignPayload = {
  * Checks against existing slugs and appends/regenerates a 4-character suffix up to 10 times in case of collision.
  */
 async function ensureUniqueSlug(baseSlug: string): Promise<string> {
-    let slug = baseSlug.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').substring(0, 80);
+    let slug = baseSlug.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+    // Cap at 60 chars at a word boundary, never mid-word
+    if (slug.length > 60) {
+        const truncated = slug.slice(0, 60);
+        const lastHyphen = truncated.lastIndexOf('-');
+        slug = lastHyphen > 20 ? truncated.slice(0, lastHyphen) : truncated;
+    }
     if (!slug) {
         slug = "untitled-design";
     }
