@@ -5,6 +5,45 @@ import Papa from 'papaparse';
 import { UploadCloud, FileImage, Play, AlertCircle, Download, FileDown, Trash2, Eye, Zap, Layers, Cpu, Sparkles, Loader2 } from 'lucide-react';
 import { publishDesignAction, PublishDesignPayload } from '@/actions/publishDesign';
 import { getQueue, saveQueue } from '@/lib/queue-db';
+import { supabase } from '@/lib/supabase';
+
+const uploadBase64ToSupabase = async (
+  base64: string,
+  filename: string
+): Promise<string | null> => {
+  try {
+    const byteCharacters = atob(base64);
+    const byteArrays = [];
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      byteArrays.push(new Uint8Array(byteNumbers));
+    }
+    const blob = new Blob(byteArrays, { type: 'image/png' });
+    const file = new File([blob], filename, { type: 'image/png' });
+    
+    const { data, error } = await supabase.storage
+      .from('designs')
+      .upload(`published/${filename}`, file, { 
+        contentType: 'image/png', 
+        upsert: true 
+      });
+    
+    if (error) throw error;
+    
+    const { data: urlData } = supabase.storage
+      .from('designs')
+      .getPublicUrl(data.path);
+    
+    return urlData.publicUrl;
+  } catch (err) {
+    console.error('Supabase upload failed:', err);
+    return null;
+  }
+};
 
 type PipelineStage = 'UPLOADED' | 'STAGE_1' | 'STAGE_2' | 'STAGE_3' | 'COMPLETE' | 'ERROR';
 
@@ -483,14 +522,35 @@ export default function SEOStudio() {
 
             try {
                 const masterBase64 = item.masterBase64 || await getMasterBase64(item.file);
+                const slug = item.stage2Result.slug || 'design';
+                const timestamp = Date.now();
+
+                // Upload the processed design image
+                const processedBase64 = item.stage1Result.shaded_base64 || item.stage1Result.polished_base64;
+                let uploadedImageUrl: string | null = null;
+                if (processedBase64) {
+                  uploadedImageUrl = await uploadBase64ToSupabase(
+                    processedBase64,
+                    item.stage2Result.seo_filename || `${slug}-${timestamp}.png`
+                  );
+                }
+
+                // Upload master/original image
+                let uploadedMasterUrl: string | null = null;
+                if (masterBase64) {
+                  uploadedMasterUrl = await uploadBase64ToSupabase(
+                    masterBase64,
+                    `masters/${slug}-${timestamp}-master.png`
+                  );
+                }
 
                 const payload: PublishDesignPayload = {
                     // Core Identification
                     seo_filename: item.stage2Result.seo_filename!,
                     thumbnail_filename: item.stage2Result.thumbnail_filename!,
                     slug: item.stage2Result.slug!,
-                    base64Image: item.stage1Result.shaded_base64 || item.stage1Result.polished_base64!,
-                    masterBase64: masterBase64,
+                    uploaded_image_url: uploadedImageUrl,
+                    uploaded_master_url: uploadedMasterUrl,
                     status: 'published',
                     
                     // Stage 2 Taxonomy

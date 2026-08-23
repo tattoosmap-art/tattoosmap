@@ -60,8 +60,8 @@ Return ONLY valid JSON, no markdown, no explanation:
 export type PublishDesignPayload = {
     seo_filename: string;
     thumbnail_filename?: string;
-    base64Image?: string; // Final processed image (Polished/Shaded)
-    masterBase64?: string; // New: Original raw high-res upload for archiving
+    uploaded_image_url?: string | null;
+    uploaded_master_url?: string | null;
     subject: string;
     public_category: string;
     mood?: string;
@@ -185,8 +185,10 @@ export async function publishDesignAction(payload: PublishDesignPayload) {
 
         // 1. Get Image Buffer
         let fileBuffer: Buffer;
-        if (payload.base64Image) {
-            fileBuffer = Buffer.from(payload.base64Image, 'base64');
+        if (payload.uploaded_image_url) {
+            // Image already uploaded to Supabase — fetch it to generate thumbnail/blurhash
+            const response = await fetch(payload.uploaded_image_url);
+            fileBuffer = Buffer.from(await response.arrayBuffer());
         } else {
             const rootPath = process.cwd();
             const filePath = path.join(rootPath, "public", "designs", payload.seo_filename);
@@ -195,35 +197,21 @@ export async function publishDesignAction(payload: PublishDesignPayload) {
             } catch (err) {
                 throw new Error(`Failed to access local ingestion file: ${payload.seo_filename}`);
             }
+            
+            // Fallback: If not uploaded from client, we must upload the local file
+            const { error: uploadError } = await supabaseAdmin.storage
+                .from("designs")
+                .upload(finalSeoFilename, fileBuffer, {
+                    contentType: "image/webp",
+                    cacheControl: "31536000, immutable",
+                    upsert: true
+                });
+
+            if (uploadError) throw new Error(`Storage primary upload failure: ${uploadError.message}`);
         }
 
-        // 2. Upload Atomic Binary to Supabase Storage
-        const { error: uploadError } = await supabaseAdmin.storage
-            .from("designs")
-            .upload(finalSeoFilename, fileBuffer, {
-                contentType: "image/webp",
-                cacheControl: "31536000, immutable",
-                upsert: true
-            });
+        // 2. Upload High-Res Master Copy (Private Archive) skipped here since client handles it directly
 
-        if (uploadError) throw new Error(`Storage primary upload failure: ${uploadError.message}`);
-
-        // 3. Upload High-Res Master Copy (Private Archive)
-        if (payload.masterBase64) {
-            try {
-                const masterBuffer = Buffer.from(payload.masterBase64, 'base64');
-                const { error: masterError } = await supabaseAdmin.storage
-                    .from("masters")
-                    .upload(finalSeoFilename, masterBuffer, {
-                        contentType: "image/webp",
-                        upsert: true
-                    });
-                if (masterError) console.error("[publishDesignAction] Master archival failure:", masterError.message);
-                else console.log("[publishDesignAction] Master archived successfully.");
-            } catch (err) {
-                console.error("[publishDesignAction] Master archival exception:", err);
-            }
-        }
 
         // 4. Generate and Upload Thumbnail
         if (finalThumbnailFilename) {
