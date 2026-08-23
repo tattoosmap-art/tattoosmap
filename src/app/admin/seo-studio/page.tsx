@@ -59,6 +59,7 @@ interface QueueItem {
     
     errorMessage?: string;
     shadedImageUrl?: string;
+    masterBase64?: string;
 }
 
 export default function SEOStudio() {
@@ -94,13 +95,52 @@ export default function SEOStudio() {
         saveQueue(queue).catch(e => console.error('Failed to auto-save queue:', e));
     }, [queue]);
 
-    const handleFiles = (files: File[]) => {
-        const newItems: QueueItem[] = files.map(file => ({
-            id: crypto.randomUUID(),
-            file,
-            originalName: file.name,
-            status: 'UPLOADED'
-        }));
+    const base64ToFile = (base64: string, fileName: string, mimeType: string = 'image/png'): File => {
+        const byteCharacters = atob(base64);
+        const byteArrays = [];
+        for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+            const slice = byteCharacters.slice(offset, offset + 512);
+            const byteNumbers = new Array(slice.length);
+            for (let i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+        }
+        const blob = new Blob(byteArrays, { type: mimeType });
+        return new File([blob], fileName, { type: mimeType });
+    };
+
+    const handleFiles = async (files: File[]) => {
+        const newItems: QueueItem[] = [];
+        for (const file of files) {
+            try {
+                const base64 = await new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const result = reader.result as string;
+                        resolve(result.split(',')[1]);
+                    };
+                    reader.onerror = () => reject(reader.error);
+                    reader.readAsDataURL(file);
+                });
+                newItems.push({
+                    id: crypto.randomUUID(),
+                    file,
+                    originalName: file.name,
+                    status: 'UPLOADED',
+                    masterBase64: base64
+                });
+            } catch (err) {
+                console.error("Failed to read file as base64:", err);
+                newItems.push({
+                    id: crypto.randomUUID(),
+                    file,
+                    originalName: file.name,
+                    status: 'UPLOADED'
+                });
+            }
+        }
         setQueue(q => [...q, ...newItems]);
     };
 
@@ -128,7 +168,8 @@ export default function SEOStudio() {
         for (const item of targets) {
             setItemAnalyzing(item.id, true);
             const formData = new FormData();
-            formData.append('file', item.file);
+            const fileToUpload = item.masterBase64 ? base64ToFile(item.masterBase64, item.originalName) : item.file;
+            formData.append('file', fileToUpload);
             formData.append('stage', '1');
             formData.append('processMode', processMode);
 
@@ -164,7 +205,7 @@ export default function SEOStudio() {
         setItemAnalyzing(item.id, true);
         const formData = new FormData();
         
-        let fileToUpload: File | Blob = item.file;
+        let fileToUpload: File | Blob = item.masterBase64 ? base64ToFile(item.masterBase64, item.originalName) : item.file;
         let isPolished = 'false';
         if (item.stage1Result?.polished_base64) {
             isPolished = 'true';
@@ -441,7 +482,7 @@ export default function SEOStudio() {
             };
 
             try {
-                const masterBase64 = await getMasterBase64(item.file);
+                const masterBase64 = item.masterBase64 || await getMasterBase64(item.file);
 
                 const payload: PublishDesignPayload = {
                     // Core Identification
