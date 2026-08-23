@@ -347,7 +347,9 @@ export default function SEOStudio() {
 
     const runStage2 = async (item: QueueItem) => {
         setItemAnalyzing(item.id, true);
-        const imageBase64 = item.stage1Result?.shaded_base64 || item.stage1Result?.polished_base64;
+        const imageBase64 = item.stage1Result?.shaded_base64 
+            || item.stage1Result?.polished_base64 
+            || item.masterBase64;
         
         const formData = new FormData();
         formData.append('base64Image', imageBase64!);
@@ -392,7 +394,9 @@ export default function SEOStudio() {
 
     const runStage3 = async (item: QueueItem) => {
         setItemAnalyzing(item.id, true);
-        const imageBase64 = item.stage1Result?.shaded_base64 || item.stage1Result?.polished_base64;
+        const imageBase64 = item.stage1Result?.shaded_base64 
+            || item.stage1Result?.polished_base64 
+            || item.masterBase64;
         
         const formData = new FormData();
         formData.append('base64Image', imageBase64!);
@@ -852,7 +856,7 @@ export default function SEOStudio() {
                                               </div>
                                             )}
                                             
-                                            {['STAGE_1', 'STAGE_2'].includes(item.status) && (
+                                            {['UPLOADED', 'STAGE_1', 'STAGE_2'].includes(item.status) && (
                                                 <button onClick={() => runStage2(item)} disabled={item.isAnalyzing} className="px-2.5 py-1.5 border border-neutral-700 bg-transparent text-neutral-300 hover:bg-neutral-800 font-mono text-[11px] uppercase tracking-widest transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">
                                                     🧠 Run Stage 2
                                                 </button>
