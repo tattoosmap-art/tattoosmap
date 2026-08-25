@@ -825,7 +825,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
             {/* DYNAMIC PRIMARY CTA BASED ON INTENT (FIX 3.3) */}
             <section className="w-full bg-black py-[80px] px-5 text-center">
-                {post.post_intent === "INFORM AND REFER" ? (
+                {post.post_intent === "INFORM AND REFER" && 
+                 (post.slug?.includes('removal') || post.slug?.includes('laser') || post.slug?.includes('tattoo-removal')) ? (
                     <div className="max-w-[540px] mx-auto flex flex-col items-center">
                         <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-400 mb-4 border border-neutral-800 px-3 py-1">
                             TATTOOSMAP VERIFIED CLINICS
@@ -845,6 +846,25 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                         <p className="mt-8 font-mono text-[11px] text-neutral-500 max-w-[360px] mx-auto leading-relaxed">
                             TattoosMap earns a referral fee if you book. This does not affect the price you pay.
                         </p>
+                    </div>
+                ) : post.post_intent === "INFORM AND REFER" ? (
+                    <div className="border border-white/20 p-8 mt-12 max-w-[540px] mx-auto flex flex-col items-center bg-black text-white">
+                        <p className="font-mono text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
+                            Find Your Artist
+                        </p>
+                        <h3 className="font-display text-[24px] uppercase mb-4">
+                            Ready To Book?
+                        </h3>
+                        <p className="font-serif text-[16px] text-neutral-400 mb-6 text-center">
+                            Browse verified tattoo artists on TattoosMap — 
+                            filtered by style, city, and specialty.
+                        </p>
+                        <a 
+                            href="/artists"
+                            className="inline-block font-mono text-[11px] uppercase tracking-widest px-6 py-3 bg-white text-black hover:bg-neutral-200"
+                        >
+                            Browse Artists →
+                        </a>
                     </div>
                 ) : (
                     <div className="max-w-[540px] mx-auto flex flex-col items-center">
