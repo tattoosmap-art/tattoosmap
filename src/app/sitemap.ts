@@ -151,5 +151,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
     }));
 
-    return [...staticRoutes, ...blogRoutes, ...galleryRoutes, ...meaningRoutes];
+    const clinicCities = [
+        'charlotte-nc', 'raleigh-nc', 'phoenix-az', 'nashville-tn',
+        'orlando-fl', 'austin-tx', 'denver-co', 'houston-tx', 'miami-fl'
+    ];
+
+    const clinicRoutes = [
+        { url: `${baseUrl}/clinics`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.9 },
+        ...clinicCities.map(city => ({
+            url: `${baseUrl}/clinics/${city}`,
+            lastModified: new Date(),
+            changeFrequency: 'monthly' as const,
+            priority: 0.8
+        }))
+    ];
+
+    return [...staticRoutes, ...blogRoutes, ...galleryRoutes, ...meaningRoutes, ...clinicRoutes];
 }
