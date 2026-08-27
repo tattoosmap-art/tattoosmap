@@ -158,6 +158,14 @@ export default function Header() {
                                     {isAdmin(user.email) && (
                                         <>
                                             <Link
+                                                href="/admin/enhance-photo"
+                                                onClick={() => setIsProfileOpen(false)}
+                                                className="flex items-center gap-3 px-5 py-3 font-mono text-[11px] uppercase tracking-wider text-black hover:bg-off-white transition-colors border-t border-gray-light/50"
+                                            >
+                                                <Sparkles className="w-4 h-4" strokeWidth={1.5} />
+                                                Photo Studio
+                                            </Link>
+                                            <Link
                                                 href="/admin/publish"
                                                 onClick={() => setIsProfileOpen(false)}
                                                 className="flex items-center gap-3 px-5 py-3 font-mono text-[11px] uppercase tracking-wider text-black hover:bg-off-white transition-colors border-t border-gray-light/50"

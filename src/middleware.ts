@@ -78,7 +78,8 @@ export async function middleware(request: NextRequest) {
         }
 
         // Protect studio route — only admin or studio emails allowed
-        if (request.nextUrl.pathname.startsWith('/admin/seo-studio')) {
+        if (request.nextUrl.pathname.startsWith('/admin/seo-studio') ||
+            request.nextUrl.pathname.startsWith('/admin/enhance-photo')) {
             if (!hasStudioAccess(user.email)) {
                 const url = request.nextUrl.clone();
                 url.pathname = '/';
