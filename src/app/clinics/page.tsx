@@ -1,10 +1,16 @@
 import { getSupabaseAnon } from "@/lib/supabase-anon";
 import { Metadata } from "next";
 import Link from "next/link";
+import { ClinicsClient } from "./ClinicsClient";
 
 export const metadata: Metadata = {
   title: 'Tattoo Removal Clinics — Find Verified Clinics Near You | TattoosMap',
   description: 'Find verified tattoo removal clinics near you. Compare laser technology, pricing, and read honest guides before booking your consultation.',
+  openGraph: {
+    title: 'Tattoo Removal Clinics Near You | TattoosMap',
+    description: 'Find verified tattoo removal clinics near you. Compare laser technology, pricing, and read honest guides before booking.',
+    url: 'https://tattoosmap.com/clinics',
+  },
   alternates: { canonical: "https://tattoosmap.com/clinics" },
 };
 
@@ -53,82 +59,8 @@ export default async function ClinicsPage() {
           </p>
         </div>
 
-        {/* City Grid */}
-        <div className="space-y-12">
-          {clinicsByCity.map(({ city, state, slug, clinics: cityClinics }) => (
-            <div key={slug} className="border-t border-neutral-200 pt-8">
-              <div className="flex items-baseline justify-between mb-6">
-                <h2 className="font-display text-[24px] uppercase">
-                  {city}, {state}
-                </h2>
-                <Link
-                  href={`/clinics/${slug}`}
-                  className="font-mono text-[10px] uppercase tracking-widest text-neutral-400 hover:text-black transition-colors"
-                >
-                  View All →
-                </Link>
-              </div>
-
-              {cityClinics.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {cityClinics.slice(0, 2).map(clinic => (
-                    <div key={clinic.id} className="border border-neutral-200 p-6">
-                      <h3 className="font-mono text-[13px] uppercase tracking-wide mb-2">
-                        {clinic.name}
-                      </h3>
-                      {clinic.laser_technology && (
-                        <div className="flex flex-wrap gap-1 mb-3">
-                          {clinic.laser_technology.map((tech: string) => (
-                            <span key={tech} className="font-mono text-[9px] uppercase tracking-widest border border-neutral-300 px-2 py-0.5">
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      {clinic.price_per_session_min && (
-                        <p className="font-mono text-[10px] text-neutral-500 mb-4">
-                          ${clinic.price_per_session_min}–${clinic.price_per_session_max} per session
-                        </p>
-                      )}
-                      {clinic.website_url && (
-                        <a
-                          href={clinic.website_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="font-mono text-[10px] uppercase tracking-widest border border-black px-4 py-2 hover:bg-black hover:text-white transition-colors"
-                        >
-                          Book Consultation →
-                        </a>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="border border-dashed border-neutral-200 p-8 text-center">
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-neutral-400 mb-4">
-                    Clinics being verified
-                  </p>
-                  <Link
-                    href={`/clinics/${slug}`}
-                    className="font-mono text-[10px] uppercase tracking-widest text-black underline"
-                  >
-                    Read our {city} removal guide →
-                  </Link>
-                </div>
-              )}
-
-              {/* Link to city guide */}
-              <div className="mt-4">
-                <Link
-                  href={`/blog/tattoo-removal-${slug}`}
-                  className="font-mono text-[10px] uppercase tracking-widest text-neutral-400 hover:text-black transition-colors"
-                >
-                  → Read the honest {city} removal cost guide
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* Client side search and feed */}
+        <ClinicsClient clinicsByCity={clinicsByCity} />
 
         {/* Bottom CTA */}
         <div className="border border-black p-8 mt-16 text-center">
@@ -146,6 +78,23 @@ export default async function ClinicsPage() {
             className="font-mono text-[11px] uppercase tracking-widest px-6 py-3 bg-black text-white hover:bg-neutral-800 transition-colors inline-block"
           >
             Read the Guide →
+          </Link>
+        </div>
+
+        {/* Not listed fallback */}
+        <div className="border border-dashed border-neutral-200 p-8 mt-8 text-center">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
+            Don't see your city?
+          </p>
+          <p className="font-serif text-[15px] text-neutral-500 mb-4">
+            We are expanding to more cities every month.
+            Our removal guide helps you find a good clinic anywhere.
+          </p>
+          <Link
+            href="/blog/how-to-choose-a-tattoo-removal-clinic-the-7-questions-that-expose-a-bad-one"
+            className="font-mono text-[10px] uppercase tracking-widest border border-black px-4 py-2 hover:bg-black hover:text-white transition-colors inline-block"
+          >
+            How To Choose Any Removal Clinic →
           </Link>
         </div>
 
