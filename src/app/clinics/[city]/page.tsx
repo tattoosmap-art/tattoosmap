@@ -15,13 +15,14 @@ const CITY_DATA: Record<string, { city: string; state: string; blogSlug: string 
   'miami-fl': { city: 'Miami', state: 'FL', blogSlug: 'tattoo-removal-miami-fl' },
 };
 
-export async function generateMetadata({ params }: { params: { city: string } }): Promise<Metadata> {
-  const data = CITY_DATA[params.city];
+export async function generateMetadata({ params }: { params: Promise<{ city: string }> }): Promise<Metadata> {
+  const { city } = await params;
+  const data = CITY_DATA[city];
   if (!data) return {};
   return {
     title: `Tattoo Removal Clinics in ${data.city} ${data.state} | TattoosMap`,
     description: `Find verified tattoo removal clinics in ${data.city} ${data.state}. Compare laser technology, session costs, and read honest pricing guides before booking.`,
-    alternates: { canonical: `https://tattoosmap.com/clinics/${params.city}` },
+    alternates: { canonical: `https://tattoosmap.com/clinics/${city}` },
   };
 }
 
@@ -31,15 +32,16 @@ export async function generateStaticParams() {
 
 export const revalidate = 60;
 
-export default async function CityClinicPage({ params }: { params: { city: string } }) {
-  const data = CITY_DATA[params.city];
+export default async function CityClinicPage({ params }: { params: Promise<{ city: string }> }) {
+  const { city } = await params;
+  const data = CITY_DATA[city];
   if (!data) notFound();
 
   const supabase = getSupabaseAnon();
   const { data: clinics } = await supabase
     .from('clinics')
     .select('*')
-    .eq('city_slug', params.city)
+    .eq('city_slug', city)
     .eq('is_published', true)
     .order('is_verified', { ascending: false });
 
