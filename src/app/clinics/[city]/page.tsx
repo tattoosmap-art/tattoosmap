@@ -29,7 +29,7 @@ export async function generateStaticParams() {
   return Object.keys(CITY_DATA).map(city => ({ city }));
 }
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export default async function CityClinicPage({ params }: { params: { city: string } }) {
   const data = CITY_DATA[params.city];

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://tattoosmap.com/clinics" },
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 const TARGET_CITIES = [
   { city: 'Charlotte', state: 'NC', slug: 'charlotte-nc', vol: 480, kd: 1 },
