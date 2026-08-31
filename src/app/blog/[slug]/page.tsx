@@ -21,6 +21,12 @@ import RelatedPosts from "@/components/blog/RelatedPosts";
 import CommentSection from "@/components/blog/CommentSection";
 
 const MarkdownComponents: any = {
+    a: ({href, children, ...props}: any) => {
+        if (href && href.startsWith('http') && !href.includes('tattoosmap.com')) {
+            return <a href={href} target="_blank" rel="noopener noreferrer sponsored nofollow" className="underline decoration-brand-red underline-offset-4 hover:text-brand-red transition-colors font-medium" {...props}>{children}</a>;
+        }
+        return <a href={href} className="underline decoration-brand-red underline-offset-4 hover:text-brand-red transition-colors font-medium" {...props}>{children}</a>;
+    },
     h2: ({children, node, ...props}: any) => {
         const text = children?.toString() || "";
         const id = text.toLowerCase()
@@ -310,51 +316,72 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         notFound();
     }
 
-    // JSON-LD Generation based on schema_type
-    const jsonLd: any = {
-        "@context": "https://schema.org",
-        "@type": post.schema_type || "Article",
-        "headline": post.title,
-        "image": post.cover_image_url,
-        "author": {
-            "@type": "Person",
-            "name": post.author?.name
-        },
-        "datePublished": post.published_at,
-        "description": post.excerpt
-    };
-
-    if (post.schema_type === "HowTo") {
-        jsonLd.step = post.protocol_steps?.map((step: { number: string; title: string; content: string }) => ({
-            "@type": "HowToStep",
-            "name": step.title,
-            "text": step.content
-        })) || [{
-            "@type": "HowToStep",
-            "text": "Check the guide content for detailed steps."
-        }];
-    } else if (post.schema_type === "FAQPage") {
-        jsonLd["@type"] = "FAQPage";
-        if (post.faq_items && post.faq_items.length > 0) {
-            jsonLd.mainEntity = post.faq_items.map((faq: { question: string; answer: string }) => ({
-                "@type": "Question",
-                "name": faq.question,
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": faq.answer
-                }
-            }));
-        } else {
-            jsonLd.mainEntity = [{
-                "@type": "Question",
-                "name": post.title,
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": post.excerpt || ""
-                }
-            }];
+    // Safe Multi-Schema JSON-LD Generation (@graph)
+    const isYMYLCategory = ['Healing', 'Removal', 'Aftercare', 'Health'].includes(post.category || '');
+    const graphNodes: any[] = [
+        {
+            "@type": isYMYLCategory ? "MedicalWebPage" : (post.schema_type || "Article"),
+            "@id": `https://tattoosmap.com/blog/${slug}#article`,
+            "headline": post.title,
+            "url": `https://tattoosmap.com/blog/${slug}`,
+            "image": post.cover_image_url ? [post.cover_image_url] : [],
+            "author": {
+                "@type": "Person",
+                "name": post.author?.name || "TattoosMap Editorial"
+            },
+            "datePublished": post.published_at,
+            "description": post.excerpt || post.meta_description || ""
         }
+    ];
+
+    if (Array.isArray(post.faq_items) && post.faq_items.length > 0) {
+        graphNodes.push({
+            "@type": "FAQPage",
+            "@id": `https://tattoosmap.com/blog/${slug}#faq`,
+            "mainEntity": post.faq_items
+                .filter((faq: any) => faq && faq.question && faq.answer)
+                .map((faq: any) => ({
+                    "@type": "Question",
+                    "name": faq.question,
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": faq.answer
+                    }
+                }))
+        });
     }
+
+    if (Array.isArray(post.related_products) && post.related_products.length > 0) {
+        graphNodes.push({
+            "@type": "ItemList",
+            "@id": `https://tattoosmap.com/blog/${slug}#products`,
+            "name": post.title,
+            "itemListElement": post.related_products
+                .filter((prod: any) => prod && prod.name)
+                .map((prod: any, idx: number) => ({
+                    "@type": "ListItem",
+                    "position": prod.rank || idx + 1,
+                    "item": {
+                        "@type": "Product",
+                        "name": prod.name,
+                        "image": prod.image_url || prod.imageSrc || undefined,
+                        "description": prod.description || undefined,
+                        "offers": {
+                            "@type": "Offer",
+                            "price": prod.price ? prod.price.replace(/[^0-9.]/g, '') : undefined,
+                            "priceCurrency": "USD",
+                            "availability": "https://schema.org/InStock",
+                            "url": (prod.url || prod.affiliateUrl) && (prod.url || prod.affiliateUrl) !== '#affiliate' && (prod.url || prod.affiliateUrl) !== '#' ? (prod.url || prod.affiliateUrl) : `https://tattoosmap.com/blog/${slug}`
+                        }
+                    }
+                }))
+        });
+    }
+
+    const schemaGraph = {
+        "@context": "https://schema.org",
+        "@graph": graphNodes
+    };
 
     const configRegex = /:::config\n([\s\S]*?)\n:::/;
     const configMatch = post.body_content ? post.body_content.match(configRegex) : null;
@@ -397,7 +424,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     const extractedShortAnswerFromMarkdown = saMatch ? saMatch[1].trim() : (post.excerpt || "");
     const extractedShortAnswer = (post as any).short_answer || extractedShortAnswerFromMarkdown || '';
 
-    const faqItemsToPass = post.post_template_type === "VISUAL STEP GUIDE" ? post.faq_items : [];
+    const faqItemsToPass = post.post_template_type === "VISUAL STEP GUIDE" && Array.isArray(post.faq_items) ? post.faq_items : [];
     const bodyContentToPass = post.post_template_type === "VISUAL STEP GUIDE" ? displayBodyContent : "";
 
     if (post.post_template_type === "VISUAL STEP GUIDE") {
@@ -445,24 +472,24 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <ReadingProgressBar />
 
             <header className="flex flex-col">
-                <div className="max-w-[720px] mx-auto pt-12 md:pt-20 px-5 text-center order-1 md:order-2">
-                    <div className="flex justify-center gap-4 items-center mb-8 order-1">
+                <div className="max-w-[720px] mx-auto pt-6 md:pt-10 px-5 text-center order-1 md:order-2">
+                    <div className="flex justify-center gap-4 items-center mb-4 md:mb-6 order-1">
                         <span className="font-mono text-[10px] md:text-[11px] uppercase text-brand-red border border-brand-red/30 px-3 py-1 tracking-widest transition-colors hover:bg-brand-red hover:text-white">
                             {post.category || "General"}
                         </span>
                         <span className="font-mono text-[11px] text-neutral-400 uppercase tracking-widest">{post.read_time_minutes || 0} MIN READ</span>
                     </div>
 
-                    <h1 className="font-display text-[36px] md:text-[56px] lg:text-[72px] leading-[1] text-black mb-10 tracking-tight order-2">
+                    <h1 className="font-display text-[36px] md:text-[56px] lg:text-[72px] leading-[1] text-black mb-6 md:mb-8 tracking-tight order-2">
                         {post.title}
                     </h1>
 
-                    <div className="italic text-[18px] md:text-[20px] border-l-[3px] border-brand-red pl-6 md:pl-8 text-left text-black/90 leading-[1.6] mb-12 order-3">
+                    <div className="italic text-[18px] md:text-[20px] border-l-[3px] border-brand-red pl-6 md:pl-8 text-left text-black/90 leading-[1.6] mb-6 md:mb-8 order-3">
                         {post.meta_description || post.excerpt}
                     </div>
 
 
-                    <div className="font-mono text-[10px] text-neutral-400 mb-8 uppercase tracking-widest text-center leading-relaxed order-4">
+                    <div className="font-mono text-[10px] text-neutral-400 mb-6 md:mb-8 uppercase tracking-widest text-center leading-relaxed order-4">
                         By {post.author?.name || "TattoosMap"} — {new Date(post.published_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                         {post.related_products && post.related_products.length > 0 && (
                             <span className="block mt-1">
@@ -471,14 +498,28 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                         )}
                     </div>
                 </div>
-                <div className="w-full relative aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] max-h-[60vh] md:max-h-[500px] group overflow-hidden bg-black order-2 md:order-1">
+
+                {headings.shortAnswer !== "" && extractedShortAnswer && (
+                    <div className="max-w-[720px] mx-auto px-5 mb-8 order-2 md:order-3 w-full text-left">
+                        <div className="border-l-2 border-brand-red pl-6 py-2">
+                            <span className="font-mono text-[9px] uppercase text-neutral-400 tracking-widest block mb-2 font-bold">
+                                {headings.shortAnswer || "The Short Answer"}
+                            </span>
+                            <p className="font-sans text-[17px] leading-relaxed text-black/80">
+                                {extractedShortAnswer}
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                <div className="w-full relative aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] max-h-[60vh] md:max-h-[500px] group overflow-hidden bg-black order-3 md:order-1">
                     <Image
                         src={post.cover_image_url}
                         alt={post.cover_image_alt}
                         fill
                         priority
                         className="object-cover opacity-90 transition-transform duration-[2s] group-hover:scale-105"
-                        sizes="100vw"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                 </div>
@@ -490,19 +531,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     <main className="w-full max-w-[680px]">
                         {isRecommendAndSell ? (
                           <>
-                            {/* SHORT ANSWER CONTENT */}
-                            {headings.shortAnswer !== "" && (
-                              <>
-                                <h2 id="auto-short-answer" className="font-display text-[28px] uppercase tracking-tight text-black mb-4 mt-12 text-center">
-                                  {headings.shortAnswer || "The Short Answer"}
-                                </h2>
-                                {extractedShortAnswer && (
-                                  <p className="font-sans text-[17px] leading-relaxed text-black/80 border-l-2 border-brand-red pl-6 py-2 mb-8">
-                                    {extractedShortAnswer}
-                                  </p>
-                                )}
-                              </>
-                            )}
                             <div className="prose prose-lg max-w-none break-words">
                                 {renderContentWithTools(displayBodyContent)}
                             </div>
@@ -553,7 +581,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                                       <a
                                         href={(product.url || product.affiliateUrl) && (product.url || product.affiliateUrl) !== '#affiliate' && (product.url || product.affiliateUrl) !== '#' ? (product.url || product.affiliateUrl) : undefined}
                                         target="_blank"
-                                        rel="noopener noreferrer"
+                                        rel="noopener noreferrer sponsored nofollow"
                                         className={`bg-black text-white font-mono text-[10px] uppercase px-5 py-2 transition-colors whitespace-nowrap ${(!(product.url || product.affiliateUrl) || (product.url || product.affiliateUrl) === '#affiliate' || (product.url || product.affiliateUrl) === '#') ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-900'}`}
                                       >
                                         {product.button_label || product.buttonLabel || "VIEW ON AMAZON"}
@@ -609,7 +637,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                             )}
 
                             {/* PROTOCOL STEPS */}
-                            {post.protocol_steps && post.protocol_steps.length > 0 && (
+                            {Array.isArray(post.protocol_steps) && post.protocol_steps.length > 0 && (
                               <>
                                 {headings.protocol !== "" && (
                                   <h2 className="font-display text-[28px] md:text-[32px] uppercase tracking-tight text-black mb-12 mt-20 text-center">
@@ -631,7 +659,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                             )}
 
                             {/* WHAT TO NEVER USE */}
-                            {post.avoid_items && post.avoid_items.length > 0 && (
+                            {Array.isArray(post.avoid_items) && post.avoid_items.length > 0 && (
                               <>
                                 {headings.avoid !== "" && (
                                   <h2 className="font-display text-[28px] md:text-[32px] uppercase tracking-tight text-black mb-12 mt-20 text-center">
@@ -652,7 +680,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                             )}
 
                             {/* FAQ */}
-                            {post.faq_items && post.faq_items.length > 0 && (
+                            {Array.isArray(post.faq_items) && post.faq_items.length > 0 && (
                               <>
                                 {headings.faq !== "" && (
                                   <h2 className="font-display text-[28px] md:text-[32px] uppercase tracking-tight text-black mb-12 mt-20 text-center">
@@ -674,19 +702,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                               DISCLOSURE: This post contains affiliate links. If you purchase through our links we may earn a small commission at no extra cost to you.
                             </p>
 
-                            {/* MAIN CONTENT */}
-                            {headings.shortAnswer !== "" && (
-                              <>
-                                <h2 id="auto-short-answer" className="font-display text-[28px] uppercase tracking-tight text-black mb-4 mt-12 text-center">
-                                  {headings.shortAnswer || "The Short Answer"}
-                                </h2>
-                                {extractedShortAnswer && (
-                                  <p className="font-sans text-[17px] leading-relaxed text-black/80 border-l-2 border-brand-red pl-6 py-2 mb-8">
-                                    {extractedShortAnswer}
-                                  </p>
-                                )}
-                              </>
-                            )}
                             <div className="prose prose-lg max-w-none break-words">
                                 {renderContentWithTools(displayBodyContent)}
                             </div>
@@ -744,7 +759,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                             )}
 
                             {/* PROTOCOL STEPS */}
-                            {post.protocol_steps && post.protocol_steps.length > 0 && (
+                            {Array.isArray(post.protocol_steps) && post.protocol_steps.length > 0 && (
                               <>
                                 {headings.protocol !== "" && (
                                   <h2 className="font-display text-[28px] md:text-[32px] uppercase tracking-tight text-black mb-12 mt-20 text-center">
@@ -766,7 +781,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                             )}
 
                             {/* WHAT TO NEVER USE */}
-                            {post.avoid_items && post.avoid_items.length > 0 && (
+                            {Array.isArray(post.avoid_items) && post.avoid_items.length > 0 && (
                               <>
                                 {headings.avoid !== "" && (
                                   <h2 className="font-display text-[28px] md:text-[32px] uppercase tracking-tight text-black mb-12 mt-20 text-center">
@@ -894,7 +909,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             {/* Schema Injection */}
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaGraph) }}
             />
 
             {/* UNIFIED RELATED POSTS */}

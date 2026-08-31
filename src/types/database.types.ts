@@ -31,15 +31,15 @@ export interface Post {
     related_designs?: any[]; // JSONB array of designs
     related_products?: any[]; // JSONB array of products
     post_intent?: 'RECOMMEND AND SELL' | 'INFORM AND REFER' | null;
-    protocol_steps?: any[];
-    avoid_items?: any[];
-    faq_items?: any[];
+    protocol_steps?: { number?: string; title?: string; content?: string }[] | null;
+    avoid_items?: { item?: string; reason?: string }[] | null;
+    faq_items?: { question?: string; answer?: string }[] | null;
     pull_quote?: string | null;
     science_heading?: string | null;
     science_content?: string | null;
     selected_tool?: string | null;
     tool_position?: string | null;
-    tool_markers?: any[] | null;
+    tool_markers?: { toolId: string; anchor: string }[] | null;
     visual_steps?: any[] | null;
     post_template_type?: 'STANDARD' | 'VISUAL STEP GUIDE' | null;
 }

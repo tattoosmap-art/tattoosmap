@@ -17,6 +17,12 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 
 const MarkdownComponents: any = {
+    a: ({href, children, ...props}: any) => {
+        if (href && href.startsWith('http') && !href.includes('tattoosmap.com')) {
+            return <a href={href} target="_blank" rel="noopener noreferrer sponsored nofollow" className="underline decoration-brand-red underline-offset-4 hover:text-brand-red transition-colors font-medium" {...props}>{children}</a>;
+        }
+        return <a href={href} className="underline decoration-brand-red underline-offset-4 hover:text-brand-red transition-colors font-medium" {...props}>{children}</a>;
+    },
     p: ({children, node, ...props}: any) => {
         const getTextContent = (node: any): string => {
             if (typeof node === 'string') return node;
