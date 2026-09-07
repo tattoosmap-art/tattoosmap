@@ -158,6 +158,7 @@ export default async function LandingPage() {
                   sizes="(max-width: 1024px) 100vw, 45vw"
                   className="object-contain p-8 transition-transform duration-[1.2s] ease-out group-hover:scale-[1.04]"
                   priority={true}
+                  fetchPriority="high"
                 />
                 <div className="absolute bottom-6 left-6 right-6 flex flex-col gap-2 bg-white/80 backdrop-blur-sm p-4 border border-gray-light/30">
                   <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-red font-bold animate-pulse">
@@ -189,7 +190,7 @@ export default async function LandingPage() {
                         fill
                         sizes="120px"
                         className="object-contain p-2 transition-transform duration-700 ease-out group-hover:scale-[1.08]"
-                        priority={true}
+                        loading="lazy"
                       />
                     </div>
                     {/* Editorial Label */}
