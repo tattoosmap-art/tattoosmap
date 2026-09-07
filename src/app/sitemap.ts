@@ -166,5 +166,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         }))
     ];
 
-    return [...staticRoutes, ...blogRoutes, ...galleryRoutes, ...meaningRoutes, ...clinicRoutes];
+    const artistCities = [
+        'charlotte-nc', 'raleigh-nc', 'phoenix-az', 'nashville-tn',
+        'orlando-fl', 'austin-tx', 'denver-co', 'houston-tx', 'miami-fl'
+    ];
+
+    const artistRoutes = artistCities.map(city => ({
+        url: `${baseUrl}/artists/${city}`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly' as const,
+        priority: 0.8
+    }));
+
+    return [...staticRoutes, ...blogRoutes, ...galleryRoutes, ...meaningRoutes, ...clinicRoutes, ...artistRoutes];
 }
