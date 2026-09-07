@@ -13,12 +13,14 @@ const dmSans = DM_Sans({
   variable: "--font-dm-sans",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
 });
 
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair-display",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
 });
 
 const dmMono = DM_Mono({
@@ -57,6 +59,10 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body suppressHydrationWarning className={`${dmSans.variable} ${playfairDisplay.variable} ${dmMono.variable} antialiased bg-white text-black font-sans selection:bg-brand-red selection:text-white flex flex-col min-h-screen outline-custom`}>
         {gaId && (
           <>
