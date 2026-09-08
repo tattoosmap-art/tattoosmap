@@ -35,6 +35,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             // Force Next.js to re-render server components when auth changes
             if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "TOKEN_REFRESHED") {
+                if (event === "SIGNED_IN" && typeof window !== "undefined") {
+                    const pendingAction = sessionStorage.getItem("tattoosmap_pending_action");
+                    if (pendingAction) {
+                        sessionStorage.removeItem("tattoosmap_pending_action");
+                        window.dispatchEvent(new CustomEvent("tattoosmap_execute_pending", { detail: pendingAction }));
+                    }
+                }
                 router.refresh();
             }
         });

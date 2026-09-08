@@ -38,12 +38,11 @@ export async function GET(request: NextRequest) {
 
         if (error) {
             console.error('[AUTH CALLBACK] Exchange FAILED:', error.message);
-        } else {
-            console.log('[AUTH CALLBACK] Exchange SUCCESS — user:', data.session?.user?.email);
         }
     } else {
         console.warn('[AUTH CALLBACK] No code param in URL');
     }
 
-    return NextResponse.redirect(new URL('/', requestUrl.origin));
+    const next = requestUrl.searchParams.get('next') || '/';
+    return NextResponse.redirect(new URL(next, requestUrl.origin));
 }

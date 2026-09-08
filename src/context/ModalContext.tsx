@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface ModalContextType {
     isLoginModalOpen: boolean;
-    openLoginModal: () => void;
+    openLoginModal: (pendingActionKey?: string) => void;
     closeLoginModal: () => void;
 }
 
@@ -13,7 +13,12 @@ const ModalContext = createContext<ModalContextType | undefined>(undefined);
 export function ModalProvider({ children }: { children: ReactNode }) {
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-    const openLoginModal = () => setIsLoginModalOpen(true);
+    const openLoginModal = (pendingActionKey?: string) => {
+        if (pendingActionKey && typeof window !== "undefined") {
+            sessionStorage.setItem("tattoosmap_pending_action", pendingActionKey);
+        }
+        setIsLoginModalOpen(true);
+    };
     const closeLoginModal = () => setIsLoginModalOpen(false);
 
     return (
