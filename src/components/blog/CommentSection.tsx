@@ -213,7 +213,7 @@ export default function CommentSection({ postId, comments = [] }: CommentSection
                         </p>
                         
                         <button 
-                            onClick={openLoginModal}
+                            onClick={() => openLoginModal()}
                             className="bg-black text-white font-mono text-[12px] uppercase tracking-[0.15em] px-10 py-[18px] flex items-center gap-3 shadow-xl hover:bg-brand-red hover:-translate-y-0.5 transition-all active:translate-y-0 duration-300"
                         >
                             <svg className="w-4 h-4" viewBox="0 0 24 24">
