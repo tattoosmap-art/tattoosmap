@@ -6,10 +6,12 @@ import { useModal } from "@/context/ModalContext";
 import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function LoginModal() {
+export default function LoginModal({ onLoginSuccess, redirectTo }: { onLoginSuccess?: () => void, redirectTo?: string } = {}) {
     const { isLoginModalOpen, closeLoginModal } = useModal();
     const [email, setEmail] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+    const [isMagicLinkLoading, setIsMagicLinkLoading] = useState(false);
+    const [magicLinkSent, setMagicLinkSent] = useState(false);
     const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
     useEffect(() => {
@@ -25,41 +27,52 @@ export default function LoginModal() {
         };
     }, [isLoginModalOpen]);
 
-    const getCallbackUrl = () => {
-        let origin = "https://tattoosmap.com";
-        if (typeof window !== "undefined") {
-            const currentOrigin = window.location.origin;
-            if (!currentOrigin.includes("0.0.0.0") && !currentOrigin.includes("localhost")) {
-                origin = currentOrigin;
-            }
-            const currentPath = window.location.pathname + window.location.search;
-            return `${origin}/auth/callback?next=${encodeURIComponent(currentPath)}`;
+    const getRedirectURL = () => {
+        if (typeof window !== 'undefined') {
+            const origin = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '0.0.0.0'
+                ? 'https://tattoosmap.com'
+                : window.location.origin;
+            return `${origin}/auth/callback`;
         }
-        return `${origin}/auth/callback`;
+        return 'https://tattoosmap.com/auth/callback';
     };
 
     const handleGoogleLogin = async () => {
-        setLoading(true);
-        await supabase.auth.signInWithOAuth({
-            provider: "google",
-            options: {
-                redirectTo: getCallbackUrl(),
-            },
-        });
+        setIsGoogleLoading(true);
+        try {
+            const currentPath = typeof window !== 'undefined' 
+                ? window.location.pathname + window.location.search 
+                : '/';
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: "google",
+                options: {
+                    redirectTo: `${getRedirectURL()}?next=${encodeURIComponent(currentPath)}`,
+                },
+            });
+            if (!error && onLoginSuccess) {
+                onLoginSuccess();
+            }
+        } finally {
+            setIsGoogleLoading(false);
+        }
     };
 
     const handleEmailLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email) return;
 
-        setLoading(true);
+        setIsMagicLinkLoading(true);
         setMessage(null);
 
         try {
+            const currentPath = typeof window !== 'undefined' 
+                ? window.location.pathname + window.location.search 
+                : '/';
             const { error } = await supabase.auth.signInWithOtp({
                 email,
                 options: {
-                    emailRedirectTo: getCallbackUrl(),
+                    emailRedirectTo: `${getRedirectURL()}?next=${encodeURIComponent(currentPath)}`,
                 },
             });
 
@@ -71,11 +84,15 @@ export default function LoginModal() {
                     text: "Login link sent! Check your inbox.",
                 });
                 setEmail("");
+                setMagicLinkSent(true);
+                if (onLoginSuccess) {
+                    onLoginSuccess();
+                }
             }
         } catch (err: any) {
             setMessage({ type: "error", text: "Something went wrong. Please try again." });
         } finally {
-            setLoading(false);
+            setIsMagicLinkLoading(false);
         }
     };
 
@@ -122,10 +139,10 @@ export default function LoginModal() {
 
                             <button
                                 onClick={handleGoogleLogin}
-                                disabled={loading}
+                                disabled={isGoogleLoading}
                                 className="w-full flex items-center justify-center gap-3 h-[56px] bg-black text-white text-[14px] font-mono uppercase tracking-[0.1em] hover:bg-brand-red transition-colors rounded-none mb-6 disabled:opacity-50"
                             >
-                                {loading ? (
+                                {isGoogleLoading ? (
                                     <Loader2 className="w-5 h-5 animate-spin" />
                                 ) : (
                                     <>
@@ -166,18 +183,20 @@ export default function LoginModal() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full h-[52px] border border-gray-light hover:border-gray-mid focus:border-black focus:outline-none px-4 text-[14px] bg-white transition-colors rounded-none"
-                                    disabled={loading}
+                                    disabled={isMagicLinkLoading || magicLinkSent}
                                 />
                                 <button
                                     type="submit"
-                                    disabled={loading}
+                                    disabled={isMagicLinkLoading || magicLinkSent}
                                     className="w-full h-[52px] bg-white text-black border border-black text-[13px] font-mono uppercase tracking-[0.1em] hover:bg-black hover:text-white transition-colors rounded-none disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
-                                    {loading ? (
+                                    {isMagicLinkLoading ? (
                                         <>
                                             <Loader2 className="w-4 h-4 animate-spin" />
                                             <span>Sending Link...</span>
                                         </>
+                                    ) : magicLinkSent ? (
+                                        "✓ Check Your Email"
                                     ) : (
                                         "Send Magic Link"
                                     )}

@@ -38,11 +38,22 @@ export async function GET(request: NextRequest) {
 
         if (error) {
             console.error('[AUTH CALLBACK] Exchange FAILED:', error.message);
+        } else {
+            const next = requestUrl.searchParams.get('next') || '/';
+            const forwardedHost = request.headers.get('x-forwarded-host');
+            const isLocalEnv = process.env.NODE_ENV === 'development';
+            
+            if (isLocalEnv) {
+                return NextResponse.redirect(`${requestUrl.origin}${next}`);
+            } else if (forwardedHost) {
+                return NextResponse.redirect(`https://${forwardedHost}${next}`);
+            } else {
+                return NextResponse.redirect(`${requestUrl.origin}${next}`);
+            }
         }
     } else {
         console.warn('[AUTH CALLBACK] No code param in URL');
     }
 
-    const next = requestUrl.searchParams.get('next') || '/';
-    return NextResponse.redirect(new URL(next, requestUrl.origin));
+    return NextResponse.redirect(`${requestUrl.origin}/`);
 }
