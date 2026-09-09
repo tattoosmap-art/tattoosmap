@@ -24,8 +24,6 @@ export default function Header() {
         { name: "Blog", href: "/blog" },
         { name: "Products", href: "/products" },
         { name: "Artists", href: "/artists" },
-        { name: "Clinics", href: "/clinics" },
-        { name: "Tools", href: "/tools" },
     ];
 
     // Auto-close the login modal when user signs in
