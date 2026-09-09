@@ -217,7 +217,7 @@ export default function Header() {
                     ) : (
                         <button
                             onClick={() => openLoginModal()}
-                            className="bg-black text-white font-mono text-[12px] uppercase tracking-[0.15em] px-10 py-[18px] flex items-center gap-3 shadow-xl hover:bg-brand-red hover:-translate-y-0.5 transition-all active:translate-y-0 duration-300"
+                            className="hidden md:block font-mono text-[12px] uppercase tracking-[0.1em] text-black hover:text-brand-red transition-colors px-6 py-2 border border-black rounded-none"
                         >
                             Login
                         </button>
