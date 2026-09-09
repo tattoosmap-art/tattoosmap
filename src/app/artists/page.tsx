@@ -139,6 +139,23 @@ export default async function ArtistsDirectory() {
                 </div>
             </section>
 
+            {/* CTA for artists who want to be listed */}
+            <div className="border border-dashed border-neutral-300 p-6 mb-12 text-center max-w-[1280px] mx-auto mt-12">
+                <p className="font-mono text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
+                    Are you a tattoo artist?
+                </p>
+                <p className="font-serif text-[15px] text-neutral-600 mb-4">
+                    List your studio on TattoosMap and reach clients actively looking for your style.
+                </p>
+                
+                <a
+                    href="mailto:hello@tattoosmap.com?subject=Artist Listing Request"
+                    className="font-mono text-[10px] uppercase tracking-widest border border-black px-5 py-2.5 hover:bg-black hover:text-white transition-colors inline-block"
+                >
+                    Apply to be Listed →
+                </a>
+            </div>
+
             {/* Client Interactive Search, Categories, and Grid */}
             <ArtistsFeedClient artists={liveArtists} />
         </div>

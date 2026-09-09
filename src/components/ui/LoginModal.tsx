@@ -27,6 +27,21 @@ export default function LoginModal({ onLoginSuccess, redirectTo }: { onLoginSucc
         };
     }, [isLoginModalOpen]);
 
+    // Check for pending actions after OAuth redirect
+    useEffect(() => {
+        if (typeof window !== 'undefined' && onLoginSuccess) {
+            const pendingAction = localStorage.getItem('pendingLoginAction');
+            const pendingPage = localStorage.getItem('pendingLoginPage');
+
+            if (pendingAction === 'save' && pendingPage === window.location.pathname) {
+                localStorage.removeItem('pendingLoginAction');
+                localStorage.removeItem('pendingLoginPage');
+                // trigger the save
+                onLoginSuccess();
+            }
+        }
+    }, [onLoginSuccess]);
+
     const getRedirectURL = () => {
         if (typeof window !== 'undefined') {
             const origin = window.location.hostname === 'localhost' || 
@@ -40,6 +55,13 @@ export default function LoginModal({ onLoginSuccess, redirectTo }: { onLoginSucc
 
     const handleGoogleLogin = async () => {
         setIsGoogleLoading(true);
+        
+        // Save pending action before OAuth redirect clears state
+        if (typeof window !== 'undefined' && onLoginSuccess) {
+            localStorage.setItem('pendingLoginAction', 'save');
+            localStorage.setItem('pendingLoginPage', window.location.pathname);
+        }
+
         try {
             const currentPath = typeof window !== 'undefined' 
                 ? window.location.pathname + window.location.search 
