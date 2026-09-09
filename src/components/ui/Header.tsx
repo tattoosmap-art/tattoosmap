@@ -16,6 +16,7 @@ export default function Header() {
     const { user } = useAuth();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [avatarError, setAvatarError] = useState(false);
     const profileRef = useRef<HTMLDivElement>(null);
 
     const navLinks = [
@@ -119,20 +120,21 @@ export default function Header() {
                         <div ref={profileRef} className="relative hidden md:block">
                             <button
                                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                                className="relative w-9 h-9 border border-gray-light hover:border-black transition-colors overflow-hidden rounded-none"
+                                className="relative flex items-center justify-center w-9 h-9 border border-gray-light hover:border-black transition-colors overflow-hidden rounded-full"
                                 aria-label="Profile menu"
                             >
-                                {user.user_metadata?.avatar_url ? (
-                                    <Image
+                                {user.user_metadata?.avatar_url && !avatarError ? (
+                                    <img
                                         src={user.user_metadata.avatar_url}
-                                        alt="User profile"
-                                        fill
-                                        sizes="36px"
-                                        className="object-cover"
+                                        alt={user.email || 'Profile'}
+                                        onError={() => setAvatarError(true)}
+                                        className="w-full h-full rounded-full object-cover"
                                     />
                                 ) : (
-                                    <div className="w-full h-full bg-black flex items-center justify-center text-white text-[10px] font-mono uppercase">
-                                        {user.email?.substring(0, 2)}
+                                    <div className="w-full h-full rounded-full bg-neutral-900 flex items-center justify-center">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                                            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                                        </svg>
                                     </div>
                                 )}
                             </button>

@@ -35,6 +35,14 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '*.fal.ai',
       },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'smrnldmbvtflavzswghh.supabase.co',
+      },
     ],
   },
   async headers() {
