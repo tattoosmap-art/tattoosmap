@@ -6,7 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 // during the Cloud Sync phase. Importing this client-side will leak high-privilege keys.
 
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  throw new Error('Supabase URL or Service Role Key missing in .env.local');
+  console.warn('Supabase URL or Service Role Key missing in .env.local');
 }
 
 export const supabaseAdmin = createClient(
