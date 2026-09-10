@@ -15,7 +15,6 @@ import Masonry from "react-masonry-css";
 
 interface GalleryGridProps {
     initialDesigns: Design[];
-    totalDesignsCount: number;
     filters: {
         style?: string;
         bodyPart?: string;
@@ -24,10 +23,10 @@ interface GalleryGridProps {
     };
 }
 
-export default function GalleryGrid({ initialDesigns, totalDesignsCount, filters }: GalleryGridProps) {
+export default function GalleryGrid({ initialDesigns, filters }: GalleryGridProps) {
     const [designs, setDesigns] = useState<Design[]>(initialDesigns);
     const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(initialDesigns.length < totalDesignsCount);
+    const [hasMore, setHasMore] = useState(initialDesigns.length === 24);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     // Map of designId -> saved state
@@ -60,8 +59,8 @@ export default function GalleryGrid({ initialDesigns, totalDesignsCount, filters
     useEffect(() => {
         setDesigns(initialDesigns);
         setPage(1);
-        setHasMore(initialDesigns.length < totalDesignsCount);
-    }, [initialDesigns, totalDesignsCount]);
+        setHasMore(initialDesigns.length === 24);
+    }, [initialDesigns]);
 
     // Fetch next batch of designs from API route on scroll
     const fetchNextDesigns = useCallback(async () => {
@@ -88,7 +87,7 @@ export default function GalleryGrid({ initialDesigns, totalDesignsCount, filters
                         const existingIds = new Set(prev.map(d => d.id));
                         const filteredNext = nextDesigns.filter(d => !existingIds.has(d.id));
                         const updated = [...prev, ...filteredNext];
-                        if (updated.length >= totalDesignsCount || nextDesigns.length < 24) {
+                        if (nextDesigns.length < 24) {
                             setHasMore(false);
                         }
                         return updated;
@@ -105,7 +104,7 @@ export default function GalleryGrid({ initialDesigns, totalDesignsCount, filters
         } finally {
             setIsLoadingMore(false);
         }
-    }, [page, hasMore, isLoadingMore, filters, totalDesignsCount]);
+    }, [page, hasMore, isLoadingMore, filters]);
 
     // Intersection Observer callback
     useEffect(() => {
@@ -257,7 +256,7 @@ export default function GalleryGrid({ initialDesigns, totalDesignsCount, filters
                 ) : (
                     <div className="flex flex-col items-center gap-1">
                         <span className="text-[12px] text-gray-mid font-mono uppercase tracking-[0.15em]">End of gallery</span>
-                        <span className="text-[10px] text-gray-400 font-mono">Showing all {designs.length} of {totalDesignsCount} designs</span>
+                        <span className="text-[10px] text-gray-400 font-mono">Showing all {designs.length} designs</span>
                     </div>
                 )}
             </div>

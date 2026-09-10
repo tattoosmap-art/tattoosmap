@@ -242,7 +242,6 @@ export default async function MeaningPage({ params }: Props) {
         </h2>
         <GalleryGrid 
             initialDesigns={designs as any} 
-            totalDesignsCount={designs.length}
             filters={{}}
         />
       </div>

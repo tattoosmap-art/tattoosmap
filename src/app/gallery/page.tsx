@@ -47,64 +47,34 @@ export default async function GalleryIndex(props: {
 }) {
     const searchParams = await props.searchParams;
 
-    // Fetch Live Designs (Falls back to MOCK_DESIGNS inside service if DB is empty)
-    const baseDesigns = await designService.getDesigns({ limit: 200 });
-
     // Parse Search Params
-    const styleParam = typeof searchParams?.style === 'string' ? searchParams.style.toLowerCase() : null;
-    const bodyPartParam = typeof searchParams?.body_part === 'string' ? searchParams.body_part.toLowerCase() : null;
-    const genderParam = typeof searchParams?.gender === 'string' ? searchParams.gender.toLowerCase() : null;
+    const styleParam = typeof searchParams?.style === 'string' ? searchParams.style : undefined;
+    const bodyPartParam = typeof searchParams?.body_part === 'string' ? searchParams.body_part : undefined;
+    const genderParam = typeof searchParams?.gender === 'string' ? searchParams.gender : undefined;
     const sortParam = typeof searchParams?.sort === 'string' ? searchParams.sort : 'recommended';
-    const qParam = typeof searchParams?.q === 'string' ? searchParams.q.toLowerCase() : null;
+    const qParam = typeof searchParams?.q === 'string' ? searchParams.q : undefined;
 
-    // Filter the returned designs
-    let filteredDesigns = [...baseDesigns];
-
-    if (styleParam) {
-        filteredDesigns = filteredDesigns.filter(d => 
-            d.style.some(s => {
-                const normS = s.toLowerCase().replace(/[\s-_]/g, '');
-                const normParam = styleParam.toLowerCase().replace(/[\s-_]/g, '');
-                return normS === normParam || normS.includes(normParam) || normParam.includes(normS);
-            })
-        );
-    }
-
-    if (bodyPartParam) {
-        filteredDesigns = filteredDesigns.filter(d => d.body_part.map(b => b.toLowerCase()).includes(bodyPartParam));
-    }
-
-    if (genderParam) {
-        filteredDesigns = filteredDesigns.filter(d => {
-            const g = d.gender?.toLowerCase() || '';
-            if (genderParam === 'male') {
-                return g === 'male' || g === 'male-leaning' || g === 'unisex' || g === 'men and women';
-            }
-            if (genderParam === 'female') {
-                return g === 'female' || g === 'female-leaning' || g === 'unisex' || g === 'men and women';
-            }
-            return g === genderParam;
-        });
-    }
+    // Fetch Live Designs matching API filtering exactly
+    let validDesigns = await designService.getDesigns({ 
+        limit: 24,
+        style: styleParam,
+        placement: bodyPartParam,
+        gender: genderParam,
+        sort: sortParam
+    });
 
     if (qParam) {
-        filteredDesigns = filteredDesigns.filter(d => {
+        // Quick fallback for text search if provided
+        validDesigns = validDesigns.filter(d => {
             const indexBuffer = `${d.title} ${d.artist_name} ${d.style.join(" ")} ${d.body_part.join(" ")} ${d.tags?.join(" ")}`.toLowerCase();
-            return indexBuffer.includes(qParam);
+            return indexBuffer.includes(qParam.toLowerCase());
         });
     }
 
-    // Sorting logic
+    // Server-only recommendation slotting for first page
     if (sortParam === 'recommended') {
-        filteredDesigns = designService.getRecommendedDesigns(filteredDesigns);
-    } else if (sortParam === 'saved') {
-        filteredDesigns.sort((a, b) => b.save_count - a.save_count);
-    } else if (sortParam === 'viewed') {
-        filteredDesigns.sort((a, b) => b.view_count - a.view_count);
+        validDesigns = designService.getRecommendedDesigns(validDesigns);
     }
-
-    // Task 2: Dead Link Shield - Bypassed for instant loading
-    const validDesigns = filteredDesigns;
 
     return (
         <div className="w-full bg-white pb-32">
@@ -133,12 +103,11 @@ export default async function GalleryIndex(props: {
                 {validDesigns.length > 0 ? (
                     <GalleryGrid 
                         initialDesigns={validDesigns} 
-                        totalDesignsCount={validDesigns.length}
                         filters={{
-                            style: styleParam || undefined,
-                            bodyPart: bodyPartParam || undefined,
-                            gender: genderParam || undefined,
-                            sort: sortParam || undefined
+                            style: styleParam,
+                            bodyPart: bodyPartParam,
+                            gender: genderParam,
+                            sort: sortParam
                         }}
                     />
                 ) : (
