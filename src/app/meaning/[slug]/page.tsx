@@ -16,57 +16,41 @@ async function getMeaningPageData(slug: string) {
   const searchTerm = hyphenatedTerm.replace(/-/g, ' ').trim();
   const fullTerm = slug.replace(/-/g, ' ');
 
-  // Strategy 1: Search by subject containing space-separated term
-  const { data: designs1 } = await supabaseAnon
+  // Unified Query: Matches any of the conditions in a single database round-trip
+  const { data: designs } = await supabaseAnon
     .from('designs')
     .select('*')
     .eq('is_published', true)
-    .ilike('subject', `%${searchTerm}%`)
-    .limit(24);
+    .or(`subject.ilike.%${searchTerm}%,style_tags.cs.{${hyphenatedTerm}},subject.ilike.%${fullTerm}%`)
+    .limit(50);
 
-  if (designs1 && designs1.length >= 3) return designs1;
+  if (!designs || designs.length === 0) return [];
 
-  // Strategy 2: Search style_tags with HYPHENATED term (key fix)
-  const { data: designs2 } = await supabaseAnon
-    .from('designs')
-    .select('*')
-    .eq('is_published', true)
-    .contains('style_tags', [hyphenatedTerm])
-    .limit(24);
+  // Sort results by relevance in memory (emulating the old waterfall priority)
+  const sortedDesigns = [...designs].sort((a, b) => {
+    const aSubj = (a.subject || '').toLowerCase();
+    const bSubj = (b.subject || '').toLowerCase();
+    
+    const aSearchMatch = aSubj.includes(searchTerm.toLowerCase());
+    const bSearchMatch = bSubj.includes(searchTerm.toLowerCase());
+    
+    if (aSearchMatch && !bSearchMatch) return -1;
+    if (!aSearchMatch && bSearchMatch) return 1;
+    
+    return 0;
+  });
 
-  if (designs2 && designs2.length >= 3) return designs2;
-
-  // Strategy 3: Search style_tags with full hyphenated slug minus tattoo
-  const { data: designs3 } = await supabaseAnon
-    .from('designs')
-    .select('*')
-    .eq('is_published', true)
-    .contains('style_tags', [slug.replace(/-tattoo$/, '').replace(/-tattoos$/, '')])
-    .limit(24);
-
-  if (designs3 && designs3.length >= 3) return designs3;
-
-  // Strategy 4: Combine all results
+  // Ensure unique slugs
   const seen = new Set();
   const combined = [];
-  for (const d of [...(designs1 || []), ...(designs2 || []), ...(designs3 || [])]) {
+  for (const d of sortedDesigns) {
     if (!seen.has(d.slug)) {
       seen.add(d.slug);
       combined.push(d);
     }
   }
 
-  if (combined.length > 0) return combined.slice(0, 24);
-
-  // Strategy 5: Full slug term in subject
-  const { data: designs5 } = await supabaseAnon
-    .from('designs')
-    .select('*')
-    .eq('is_published', true)
-    .ilike('subject', `%${fullTerm}%`)
-    .limit(24);
-
-  return designs5 || [];
+  return combined.slice(0, 24);
 }
 
 const CUSTOM_TITLES: Record<string, { title: string; h1: string; answer: string }> = {
