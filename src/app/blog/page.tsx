@@ -32,16 +32,50 @@ export default async function BlogIndex({ searchParams }: { searchParams: Promis
     const resolvedSearchParams = await searchParams;
     const currentPage = resolvedSearchParams.page ? parseInt(resolvedSearchParams.page, 10) : 1;
     
+    // EXACT STAGGERED PAGINATION CALCULATION
+    const POSTS_PAGE_ONE = 6;
+    const POSTS_PAGE_OTHER = 9;
+
+    let totalPages = 1;
+    let totalCount = 0;
+    
     try {
+        // 1. Get the total count of posts
+        const { count, error: countError } = await supabase
+            .from("posts")
+            .select("*", { count: 'exact', head: true })
+            .eq("is_published", true)
+            .is("deleted_at", null);
+            
+        totalCount = count || 0;
+        
+        if (totalCount > (1 + POSTS_PAGE_ONE)) {
+            const remainingForSubsequentPages = totalCount - (1 + POSTS_PAGE_ONE);
+            totalPages = 1 + Math.ceil(remainingForSubsequentPages / POSTS_PAGE_OTHER);
+        }
+
+        // 2. Calculate offset and limit for the current page
+        let limit = 0;
+        let offset = 0;
+        if (currentPage === 1) {
+            limit = 1 + POSTS_PAGE_ONE; // 7 posts
+            offset = 0;
+        } else {
+            limit = POSTS_PAGE_OTHER; // 9 posts
+            offset = 1 + POSTS_PAGE_ONE + (currentPage - 2) * POSTS_PAGE_OTHER;
+        }
+
+        // 3. Fetch only the required posts
         const { data: postsData, error: postsError } = await supabase
             .from("posts")
             .select("*")
             .eq("is_published", true)
             .is("deleted_at", null)
-            .order("published_at", { ascending: false });
+            .order("published_at", { ascending: false })
+            .range(offset, offset + limit - 1);
             
         let livePosts: Post[] = [];
-        if (!postsError && postsData) {
+        if (!postsError && postsData && postsData.length > 0) {
             const authorIds = Array.from(new Set(postsData.map(p => p.author_id).filter(Boolean)));
             const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
             const validAuthorIds = authorIds.filter(id => uuidRegex.test(id));
@@ -72,13 +106,7 @@ export default async function BlogIndex({ searchParams }: { searchParams: Promis
                     }
                 };
             });
-        } else if (postsError) {
-            console.error("[BLOG] Supabase posts fetch error:", postsError);
-        }
-
-        posts = livePosts;
-
-        if (livePosts.length > 0) {
+            
             const postIds = livePosts.map(p => p.id);
             const { data: commentCounts } = await supabase
                 .from('blog_comments')
@@ -91,35 +119,34 @@ export default async function BlogIndex({ searchParams }: { searchParams: Promis
                     commentCountMap[c.post_id] = (commentCountMap[c.post_id] || 0) + 1;
                 });
             }
+        } else if (postsError) {
+            console.error("[BLOG] Supabase posts fetch error:", postsError);
         }
+
+        posts = livePosts;
 
     } catch (err) {
         console.error("[BLOG] Fatal dynamic fetch error:", err);
         posts = [];
     }
 
-    const featuredPost = posts[0];
-    
-    // EXACT STAGGERED PAGINATION CALCULATION
-    const POSTS_PAGE_ONE = 6;
-    const POSTS_PAGE_OTHER = 9;
-
-    // Calculate total pages factoring in the staggered counts
-    let totalPages = 1;
-    if (posts.length > (1 + POSTS_PAGE_ONE)) {
-        const remainingForSubsequentPages = posts.length - (1 + POSTS_PAGE_ONE);
-        totalPages = 1 + Math.ceil(remainingForSubsequentPages / POSTS_PAGE_OTHER);
-    }
-
     let gridPosts: Post[] = [];
-    if (currentPage === 1) {
-        // Page 1: Skip featured(0), show next 6
-        gridPosts = posts.slice(1, 1 + POSTS_PAGE_ONE);
+    let featuredPost: Post | null = null;
+
+    if (currentPage === 1 && posts.length > 0) {
+        featuredPost = posts[0];
+        gridPosts = posts.slice(1);
     } else {
-        // Sub pages: Skip featured(0) + page1 items(6) + previous subpage sets(9 each)
-        const startIndex = 1 + POSTS_PAGE_ONE + (currentPage - 2) * POSTS_PAGE_OTHER;
-        gridPosts = posts.slice(startIndex, startIndex + POSTS_PAGE_OTHER);
+        gridPosts = posts;
     }
+
+    const getPageNumbers = (current: number, total: number) => {
+        if (total <= 6) return Array.from({ length: total }, (_, i) => i + 1);
+        if (current <= 3) return [1, 2, 3, 4, '...', total];
+        if (current >= total - 2) return [1, '...', total - 3, total - 2, total - 1, total];
+        return [1, '...', current - 1, current, current + 1, '...', total];
+    };
+    const pageNumbers = getPageNumbers(currentPage, totalPages);
 
     return (
         <div className="w-full bg-white pb-32">
@@ -255,31 +282,40 @@ export default async function BlogIndex({ searchParams }: { searchParams: Promis
 
                 {/* 4. Pagination Component */}
                 <div className="mt-24 pt-8 border-t border-gray-light flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                            <Link
-                                key={p}
-                                href={`/blog?page=${p}`}
-                                className={`w-10 h-10 flex items-center justify-center text-[13px] font-mono border rounded-none transition-colors ${
-                                    currentPage === p
-                                        ? "bg-black text-white border-black cursor-default"
-                                        : "bg-white text-black border-gray-light hover:border-black"
-                                }`}
-                            >
-                                {p}
-                            </Link>
-                        ))}
+                    <div className="flex items-center gap-1 md:gap-2 flex-wrap">
+                        {pageNumbers.map((p, idx) => {
+                            if (p === '...') {
+                                return (
+                                    <span key={`ellipsis-${idx}`} className="w-8 md:w-10 flex items-center justify-center text-[13px] text-gray-mid">
+                                        ...
+                                    </span>
+                                );
+                            }
+                            return (
+                                <Link
+                                    key={p}
+                                    href={`/blog?page=${p}`}
+                                    className={`w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-[12px] md:text-[13px] font-mono border rounded-none transition-colors ${
+                                        currentPage === p
+                                            ? "bg-black text-white border-black cursor-default pointer-events-none"
+                                            : "bg-white text-black border-gray-light hover:border-black"
+                                    }`}
+                                >
+                                    {p}
+                                </Link>
+                            );
+                        })}
                     </div>
 
                     {currentPage < totalPages ? (
                         <Link
                             href={`/blog?page=${currentPage + 1}`}
-                            className="flex items-center justify-center px-6 h-10 bg-black text-white text-[11px] font-mono uppercase tracking-[0.08em] rounded-none hover:bg-brand-red transition-colors"
+                            className="flex items-center justify-center px-4 md:px-6 h-8 md:h-10 bg-black text-white text-[10px] md:text-[11px] font-mono uppercase tracking-[0.08em] rounded-none hover:bg-brand-red transition-colors whitespace-nowrap"
                         >
                             Next &rarr;
                         </Link>
                     ) : (
-                        <div className="w-24" />
+                        <div className="w-16 md:w-24" />
                     )}
                 </div>
             </section>
