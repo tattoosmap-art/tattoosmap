@@ -358,23 +358,39 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             "name": post.title,
             "itemListElement": post.related_products
                 .filter((prod: any) => prod && prod.name)
-                .map((prod: any, idx: number) => ({
-                    "@type": "ListItem",
-                    "position": prod.rank || idx + 1,
-                    "item": {
+                .map((prod: any, idx: number) => {
+                    const cleanPrice = prod.price 
+                        ? prod.price.replace(/[^0-9.]/g, '') 
+                        : '';
+                    const hasValidPrice = cleanPrice && parseFloat(cleanPrice) > 0;
+
+                    const productItem: any = {
                         "@type": "Product",
                         "name": prod.name,
                         "image": prod.image_url || prod.imageSrc || undefined,
                         "description": prod.description || undefined,
-                        "offers": {
+                    };
+
+                    if (hasValidPrice) {
+                        productItem.offers = {
                             "@type": "Offer",
-                            "price": prod.price ? prod.price.replace(/[^0-9.]/g, '') : undefined,
+                            "price": cleanPrice,
                             "priceCurrency": "USD",
                             "availability": "https://schema.org/InStock",
-                            "url": (prod.url || prod.affiliateUrl) && (prod.url || prod.affiliateUrl) !== '#affiliate' && (prod.url || prod.affiliateUrl) !== '#' ? (prod.url || prod.affiliateUrl) : `https://tattoosmap.com/blog/${slug}`
-                        }
+                            "url": (prod.url || prod.affiliateUrl) && 
+                                   (prod.url || prod.affiliateUrl) !== '#affiliate' && 
+                                   (prod.url || prod.affiliateUrl) !== '#' 
+                                ? (prod.url || prod.affiliateUrl) 
+                                : `https://tattoosmap.com/blog/${slug}`
+                        };
                     }
-                }))
+
+                    return {
+                        "@type": "ListItem",
+                        "position": prod.rank || idx + 1,
+                        "item": productItem
+                    };
+                })
         });
     }
 
