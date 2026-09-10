@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Design } from "@/types/database.types";
 import { blurhashToDataURL } from "@/lib/blurhash";
 import { Trash2 } from "lucide-react";
-import Masonry from "react-masonry-css";
 
 interface MasonryGridProps {
     designs: Design[];
@@ -13,12 +12,7 @@ interface MasonryGridProps {
 }
 
 export default function MasonryGrid({ designs, onRemove }: MasonryGridProps) {
-    const breakpointColumnsObj = {
-        default: 4,
-        1024: 3,
-        768: 2,
-        640: 2
-    };
+
 
     const handleRemove = (e: React.MouseEvent, id: string) => {
         e.preventDefault();
@@ -27,18 +21,14 @@ export default function MasonryGrid({ designs, onRemove }: MasonryGridProps) {
     };
 
     return (
-        <Masonry
-            breakpointCols={breakpointColumnsObj}
-            className="design-masonry-grid"
-            columnClassName="design-masonry-column"
-        >
+        <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4 gap-6 space-y-6">
             {designs.map((design, index) => {
                 const blurDataUrl = blurhashToDataURL(design.image_blurhash);
 
                 return (
                     <div
                         key={design.id}
-                        className="break-inside-avoid-column mb-6 group relative border border-gray-light rounded-none overflow-hidden bg-off-white will-change-transform transform-gpu animate-fade-in-up transition-all duration-300 ease-out"
+                        className="break-inside-avoid group relative border border-gray-light rounded-none overflow-hidden bg-off-white will-change-transform transform-gpu animate-fade-in-up transition-all duration-300 ease-out"
                         style={{ animationDelay: `${(index % 4) * 0.1}s` }}
                     >
                         <Link href={`/gallery/${design.slug || design.id}`} className="block" scroll={false}>
@@ -78,6 +68,6 @@ export default function MasonryGrid({ designs, onRemove }: MasonryGridProps) {
                     </div>
                 );
             })}
-        </Masonry>
+        </div>
     );
 }

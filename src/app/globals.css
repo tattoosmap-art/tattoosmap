@@ -130,21 +130,4 @@ h6,
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--color-gray-mid);
 }
-@layer components {
-  /* 
-    Pillar 4: Masonry Grid System
-    Required styles for react-masonry-css to correctly split items into columns
-  */
-  .design-masonry-grid {
-    display: flex !important;
-    margin-left: -24px; /* gutter size offset */
-    width: auto;
-  }
-  .design-masonry-column {
-    padding-left: 24px; /* gutter size */
-    background-clip: padding-box;
-  }
-  .design-masonry-column > div {
-    margin-bottom: 24px;
-  }
-}
+
