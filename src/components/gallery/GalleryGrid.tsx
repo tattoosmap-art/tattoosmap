@@ -11,7 +11,7 @@ import { useToast } from "@/components/ui/Toast";
 import { useAuth } from "@/context/AuthContext";
 import { toggleDefaultSave, getSavedDesignIds } from "@/actions/collections";
 import { useRouter } from "next/navigation";
-
+import Masonry from "react-masonry-css";
 interface GalleryGridProps {
     initialDesigns: Design[];
     filters: {
@@ -135,6 +135,13 @@ export default function GalleryGrid({ initialDesigns, filters }: GalleryGridProp
 
 
 
+    const breakpointColumnsObj = {
+        default: 4,
+        1024: 3,
+        768: 2,
+        640: 2
+    };
+
     const handleSave = async (e: React.MouseEvent, designId: string) => {
         e.preventDefault();
         e.stopPropagation();
@@ -175,7 +182,11 @@ export default function GalleryGrid({ initialDesigns, filters }: GalleryGridProp
 
     return (
         <>
-            <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4 gap-6 space-y-6">
+            <Masonry
+                breakpointCols={breakpointColumnsObj}
+                className="design-masonry-grid"
+                columnClassName="design-masonry-column"
+            >
                 {designs.map((design, index) => {
                     const blurDataUrl = blurhashToDataURL(design.image_blurhash);
                     const isSaved = savedIds.has(design.id);
@@ -183,7 +194,7 @@ export default function GalleryGrid({ initialDesigns, filters }: GalleryGridProp
                     return (
                         <div
                             key={design.id}
-                            className="break-inside-avoid group relative border border-gray-light rounded-none overflow-hidden bg-off-white will-change-transform transform-gpu animate-fade-in-up active:scale-[0.97] transition-all duration-300 ease-out"
+                            className="break-inside-avoid-column mb-6 group relative border border-gray-light rounded-none overflow-hidden bg-off-white will-change-transform transform-gpu animate-fade-in-up active:scale-[0.97] transition-all duration-300 ease-out"
                             style={{ animationDelay: `${(index % 4) * 0.1}s` }}
                             onMouseEnter={() => router.prefetch(`/gallery/${design.slug}`)}
                             onTouchStart={() => router.prefetch(`/gallery/${design.slug}`)}
@@ -232,7 +243,7 @@ export default function GalleryGrid({ initialDesigns, filters }: GalleryGridProp
                         </div>
                     );
                 })}
-            </div>
+            </Masonry>
 
             {/* Gallery Footer & Loading Trigger */}
             <div 
