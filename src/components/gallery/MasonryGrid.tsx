@@ -40,9 +40,10 @@ export default function MasonryGrid({ designs, onRemove }: MasonryGridProps) {
                                 className="w-full h-auto object-cover"
                                 placeholder="blur"
                                 blurDataURL={blurDataUrl}
-                                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                                loading={index < 6 ? undefined : "lazy"}
-                                priority={index < 6}
+                                sizes="(max-width: 768px) 50vw, 25vw"
+                                quality={60}
+                                loading={index < 4 ? undefined : "lazy"}
+                                priority={index < 4}
                             />
 
                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4">
