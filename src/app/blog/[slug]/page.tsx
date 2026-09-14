@@ -331,6 +331,41 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             },
             "datePublished": post.published_at,
             "description": post.excerpt || post.meta_description || ""
+        },
+        {
+          "@type": "BlogPosting",
+          "@id": `https://tattoosmap.com/blog/${post.slug || slug}#blogposting`,
+          "headline": post.meta_title || post.title,
+          "description": post.meta_description || post.excerpt || "",
+          "image": post.cover_image_url || post.thumbnail_url || [],
+          "datePublished": post.published_at || post.created_at,
+          "dateModified": post.updated_at || post.created_at || post.published_at,
+          "author": {
+            "@type": "Organization",
+            "name": "TattoosMap Editorial",
+            "url": "https://tattoosmap.com",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://tattoosmap.com/brand-logo.png"
+            }
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "TattoosMap",
+            "url": "https://tattoosmap.com",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://tattoosmap.com/brand-logo.png"
+            }
+          },
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": `https://tattoosmap.com/blog/${post.slug || slug}`
+          },
+          "wordCount": post.body_content?.length 
+            ? Math.round(post.body_content.length / 5) 
+            : undefined,
+          "articleSection": post.category || "Tattoo Guide"
         }
     ];
 
