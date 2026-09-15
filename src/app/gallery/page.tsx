@@ -53,10 +53,13 @@ export default async function GalleryIndex(props: {
     const genderParam = typeof searchParams?.gender === 'string' ? searchParams.gender : undefined;
     const sortParam = typeof searchParams?.sort === 'string' ? searchParams.sort : 'recommended';
     const qParam = typeof searchParams?.q === 'string' ? searchParams.q : undefined;
+    const pageParam = typeof searchParams?.page === 'string' ? parseInt(searchParams.page, 10) : 1;
+    const pageNumber = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
 
     // Fetch Live Designs matching API filtering exactly
     let validDesigns = await designService.getDesigns({ 
         limit: 24,
+        page: pageNumber,
         style: styleParam,
         placement: bodyPartParam,
         gender: genderParam,
@@ -102,7 +105,8 @@ export default async function GalleryIndex(props: {
             <main className="max-w-[1280px] mx-auto px-4 md:px-6 pt-12">
                 {validDesigns.length > 0 ? (
                     <GalleryGrid 
-                        initialDesigns={validDesigns} 
+                        initialDesigns={validDesigns}
+                        initialPage={pageNumber} 
                         filters={{
                             style: styleParam,
                             bodyPart: bodyPartParam,

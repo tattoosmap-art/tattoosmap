@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import Masonry from "react-masonry-css";
 interface GalleryGridProps {
     initialDesigns: Design[];
+    initialPage?: number;
     filters: {
         style?: string;
         bodyPart?: string;
@@ -22,9 +23,9 @@ interface GalleryGridProps {
     };
 }
 
-export default function GalleryGrid({ initialDesigns, filters }: GalleryGridProps) {
+export default function GalleryGrid({ initialDesigns, initialPage = 1, filters }: GalleryGridProps) {
     const [designs, setDesigns] = useState<Design[]>(initialDesigns);
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(initialPage);
     const [hasMore, setHasMore] = useState(initialDesigns.length === 24);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
 
@@ -57,9 +58,9 @@ export default function GalleryGrid({ initialDesigns, filters }: GalleryGridProp
     // Keep designs in sync with initialDesigns when filters are reset/applied on SSR
     useEffect(() => {
         setDesigns(initialDesigns);
-        setPage(1);
+        setPage(initialPage);
         setHasMore(initialDesigns.length === 24);
-    }, [initialDesigns]);
+    }, [initialDesigns, initialPage]);
 
     // Fetch next batch of designs from API route on scroll
     const fetchNextDesigns = useCallback(async () => {
@@ -117,7 +118,7 @@ export default function GalleryGrid({ initialDesigns, filters }: GalleryGridProp
             },
             {
                 threshold: 0.1,
-                rootMargin: "300px"
+                rootMargin: "1500px" // Increased rootMargin so designs fetch BEFORE user reaches bottom (UX Fix)
             }
         );
 
@@ -179,6 +180,15 @@ export default function GalleryGrid({ initialDesigns, filters }: GalleryGridProp
             showToast(res.isSaved ? "SAVED TO ARCHIVE" : "REMOVED FROM ARCHIVE");
         }
     };
+
+    // Construct SEO pagination link
+    const searchParams = new URLSearchParams();
+    if (filters.style) searchParams.set("style", filters.style);
+    if (filters.bodyPart) searchParams.set("body_part", filters.bodyPart);
+    if (filters.gender) searchParams.set("gender", filters.gender);
+    if (filters.sort) searchParams.set("sort", filters.sort);
+    searchParams.set("page", (page + 1).toString());
+    const nextUrl = `/gallery?${searchParams.toString()}`;
 
     return (
         <>
@@ -254,6 +264,8 @@ export default function GalleryGrid({ initialDesigns, filters }: GalleryGridProp
                     <div className="flex flex-col items-center gap-2">
                         <Loader2 className="w-6 h-6 animate-spin text-brand-red" />
                         <span className="text-[10px] text-gray-mid font-mono uppercase tracking-[0.2em] animate-pulse">Loading more designs...</span>
+                        {/* SEO Invisible Pagination Link */}
+                        <a href={nextUrl} className="sr-only">Next Page</a>
                     </div>
                 ) : (
                     <div className="flex flex-col items-center gap-1">
