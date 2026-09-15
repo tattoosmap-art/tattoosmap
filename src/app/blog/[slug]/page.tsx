@@ -337,9 +337,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           "@id": `https://tattoosmap.com/blog/${post.slug || slug}#blogposting`,
           "headline": post.meta_title || post.title,
           "description": post.meta_description || post.excerpt || "",
-          "image": post.cover_image_url || post.thumbnail_url || [],
+          "image": post.cover_image_url || (post as any).thumbnail_url || [],
           "datePublished": post.published_at || post.created_at,
-          "dateModified": post.updated_at || post.created_at || post.published_at,
+          "dateModified": (post as any).updated_at || post.created_at || post.published_at,
           "author": {
             "@type": "Organization",
             "name": "TattoosMap Editorial",
