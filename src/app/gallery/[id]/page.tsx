@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { designService } from "@/services/designService";
 import { Metadata } from "next";
 import { supabaseAnon } from "@/lib/supabase-anon";
+import Link from "next/link";
 
 // Dynamic Client Component
 import DesignDetailClient from "@/components/gallery/DesignDetailClient";
@@ -100,6 +101,24 @@ export default async function DesignPage({ params }: { params: Promise<{ id: str
     const breadcrumbSlug = design.subject ? design.subject.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-tattoo.*$/, '-tattoo') : 'tattoos';
     const breadcrumbUrl = `https://tattoosmap.com/meaning/${breadcrumbSlug}`;
 
+    // Fetch initial recommendations for SSR (The Orphaned Spoke Fix)
+    const [visualDesigns, conceptualDesigns] = await Promise.all([
+        designService.getSimilarDesigns(design.id, 10, 0, 'visual'),
+        designService.getSimilarDesigns(design.id, 10, 0, 'conceptual')
+    ]);
+
+    // Safely parse style array for SEO keywords
+    let formattedStyle = '';
+    if (design.style) {
+        try {
+            const styleStr = design.style as unknown as string;
+            const parsed = typeof styleStr === 'string' && styleStr.startsWith('[') ? JSON.parse(styleStr) : design.style;
+            formattedStyle = Array.isArray(parsed) ? parsed.join(', ') : String(parsed);
+        } catch {
+            formattedStyle = String(design.style);
+        }
+    }
+
     // JSON-LD Hub & Spoke Schema (Pinterest Model)
     const jsonLd = [
       {
@@ -118,7 +137,7 @@ export default async function DesignPage({ params }: { params: Promise<{ id: str
         },
         keywords: [
           design.subject,
-          design.style,
+          formattedStyle,
           'tattoo design',
           'tattoo meaning',
           `${design.subject} tattoo`,
@@ -198,7 +217,22 @@ export default async function DesignPage({ params }: { params: Promise<{ id: str
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
             />
             
-
+            {/* Breadcrumb Hub Link (Pinterest SEO Model) */}
+            <div className="max-w-[1280px] mx-auto px-4 md:px-8 pt-6 pb-2">
+                <nav aria-label="Breadcrumb">
+                    <ol className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-neutral-500">
+                        <li>
+                            <Link href="/gallery" className="hover:text-black transition-colors">Gallery</Link>
+                        </li>
+                        <li className="text-neutral-300">/</li>
+                        <li>
+                            <Link href={`/meaning/${breadcrumbSlug}`} className="hover:text-black transition-colors font-semibold">
+                                {design.subject || 'Design'} Meaning
+                            </Link>
+                        </li>
+                    </ol>
+                </nav>
+            </div>
 
             {/* MASTER DYNAMIC CLIENT BLOCK (PORTS THE FULL PREMIUM DESIGN LAB STRUCTURE) */}
             <DesignDetailClient 
@@ -217,7 +251,7 @@ export default async function DesignPage({ params }: { params: Promise<{ id: str
                         </div>
                         <h2 className="font-display text-[32px] tracking-tight uppercase leading-none">More Designs in this Style</h2>
                     </div>
-                    <SimilarDesignsBar currentDesignId={design.id} mode="visual" hideHeader={true} />
+                    <SimilarDesignsBar currentDesignId={design.id} mode="visual" hideHeader={true} initialDesigns={visualDesigns} />
                 </section>
 
                 <section aria-label="Conceptual Similarity" className="pb-32">
@@ -228,7 +262,7 @@ export default async function DesignPage({ params }: { params: Promise<{ id: str
                         <h2 className="font-display text-[32px] tracking-tight uppercase leading-none">More Designs with Similar Meanings</h2>
                     </div>
                     <div className="opacity-90">
-                        <SimilarDesignsBar currentDesignId={design.id} mode="conceptual" hideHeader={true} />
+                        <SimilarDesignsBar currentDesignId={design.id} mode="conceptual" hideHeader={true} initialDesigns={conceptualDesigns} />
                     </div>
                 </section>
             </div>
