@@ -32,54 +32,126 @@ SYSTEM DIRECTIVE & LOGIC GUARDRAILS:
    - Strictly black ink + stippling/dotwork = Blackwork / Illustrative.
    - Single needle precision + vast negative space = Fine Line.
    - Fine dots or peppered shading = Stippled / Whip-shaded Blackwork.
- 6. SEO TITLE & SLUG GENERATION ("subject"):
-    The subject MUST be a unique highly descriptive title.
+6. SEO TITLE & SLUG GENERATION ("subject"):
+    Look at this tattoo design image and write
+    a unique descriptive title based ONLY on what
+    you can visually confirm in the image.
 
-    REQUIRED ELEMENTS (include as many as apply):
+    STEP A — Identify the main subject:
+    What is the primary element? Be specific.
+    Not "bird" but "eagle" or "raven" or "hummingbird".
+    Not "flower" but "rose" or "peony" or "chrysanthemum".
+    Not "skull" but "human skull" or "ram skull" or "wolf skull".
 
-    A) STYLE NAME (always include if identifiable):
-    Traditional, Neo-Traditional, Japanese, Blackwork,
-    Fine Line, Watercolor, Geometric, Dotwork, Realism,
-    Ornamental, Illustrative, Stippling, Tribal
+    STEP B — Describe the action or pose:
+    What is the subject DOING? How is it positioned?
+    Choose one specific action verb:
+    Clutching, Coiled, Ascending, Emerging, Wrapped,
+    Pierced, Crowned, Guarding, Unravelling, Perched,
+    Devouring, Shattering, Blooming, Dissolving,
+    Intertwined, Framed, Suspended, Crumbling,
+    Spreading, Engulfing, Dripping, Reaching,
+    Swallowing, Splitting, Fading, Strangling
 
-    B) POWER/EMOTIONAL WORDS (include at least one):
-    For dark subjects: Sacred, Ancient, Memento Mori,
-    Baroque, Haunting, Eternal, Divine, Mystical
-    For animals: Growling, Prowling, Ascending, Soaring,
-    Coiled, Rearing, Roaring
-    For nature: Blooming, Delicate, Ornate, Entwined,
-    Cascading
-    For people: Crowned, Framed, Veiled, Adorned
+    STEP C — Name secondary elements specifically:
+    What other elements appear in the design?
+    Not "flower" — name the exact flower.
+    Not "weapon" — name the exact weapon.
+    Not "symbol" — name the exact symbol.
 
-    C) TECHNIQUE WORD (include if visible):
-    Dotwork, Stippling, Fine Line, Geometric,
-    Blackwork, Linework, Crosshatch, Whip Shading
+    Examples of specific naming:
+    Flower → wilting rose, blooming peony, dead chrysanthemum
+    Weapon → curved dagger, broken sword, ornate scythe
+    Symbol → crescent moon, hourglass, sacred geometry mandala
+    Animal → coiled serpent, perched raven, circling koi fish
+    Object → shattered mirror, burning candle, cracked compass
 
-    D) SPECIFIC VISUAL ELEMENTS:
-    Name the specific elements visible in the design
-    not just the main subject
+    STEP D — Describe how elements connect:
+    Not "scorpion with rose" but
+    "scorpion clutching a wilting rose"
+    or "rose growing through a scorpion skull"
 
-    GOOD EXAMPLES:
-    "Fine Line Sacred Virgin Mary with Ascending Dove and Stippled Rose Halo Tattoo Design"
+    Connection phrases to use:
+    Growing through, wrapped around, framed by,
+    emerging from, pierced by, coiled over,
+    dissolving into, surrounded by, balanced on,
+    hanging from, splitting into, fading into,
+    dripping from, shattered by, crowned with,
+    held by, trapped in, floating above,
+    reflected in, consumed by
 
-    "Blackwork Coiled Serpent with Baroque Floral Crown and Dotwork Scales Tattoo Design"
+    ABSOLUTE RULES — NEVER BREAK THESE:
+    → Do NOT name the tattoo style
+       Never say: blackwork, fine line, neo-traditional,
+       illustrative, dotwork, watercolor, realism,
+       traditional, geometric, ornamental, tribal
+    → Do NOT name a body placement
+       Never say: forearm, ribcage, sleeve, back piece,
+       thigh, wrist, ankle, chest, shoulder
+    → Do NOT guess the technique
+       Never say: stipple, whip shade, crosshatch,
+       dot shading, line work technique
+    → Do NOT use mood or emotion words
+       Never say: haunting, fierce, ethereal, menacing,
+       beautiful, amazing, stunning, epic, dark, sacred
+    → Do NOT use generic connectors
+       Never use "with" as the only way to connect
+       two elements. Use action verbs instead.
+    → Do NOT include ANYTHING you cannot visually
+       confirm by looking at the image.
+       If you are not sure what a flower is
+       say "flower" not "peony".
+       Accuracy over specificity. Always.
 
-    "Neo-Traditional Growling Panther with Sacred Heart, Dagger, and Ornate Rose Banner Tattoo Design"
+    THE UNIQUENESS TEST:
+    After writing the title ask yourself:
+    "Could any other tattoo design have this exact title?"
+    If yes — the title is too generic. Rewrite it.
+    If no — the title is correct.
 
-    "Japanese Ascending Dragon Through Storm Clouds with Blackwork Waves Tattoo Design"
+    FORMAT:
+    [Subject] [Action] [Secondary Detail] — Tattoo Design
 
-    BAD EXAMPLES (missing required elements):
-    "Snake Tattoo Design"
+    Must end with "— Tattoo Design"
+    Must be 4-10 words before "— Tattoo Design"
+    The title must be specific enough that someone
+    reading it could visualise exactly what the
+    design looks like without seeing it.
+
+    GOOD TITLES — study these patterns:
+    "Scorpion Clutching a Wilting Rose — Tattoo Design"
+    "Phoenix Ascending Through Shattered Chains — Tattoo Design"
+    "Wolf Skull Crowned with Wildflowers — Tattoo Design"
+    "Two Serpents Coiled Around a Crescent Moon — Tattoo Design"
+    "Medusa with Serpents Unravelling into Smoke — Tattoo Design"
+    "Samurai Cat in Full Armour Holding a Katana — Tattoo Design"
+    "Lion Skull Split Open with Peony Growing Through — Tattoo Design"
+    "Raven Perched on a Cracked Hourglass — Tattoo Design"
+    "Koi Fish Circling a Lotus in Still Water — Tattoo Design"
+    "Dagger Pierced Through a Bleeding Rose — Tattoo Design"
+    "Moth Emerging from a Crumbling Geometric Frame — Tattoo Design"
+    "Snake Swallowing Its Own Tail Around a Sun — Tattoo Design"
+    "Angel Wings Dissolving into Scattered Feathers — Tattoo Design"
+    "Spider Descending on Web Over a Human Eye — Tattoo Design"
+    "Compass Rose with Anchor Wrapped in Chain — Tattoo Design"
+
+    BAD TITLES — never produce anything like these:
+    "Scorpion Tattoo Design with Flower"
+       (generic — "with flower" is lazy, no action verb)
+    "Blackwork Scorpion on Forearm"
+       (guessing style AND placement — both forbidden)
+    "Beautiful Snake Tattoo Design"
+       (mood word "beautiful" adds zero information)
     "Dragon Tattoo Design"
-    "Virgin Mary Tattoo Design"
-    "Butterfly Tattoo Design"
-
-    The title should be specific enough that someone
-    reading it could visualise exactly what the design
-    looks like without seeing it.
-    Must end with "Tattoo Design"
-    Must be 4-8 words before "Tattoo Design"
-    Must be unique enough that no other design would have the same title.
+       (no action, no secondary element, not unique)
+    "Neo-Traditional Rose Tattoo"
+       (naming style — forbidden)
+    "Fierce Tiger Tattoo Design"
+       (mood word "fierce" — forbidden)
+    "Skull and Crossbones Tattoo Design"
+       (no action, generic arrangement)
+    "Flower Tattoo Design with Butterfly"
+       (generic flower, generic butterfly, "with" connector)
 7. CATEGORIZATION GUARDRAILS ("public_category"): Do NOT use "pop-culture-characters" for generic historical figures, mythological creatures, or generic archetypes (e.g., Samurai, Knights, Dragons). Reserve "pop-culture-characters" strictly for licensed intellectual property (e.g., Batman, anime characters). If the design represents a historic, celestial, or mythological theme, classify it as "celestial-mystical" or "nature-botanical" accordingly.
 
 CRITICAL: Do NOT truncate the output. You MUST complete the entire JSON object through to the final closing brace, including all keys. Incomplete responses are unacceptable.
@@ -92,14 +164,15 @@ Analyze the image and return ONLY a valid JSON object. Do NOT wrap it in markdow
   "public_category": "exactly one of these five values: nature-botanical | pop-culture-characters | animals-wildlife | celestial-mystical | minimalist-objects",
   "elements": ["array of max 5 specific, botanically accurate visual elements"],
   "confidence": number,
-  "alt_text": "125 char max, no image of prefix",
+  "alt_text": "Full descriptive alt text for the image. Use the subject title but expand it slightly for accessibility. Example: 'A tattoo design of a scorpion clutching a wilting rose with detailed linework and dotwork shading'. Maximum 125 characters.",
   "speakable_summary": "one sentence voice search optimized description, using accurate botanical terms matching elements",
   "style_tags": ["array of 2-4 technical style descriptors. You MUST include at least one primary style from this list: traditional, realism, blackwork, japanese, geometric, watercolor, fine-line, neo-traditional, minimalist, tribal, new-school. You can also add more specific descriptors like botanical, ornamental, dotwork, stippling, delicate."],
   "gender_suitability": "Unisex OR Male-leaning OR Female-leaning",
   "placement_recommendations": ["array of EXACTLY 5 recommended body placements for this specific design. Format each as: PLACEMENT_NAME (reason)"],
   "ip_flag": boolean,
   "low_confidence_flag": boolean,
-  "meta_title": "Generate an SEO-optimized page title for this design following this exact format: '[Subject] — Meaning & Symbolism | TattoosMap'. Maximum 60 characters. Note: the '[Subject]' should be the generated subject ending with Tattoo Design.",
+  "seo_filename": "Lowercase hyphenated version of the subject without 'Tattoo Design'. Example: if subject is 'Scorpion Clutching a Wilting Rose — Tattoo Design' then filename is 'scorpion-clutching-wilting-rose'. No special characters. Maximum 50 characters.",
+  "meta_title": "Shorter version of the subject for search results. Maximum 55 characters including '| TattoosMap' at the end. Format: '[Short Description] | TattoosMap'. Do NOT include 'Meaning & Symbolism'. Example: 'Scorpion Clutching a Wilting Rose | TattoosMap'.",
   "focus_keyword": "Identify the single highest-volume, lowest-difficulty keyword this design should rank for. Format: '[subject] tattoo meaning' as the default."
 }`;
 
@@ -318,8 +391,8 @@ export async function POST(req: NextRequest) {
             // The base filenames are generated here. Note: publishDesignAction in publishDesign.ts
             // automatically appends the unique slug suffix (e.g. -eh6k) to these filenames
             // if a database collision occurs, ensuring storage and database slugs always match.
-            aiData.seo_filename = `fine-line-${subjectSlug}-${mood}-${code}.webp`;
-            aiData.thumbnail_filename = `fine-line-${subjectSlug}-${mood}-${code}-thumb.webp`;
+            aiData.seo_filename = `${aiData.seo_filename || subjectSlug}.webp`;
+            aiData.thumbnail_filename = `${aiData.seo_filename || subjectSlug}-thumb.webp`;
             
             const altText = aiData.alt_text ? (aiData.alt_text.length > 125 ? aiData.alt_text.slice(0, 122).trim() + '...' : aiData.alt_text) : '';
             aiData.alt_text = altText;
