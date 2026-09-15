@@ -62,14 +62,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }));
     }
 
-    // Designs
-    const { data: designs } = await supabase
-      .from('designs')
-      .select('slug, uploaded_at')
-      .eq('is_published', true);
+    // Designs - paginated fetch to bypass 1k limit
+    let allDesigns: any[] = [];
+    let from = 0;
+    const limit = 1000;
+    let hasMore = true;
+    
+    while (hasMore) {
+      const { data: designs } = await supabase
+        .from('designs')
+        .select('slug, uploaded_at')
+        .eq('is_published', true)
+        .range(from, from + limit - 1);
+      
+      if (designs && designs.length > 0) {
+        allDesigns = [...allDesigns, ...designs];
+        from += limit;
+        if (designs.length < limit) hasMore = false;
+      } else {
+        hasMore = false;
+      }
+    }
 
-    if (designs) {
-      designPages = designs.map(design => ({
+    if (allDesigns.length > 0) {
+      designPages = allDesigns.map(design => ({
         url: `${baseUrl}/gallery/${design.slug}`,
         lastModified: design.uploaded_at ? new Date(design.uploaded_at) : new Date(),
         changeFrequency: 'monthly' as const,
@@ -77,15 +93,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }));
     }
 
-    // Meaning pages
-    const { data: meanings } = await supabase
-      .from('designs')
-      .select('subject')
-      .eq('is_published', true);
+    // Meaning pages - paginated fetch
+    let allMeanings: any[] = [];
+    let mFrom = 0;
+    let mHasMore = true;
+    
+    while (mHasMore) {
+      const { data: meanings } = await supabase
+        .from('designs')
+        .select('subject')
+        .eq('is_published', true)
+        .range(mFrom, mFrom + limit - 1);
+        
+      if (meanings && meanings.length > 0) {
+        allMeanings = [...allMeanings, ...meanings];
+        mFrom += limit;
+        if (meanings.length < limit) mHasMore = false;
+      } else {
+        mHasMore = false;
+      }
+    }
 
-    if (meanings) {
+    if (allMeanings.length > 0) {
       const keywords = new Set<string>();
-      meanings.forEach(d => {
+      allMeanings.forEach(d => {
         if (d.subject) {
           const slug = d.subject.toLowerCase()
             .replace(/[^a-z0-9\s-]/g, '')

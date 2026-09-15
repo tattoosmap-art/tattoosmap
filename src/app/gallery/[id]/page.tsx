@@ -97,30 +97,59 @@ export default async function DesignPage({ params }: { params: Promise<{ id: str
         notFound();
     }
 
-    // JSON-LD Artwork Schema
-    const jsonLd = {
-      '@context': 'https://schema.org',
-      '@type': 'VisualArtwork',
-      name: `${design.subject || design.title || 'Untitled'} Tattoo Design`,
-      description: design.meaning || design.meta_description,
-      artform: 'Tattoo',
-      artMedium: design.style || 'Ink',
-      url: `https://tattoosmap.com/gallery/${design.slug}`,
-      image: design.image_url,
-      creator: {
-        '@type': 'Organization',
-        name: 'TattoosMap',
-        url: 'https://tattoosmap.com'
+    const breadcrumbSlug = design.subject ? design.subject.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-tattoo.*$/, '-tattoo') : 'tattoos';
+    const breadcrumbUrl = `https://tattoosmap.com/meaning/${breadcrumbSlug}`;
+
+    // JSON-LD Hub & Spoke Schema (Pinterest Model)
+    const jsonLd = [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'ImageObject',
+        name: `${design.subject || design.title || 'Untitled'} Tattoo Design`,
+        description: design.meaning || design.meta_description,
+        contentUrl: design.image_url,
+        url: `https://tattoosmap.com/gallery/${design.slug}`,
+        creditText: 'TattoosMap',
+        license: 'https://tattoosmap.com',
+        creator: {
+          '@type': 'Organization',
+          name: 'TattoosMap',
+          url: 'https://tattoosmap.com'
+        },
+        keywords: [
+          design.subject,
+          design.style,
+          'tattoo design',
+          'tattoo meaning',
+          `${design.subject} tattoo`,
+          `${design.subject} tattoo meaning`,
+        ].filter(Boolean).join(', ')
       },
-      keywords: [
-        design.subject,
-        design.style,
-        'tattoo design',
-        'tattoo meaning',
-        `${design.subject} tattoo`,
-        `${design.subject} tattoo meaning`,
-      ].filter(Boolean).join(', ')
-    };
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Gallery',
+            item: 'https://tattoosmap.com/gallery'
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: `${design.subject || 'Design'} Meaning`,
+            item: breadcrumbUrl
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: `${design.subject || design.title || 'Untitled'} Tattoo Design`,
+            item: `https://tattoosmap.com/gallery/${design.slug}`
+          }
+        ]
+      }
+    ];
 
     // JSON-LD FAQ Search Schema
     const faqSchema = {
