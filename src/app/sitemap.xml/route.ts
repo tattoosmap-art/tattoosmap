@@ -58,10 +58,10 @@ export async function GET() {
 
   try {
     // Blog posts
-    const { data: posts } = await supabase.from('posts').select('slug, updated_at').eq('is_published', true);
+    const { data: posts } = await supabase.from('posts').select('slug, published_at').eq('is_published', true);
     if (posts) {
       posts.forEach(post => {
-        addUrl(`${baseUrl}/blog/${post.slug}`, (post.updated_at ? new Date(post.updated_at) : new Date()).toISOString().split('T')[0], 'monthly', '0.8');
+        addUrl(`${baseUrl}/blog/${post.slug}`, (post.published_at ? new Date(post.published_at) : new Date()).toISOString().split('T')[0], 'monthly', '0.8');
       });
     }
 
