@@ -181,15 +181,6 @@ export default function GalleryGrid({ initialDesigns, initialPage = 1, filters }
         }
     };
 
-    // Construct SEO pagination link
-    const searchParams = new URLSearchParams();
-    if (filters.style) searchParams.set("style", filters.style);
-    if (filters.bodyPart) searchParams.set("body_part", filters.bodyPart);
-    if (filters.gender) searchParams.set("gender", filters.gender);
-    if (filters.sort) searchParams.set("sort", filters.sort);
-    searchParams.set("page", (page + 1).toString());
-    const nextUrl = `/gallery?${searchParams.toString()}`;
-
     return (
         <>
             <Masonry
@@ -264,8 +255,6 @@ export default function GalleryGrid({ initialDesigns, initialPage = 1, filters }
                     <div className="flex flex-col items-center gap-2">
                         <Loader2 className="w-6 h-6 animate-spin text-brand-red" />
                         <span className="text-[10px] text-gray-mid font-mono uppercase tracking-[0.2em] animate-pulse">Loading more designs...</span>
-                        {/* SEO Invisible Pagination Link */}
-                        <a href={nextUrl} className="sr-only">Next Page</a>
                     </div>
                 ) : (
                     <div className="flex flex-col items-center gap-1">

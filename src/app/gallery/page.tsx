@@ -8,43 +8,56 @@ import { Metadata } from "next";
 
 export const revalidate = 300; // Cache gallery index for 5 minutes
 
-export const metadata: Metadata = {
-    title: "Tattoo Design Gallery | Browse by Style, Meaning & Placement | TattoosMap",
-    description: "Browse thousands of curated tattoo designs by style, meaning, and placement. Each design includes symbolism guides, aging predictions, and artist recommendations.",
-    alternates: {
-        canonical: "https://tattoosmap.com/gallery"
-    },
-    openGraph: {
-        title: "Tattoo Design Gallery | Browse by Style, Meaning & Placement | TattoosMap",
-        description: "Browse thousands of curated tattoo designs by style, meaning, and placement. Each design includes symbolism guides, aging predictions, and artist recommendations.",
-        url: "https://tattoosmap.com/gallery",
-        type: "website",
-        images: [
-            {
-                url: 'https://tattoosmap.com/brand-logo.png',
-                width: 1200,
-                height: 630,
-                alt: 'TattoosMap Tattoo Design Gallery',
-            }
-        ]
-    },
-    twitter: {
-        title: "Tattoo Design Gallery | Browse by Style, Meaning & Placement | TattoosMap",
-        description: "Browse thousands of curated tattoo designs by style, meaning, and placement. Each design includes symbolism guides, aging predictions, and artist recommendations.",
-        images: [
-            {
-                url: 'https://tattoosmap.com/brand-logo.png',
-                width: 1200,
-                height: 630,
-                alt: 'TattoosMap Tattoo Design Gallery',
-            }
-        ]
-    }
+import Link from "next/link";
+
+type Props = {
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export default async function GalleryIndex(props: {
-    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+    const searchParams = await props.searchParams;
+    const page = typeof searchParams?.page === 'string' ? parseInt(searchParams.page, 10) : 1;
+    const currentPage = isNaN(page) || page < 1 ? 1 : page;
+    
+    const canonicalBase = "https://tattoosmap.com/gallery";
+    const canonicalUrl = currentPage > 1 ? `${canonicalBase}?page=${currentPage}` : canonicalBase;
+
+    return {
+        title: `Tattoo Design Gallery ${currentPage > 1 ? `— Page ${currentPage}` : ''} | TattoosMap`,
+        description: "Browse thousands of curated tattoo designs by style, meaning, and placement. Each design includes symbolism guides, aging predictions, and artist recommendations.",
+        alternates: {
+            canonical: canonicalUrl
+        },
+        openGraph: {
+            title: `Tattoo Design Gallery ${currentPage > 1 ? `— Page ${currentPage}` : ''} | Browse by Style, Meaning & Placement | TattoosMap`,
+            description: "Browse thousands of curated tattoo designs by style, meaning, and placement. Each design includes symbolism guides, aging predictions, and artist recommendations.",
+            url: canonicalUrl,
+            type: "website",
+            images: [
+                {
+                    url: 'https://tattoosmap.com/brand-logo.png',
+                    width: 1200,
+                    height: 630,
+                    alt: 'TattoosMap Tattoo Design Gallery',
+                }
+            ]
+        },
+        twitter: {
+            title: `Tattoo Design Gallery ${currentPage > 1 ? `— Page ${currentPage}` : ''} | Browse by Style, Meaning & Placement | TattoosMap`,
+            description: "Browse thousands of curated tattoo designs by style, meaning, and placement. Each design includes symbolism guides, aging predictions, and artist recommendations.",
+            images: [
+                {
+                    url: 'https://tattoosmap.com/brand-logo.png',
+                    width: 1200,
+                    height: 630,
+                    alt: 'TattoosMap Tattoo Design Gallery',
+                }
+            ]
+        }
+    };
+}
+
+export default async function GalleryIndex(props: Props) {
     const searchParams = await props.searchParams;
 
     // Parse Search Params
@@ -78,6 +91,25 @@ export default async function GalleryIndex(props: {
     if (sortParam === 'recommended') {
         validDesigns = designService.getRecommendedDesigns(validDesigns);
     }
+
+        const limit = 24;
+    const hasNextPage = validDesigns.length === limit;
+    
+    const buildPageUrl = (targetPage: number) => {
+        const params = new URLSearchParams();
+        if (styleParam) params.set("style", styleParam);
+        if (bodyPartParam) params.set("body_part", bodyPartParam);
+        if (genderParam) params.set("gender", genderParam);
+        if (sortParam && sortParam !== 'recommended') params.set("sort", sortParam);
+        if (qParam) params.set("q", qParam);
+        if (targetPage > 1) params.set("page", targetPage.toString());
+        
+        const qs = params.toString();
+        return qs ? `/gallery?${qs}` : `/gallery`;
+    };
+
+    const prevPageUrl = pageNumber > 1 ? buildPageUrl(pageNumber - 1) : null;
+    const nextPageUrl = hasNextPage ? buildPageUrl(pageNumber + 1) : null;
 
     return (
         <div className="w-full bg-white pb-32">
@@ -119,6 +151,31 @@ export default async function GalleryIndex(props: {
                         <p className="text-[18px] text-black font-display mb-2">No designs found.</p>
                         <p className="text-[14px] text-gray-mid max-w-[400px]">We couldn&apos;t find any tattoos matching those filters. Try adjusting or clearing your selection.</p>
                     </div>
+                )}
+
+                {/* SERVER-BAKED CRAWLER PAGINATION ENGINE */}
+                {validDesigns.length > 0 && (
+                    <nav aria-label="Gallery Pagination" className="mt-16 pt-8 border-t border-gray-200 flex items-center justify-between">
+                        <div>
+                            {prevPageUrl ? (
+                                <Link href={prevPageUrl} rel="prev" className="px-5 py-2.5 border border-black text-xs font-mono uppercase tracking-widest hover:bg-black hover:text-white transition-colors">
+                                    ← Previous Page
+                                </Link>
+                            ) : <span />}
+                        </div>
+                        
+                        <span className="text-xs font-mono uppercase tracking-widest text-neutral-500">
+                            Page {pageNumber}
+                        </span>
+
+                        <div>
+                            {nextPageUrl ? (
+                                <Link href={nextPageUrl} rel="next" className="px-5 py-2.5 border border-black text-xs font-mono uppercase tracking-widest hover:bg-black hover:text-white transition-colors">
+                                    Next Page →
+                                </Link>
+                            ) : <span />}
+                        </div>
+                    </nav>
                 )}
             </main>
         </div>
