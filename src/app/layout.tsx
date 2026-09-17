@@ -115,12 +115,12 @@ export default function RootLayout({
                 <LayoutWrapper>
                   {children}
                 </LayoutWrapper>
-                <Footer />
                 <LoginModal />
               </ToastProvider>
             </ModalProvider>
           </AuthProvider>
         </SmoothScrollProvider>
+        <Footer />
       </body>
     </html>
   );
