@@ -93,10 +93,10 @@ export const designService = {
                 .eq('is_published', true);
 
             if (style) {
-                query = query.contains('style', [style]);
+                query = query.ilike('style', `%${style}%`);
             }
             if (placement) {
-                query = query.contains('body_part', [placement]);
+                query = query.ilike('body_part', `%${placement}%`);
             }
             if (gender) {
                 query = query.eq('gender', gender);
