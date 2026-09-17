@@ -115,6 +115,7 @@ export default function RootLayout({
                 <LayoutWrapper>
                   {children}
                 </LayoutWrapper>
+                <Footer />
                 <LoginModal />
               </ToastProvider>
             </ModalProvider>

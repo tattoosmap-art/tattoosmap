@@ -2,8 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import Header from "@/components/ui/Header";
-import Footer from "@/components/ui/Footer";
-
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isHomePage = pathname === '/';
@@ -14,7 +12,6 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
             <main className="flex-grow">
                 {children}
             </main>
-            <Footer />
         </>
     );
 }
