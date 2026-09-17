@@ -451,64 +451,6 @@ export default async function LandingPage() {
       </section>
 
 
-      {/* SECTION 12 — The Footer */}
-      <footer className="py-24 px-8 lg:px-24 bg-black text-white">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
-          <div>
-            <h2 className="font-display text-3xl mb-4 tracking-tighter">TattoosMap</h2>
-            <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-brand-red mb-6">THE CARTOGRAPHER OF INK</div>
-            <p className="text-[14px] text-gray-mid leading-relaxed mb-6">A global tattoo discovery and trust platform. Precision designs, science-backed care.</p>
-            <div className="flex gap-4">
-              <a 
-                href="https://instagram.com/tattoosmap" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="font-mono text-[11px] uppercase tracking-wider text-gray-mid hover:text-white transition-colors"
-              >
-                Instagram
-              </a>
-              <a 
-                href="https://pinterest.com/tattoosmap" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="font-mono text-[11px] uppercase tracking-wider text-gray-mid hover:text-white transition-colors"
-              >
-                Pinterest
-              </a>
-            </div>
-          </div>
-          <div>
-            <h4 className="font-mono text-[12px] uppercase tracking-[0.1em] mb-8 text-white">Explore</h4>
-            <ul className="space-y-4 font-mono text-[12px] text-gray-mid uppercase tracking-wide">
-              <li><Link href="/gallery" className="hover:text-white transition-colors">Gallery</Link></li>
-              <li><Link href="/gallery" className="hover:text-white transition-colors">Meaning Search</Link></li>
-              <li><Link href="/try-on" className="hover:text-white transition-colors">Try-On Studio</Link></li>
-              <li><Link href="/ai-tattoo-generator" className="hover:text-white transition-colors">AI Tattoo Generator</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-mono text-[12px] uppercase tracking-[0.1em] mb-8 text-white">Learn</h4>
-            <ul className="space-y-4 font-mono text-[12px] text-gray-mid uppercase tracking-wide">
-              <li><Link href="/blog" className="hover:text-white transition-colors">Aftercare Science</Link></li>
-              <li><Link href="/gallery" className="hover:text-white transition-colors">Style Guides</Link></li>
-              <li><Link href="/artists" className="hover:text-white transition-colors">Artist Spotlights</Link></li>
-              <li><Link href="/blog" className="hover:text-white transition-colors">FAQ</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-mono text-[12px] uppercase tracking-[0.1em] mb-8 text-white">Trust</h4>
-            <ul className="space-y-4 font-mono text-[12px] text-gray-mid uppercase tracking-wide">
-              <li><Link href="/artists" className="hover:text-white transition-colors">Artist Verification</Link></li>
-              <li><Link href="/products" className="hover:text-white transition-colors">Tattoo Products</Link></li>
-              <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
-              <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-            </ul>
-          </div>
-        </div>
-        <div className="pt-12 border-t border-white/10 font-mono text-[10px] text-gray-mid uppercase tracking-widest flex items-center justify-between">
-          <span>© 2026 TATTOOSMAP — Be Unique</span>
-        </div>
-      </footer>
     </main>
   );
 }
