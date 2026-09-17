@@ -19,6 +19,11 @@ function formatSlugToTitle(slug: string): string {
         .join(' ');
 }
 
+export async function generateStaticParams() {
+    const styles = ['fine-line', 'micro-realism', 'blackwork', 'traditional', 'japanese', 'cyber-sigilism', 'watercolor'];
+    return styles.map((slug) => ({ slug }));
+}
+
 export async function generateMetadata(props: Props): Promise<Metadata> {
     const { slug } = await props.params;
     const searchParams = await props.searchParams;
@@ -163,6 +168,24 @@ export default async function StyleHubPage(props: Props) {
                         </div>
                     </nav>
                 )}
+
+                {/* CONTEXTUAL MEANING HUBS CROSS-LINKS */}
+                <section className="mt-24 pt-12 border-t border-neutral-200">
+                    <h2 className="font-display text-2xl uppercase tracking-tight text-black mb-6">
+                        Explore Tattoo Meanings
+                    </h2>
+                    <div className="flex flex-wrap gap-4">
+                        {['butterfly', 'skull', 'dragon', 'rose', 'snake'].map((meaning) => (
+                            <Link 
+                                key={meaning} 
+                                href={`/meaning/${meaning}`}
+                                className="px-6 py-3 border border-neutral-300 rounded-full text-sm font-medium hover:border-black hover:bg-black hover:text-white transition-all capitalize"
+                            >
+                                {meaning} Tattoo Meaning
+                            </Link>
+                        ))}
+                    </div>
+                </section>
             </main>
         </div>
     );
