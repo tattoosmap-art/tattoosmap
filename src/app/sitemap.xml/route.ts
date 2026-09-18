@@ -56,6 +56,21 @@ export async function GET() {
     addUrl(`${baseUrl}/artists/${city}`, today, 'monthly', '0.7');
   });
 
+  // Style hub pages
+  const styles = ['blackwork', 'fine-line', 'traditional', 'neo-traditional',
+    'japanese', 'geometric', 'dotwork', 'watercolor', 'realism', 'illustrative',
+    'ornamental', 'tribal'];
+  styles.forEach(style => {
+    addUrl(`${baseUrl}/style/${style}`, today, 'weekly', '0.7');
+  });
+
+  // Placement hub pages
+  const placements = ['forearm', 'sleeve', 'ribcage', 'back', 'chest',
+    'thigh', 'shoulder', 'wrist', 'ankle', 'neck', 'hand', 'finger'];
+  placements.forEach(placement => {
+    addUrl(`${baseUrl}/placement/${placement}`, today, 'weekly', '0.7');
+  });
+
   try {
     // Blog posts
     const { data: posts } = await supabase.from('posts').select('slug, created_at').eq('is_published', true);
